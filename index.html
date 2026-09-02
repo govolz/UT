@@ -1,2445 +1,1447 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#ff8200">
-<title>2026 Tennessee Football Roster</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>RBX — Radio Browser Explorer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   :root{
-    --orange:#ff8200;
-    --ink:#232323;
-    --smokey:#66686b;
-    --rule:#e4e4e2;
-    --wash:#f6f6f4;
-    --num:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
-    --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --bg:#0e1116;
+    --panel:#161b22;
+    --panel-2:#1b2129;
+    --edge:#2a323c;
+    --edge-hi:#3a4553;
+    --amber:#f5a623;
+    --amber-dim:#a9781f;
+    --signal:#48d17a;
+    --text:#e8e3d8;
+    --muted:#8b95a3;
+    --muted-2:#5f6a78;
+    --danger:#e06666;
+    --mono:ui-monospace,"SF Mono","Cascadia Code","JetBrains Mono",Consolas,monospace;
+    --display:"Oswald","Arial Narrow",system-ui,sans-serif;
+    --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{background:#fff;color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%;}
-  .filter{position:absolute;opacity:0;pointer-events:none;height:0;width:0;}
-  header{position:sticky;top:0;z-index:20;background:#fff;padding:14px 16px 0;padding-top:calc(14px + env(safe-area-inset-top));border-bottom:1px solid var(--rule);}
-  .masthead{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;}
-  h1{font-family:var(--num);font-weight:700;font-size:29px;margin:0;line-height:1;}
-  .season{font-family:var(--num);font-size:29px;font-weight:600;color:var(--orange);line-height:1;}
-  .checker{height:10px;background-color:#fff;
-    background-image:linear-gradient(45deg,var(--orange) 25%,transparent 25%,transparent 75%,var(--orange) 75%),
-                     linear-gradient(45deg,var(--orange) 25%,transparent 25%,transparent 75%,var(--orange) 75%);
-    background-size:20px 20px;background-position:0 0,10px 10px;}
-  .search{position:relative;margin-bottom:10px;display:none;}
-  .js .search{display:block;}
-  #q{width:100%;font-family:var(--body);font-size:16px;padding:11px 40px 11px 13px;border:1.5px solid var(--rule);border-radius:8px;background:var(--wash);color:var(--ink);}
-  #q:focus{outline:none;border-color:var(--orange);background:#fff;}
-  #clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--smokey);font-size:20px;line-height:1;padding:6px 9px;cursor:pointer;}
-  .chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:11px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
-  .chips::-webkit-scrollbar{display:none;}
-  .chip{flex:0 0 auto;font-family:var(--num);font-size:16px;font-weight:600;letter-spacing:.02em;padding:5px 12px;border-radius:999px;border:1.5px solid var(--rule);background:#fff;color:var(--smokey);cursor:pointer;user-select:none;}
-  #f-all:checked ~ header label[for="f-all"]{background:var(--orange);border-color:var(--orange);color:#fff;}
-#f-QB:checked ~ header label[for="f-QB"]{background:var(--orange);border-color:var(--orange);color:#fff;}
-#f-RB:checked ~ header label[for="f-RB"]{background:var(--orange);border-color:var(--orange);color:#fff;}
-#f-WR:checked ~ header label[for="f-WR"]{background:var(--orange);border-color:var(--orange);color:#fff;}
-#f-TE:checked ~ header label[for="f-TE"]{background:var(--orange);border-color:var(--orange);color:#fff;}
-#f-OL:checked ~ header label[for="f-OL"]{background:var(--orange);border-color:var(--orange);color:#fff;}
-#f-DL:checked ~ header label[for="f-DL"]{background:var(--orange);border-color:var(--orange);color:#fff;}
-#f-LB:checked ~ header label[for="f-LB"]{background:var(--orange);border-color:var(--orange);color:#fff;}
-#f-DB:checked ~ header label[for="f-DB"]{background:var(--orange);border-color:var(--orange);color:#fff;}
-#f-ST:checked ~ header label[for="f-ST"]{background:var(--orange);border-color:var(--orange);color:#fff;}
-  .filter:focus-visible ~ header label[for],#q:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
-  .statusbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 16px;background:var(--wash);border-bottom:1px solid var(--rule);font-size:13.5px;color:var(--smokey);}
-  .statusbar label{display:none;}
-  .js .statusbar label{display:inline;}
-  .statusbar select{font-family:var(--body);font-size:13.5px;color:var(--ink);border:1px solid var(--rule);border-radius:6px;background:#fff;padding:4px 6px;}
-  ul{list-style:none;margin:0;padding:0 0 40px;}
-  li{border-bottom:1px solid var(--rule);}
-  li.hide{display:none;}
-  #f-QB:checked ~ ul li:not([data-g="QB"]){display:none;}
-#f-RB:checked ~ ul li:not([data-g="RB"]){display:none;}
-#f-WR:checked ~ ul li:not([data-g="WR"]){display:none;}
-#f-TE:checked ~ ul li:not([data-g="TE"]){display:none;}
-#f-OL:checked ~ ul li:not([data-g="OL"]){display:none;}
-#f-DL:checked ~ ul li:not([data-g="DL"]){display:none;}
-#f-LB:checked ~ ul li:not([data-g="LB"]){display:none;}
-#f-DB:checked ~ ul li:not([data-g="DB"]){display:none;}
-#f-ST:checked ~ ul li:not([data-g="ST"]){display:none;}
-  details{background:#fff;}
-  summary{list-style:none;cursor:pointer;padding:11px 16px;}
-  summary::-webkit-details-marker{display:none;}
-  details[open] summary{background:var(--wash);}
-  .rowinner{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px;}
-  .jersey{font-family:var(--num);font-weight:700;font-size:31px;line-height:1;color:var(--orange);text-align:right;font-variant-numeric:tabular-nums;}
-  .who{min-width:0;overflow:hidden;}
-  .name{display:block;font-size:16.5px;font-weight:600;line-height:1.25;}
-  .sub{display:block;font-size:13px;color:var(--smokey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .posbox{text-align:right;}
-  .pos{display:inline-block;font-family:var(--num);font-size:17px;font-weight:600;color:var(--ink);background:var(--wash);border-radius:5px;padding:3px 8px;letter-spacing:.02em;}
-  details[open] .pos{background:#fff;}
-  .role{display:block;margin-top:3px;font-size:11px;line-height:1.1;color:var(--smokey);white-space:nowrap;}
-  .detail{padding:2px 16px 15px 72px;font-size:14.5px;}
-  .detail dl{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:0;}
-  .detail dt{color:var(--smokey);font-size:13px;}
-  .detail dd{margin:0;}
-  .rank{color:var(--smokey);font-size:12.5px;}
-  .say{display:inline-block;margin-bottom:8px;font-size:14px;border-left:3px solid var(--orange);padding-left:9px;}
-  .empty{padding:44px 24px;text-align:center;color:var(--smokey);}
-  .empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:5px;font-weight:600;}
-  footer{padding:18px 16px calc(28px + env(safe-area-inset-bottom));font-size:12.5px;color:var(--smokey);border-top:1px solid var(--rule);}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1200px 400px at 50% -160px, #1a222c 0%, transparent 70%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    font-size:15px;
+    line-height:1.45;
+    min-height:100vh;
+  }
+  a{color:var(--amber);text-decoration:none}
+  a:hover{text-decoration:underline}
+  button{font-family:var(--body);cursor:pointer}
+  ::selection{background:var(--amber);color:#161b22}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 20px 80px}
+
+  /* ---- Tuner console header ---- */
+  .console{
+    background:linear-gradient(180deg,#1c2530 0%,#12171e 100%);
+    border:1px solid var(--edge);
+    border-radius:14px;
+    box-shadow:0 1px 0 #333d49 inset, 0 18px 40px -24px #000;
+    padding:16px 18px;
+    margin-bottom:18px;
+  }
+  .console-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .brand{display:flex;align-items:baseline;gap:10px;flex-shrink:0}
+  .brand .logo{
+    font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.14em;
+    color:var(--amber);text-shadow:0 0 18px rgba(245,166,35,.35);line-height:1;
+  }
+  .brand .sub{font-family:var(--display);font-weight:400;letter-spacing:.28em;
+    text-transform:uppercase;font-size:11px;color:var(--muted)}
+  .brand .ver{font-family:var(--mono);font-size:10px;color:var(--muted-2);letter-spacing:.02em}
+  .server-readout{
+    margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);
+    display:flex;align-items:center;gap:8px;text-align:right;
+  }
+  .led{width:8px;height:8px;border-radius:50%;background:var(--muted-2);flex-shrink:0}
+  .led.on{background:var(--signal);box-shadow:0 0 8px var(--signal)}
+  .led.err{background:var(--danger);box-shadow:0 0 8px var(--danger)}
+  .server-readout label{font-family:var(--display);letter-spacing:.16em}
+  .srv-select{background:#0d1218;border:1px solid var(--edge);color:var(--muted);
+    border-radius:6px;padding:4px 7px;font-family:var(--mono);font-size:11px;max-width:220px}
+  .srv-select:focus{outline:none;border-color:var(--amber-dim);color:var(--text)}
+
+  /* dial strip */
+  .dial{
+    margin-top:14px;position:relative;height:56px;border-radius:8px;
+    background:linear-gradient(180deg,#0b0f14,#12181f);
+    border:1px solid var(--edge);overflow:hidden;
+  }
+  .dial .ticks{position:absolute;inset:0;display:flex;align-items:flex-end;
+    padding:0 2px;opacity:.5}
+  .dial .tick{flex:1;border-left:1px solid #2f3a46;height:40%}
+  .dial .tick.major{height:70%;border-left:1px solid #45525f}
+  .needle{position:absolute;top:0;bottom:0;width:2px;left:50%;
+    background:var(--amber);box-shadow:0 0 10px var(--amber);transition:left .5s ease}
+  .nowplaying{position:absolute;inset:0;display:flex;align-items:center;
+    padding:0 14px;gap:12px;font-family:var(--mono);font-size:13px}
+  .nowplaying .np-label{color:var(--muted);font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase}
+  .nowplaying .np-name{color:var(--text);white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;max-width:min(42vw,460px)}
+  .nowplaying .np-logo{width:22px;height:22px;border-radius:4px;object-fit:cover;flex-shrink:0;
+    background:#0d1218;border:1px solid var(--edge)}
+  .nowplaying .np-site{font-family:var(--mono);font-size:11px;color:var(--amber);flex-shrink:0;
+    white-space:nowrap;text-decoration:none}
+  .nowplaying .np-site:hover{text-decoration:underline}
+  .np-stats{margin-top:10px;font-family:var(--mono);font-size:11.5px;color:var(--muted);
+    display:flex;flex-wrap:wrap;gap:3px 8px;align-items:center;line-height:1.5}
+  .np-stats .up{color:var(--signal)}
+  .signal-bars{display:flex;align-items:flex-end;gap:2px;height:18px;margin-left:auto}
+  .signal-bars i{width:3px;background:var(--muted-2);height:4px;border-radius:1px}
+  body.playing .signal-bars i{background:var(--signal);animation:eq .9s ease-in-out infinite}
+  .signal-bars i:nth-child(2){animation-delay:.15s}
+  .signal-bars i:nth-child(3){animation-delay:.3s}
+  .signal-bars i:nth-child(4){animation-delay:.45s}
+  .signal-bars i:nth-child(5){animation-delay:.6s}
+  @keyframes eq{0%,100%{height:4px}50%{height:16px}}
+  body.playing .needle{animation:drift 4s ease-in-out infinite alternate}
+  @keyframes drift{from{left:46%}to{left:54%}}
+
+  .transport{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+  .tcluster{display:flex;align-items:center;gap:8px}
+  .tbtn{width:42px;height:42px;border-radius:50%;background:var(--panel-2);
+    border:1px solid var(--edge);color:var(--text);display:inline-flex;align-items:center;
+    justify-content:center;cursor:pointer;transition:border-color .15s,background .15s,transform .06s}
+  .tbtn svg{width:19px;height:19px;fill:currentColor;display:block}
+  .tbtn:hover:not(:disabled){border-color:var(--amber-dim);color:var(--amber);background:#20272f}
+  .tbtn:active:not(:disabled){transform:scale(.92)}
+  .tbtn:disabled{opacity:.4;cursor:default}
+  .tbtn.stop,.tbtn.play{color:var(--amber);border-color:var(--amber-dim)}
+  .tbtn.stop:disabled,.tbtn.play:disabled{color:var(--muted-2);border-color:var(--edge);opacity:.55}
+  .btn.active{border-color:var(--amber-dim);color:var(--amber);background:rgba(245,166,35,.1)}
+  .floatplayer{position:fixed;left:0;right:0;bottom:0;z-index:45;display:flex;align-items:center;
+    gap:12px;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));
+    background:rgba(20,25,32,.97);border-top:1px solid var(--edge);
+    box-shadow:0 -12px 30px -20px #000;transform:translateY(130%);
+    transition:transform .28s ease;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+  .floatplayer.show{transform:translateY(0)}
+  .fp-now{flex:1;min-width:0;display:flex;align-items:center;gap:9px}
+  .fp-dot{width:8px;height:8px;border-radius:50%;background:var(--muted-2);flex-shrink:0}
+  body.playing .fp-dot{background:var(--signal);box-shadow:0 0 8px var(--signal)}
+  .fp-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;color:var(--text)}
+  .fp-controls{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .tbtn.sm{width:38px;height:38px}
+  .tbtn.sm svg{width:17px;height:17px}
+  .fpstar{font-size:19px;line-height:1}
+  .fpstar.on{color:var(--amber);border-color:var(--amber-dim)}
+  body.has-float .wrap{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+  @media(max-width:820px){
+    .floatplayer{padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));gap:14px}
+    .floatplayer .tbtn.sm{width:54px;height:54px}
+    .floatplayer .tbtn.sm svg{width:24px;height:24px}
+    .floatplayer .fp-title{font-size:16px}
+    .floatplayer .fp-controls{gap:12px}
+    .floatplayer .fp-dot{width:10px;height:10px}
+    .floatplayer .fpstar{font-size:26px}
+    body.has-float .wrap{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}
+  }
+  .btn{
+    background:var(--panel-2);color:var(--text);border:1px solid var(--edge);
+    border-radius:8px;padding:8px 12px;font-size:13px;display:inline-flex;
+    align-items:center;gap:7px;transition:border-color .15s,background .15s;
+  }
+  .btn:hover{border-color:var(--edge-hi);background:#20272f}
+  .btn.amber{border-color:var(--amber-dim);color:var(--amber)}
+  .btn.amber:hover{background:rgba(245,166,35,.08)}
+  .btn:disabled{opacity:.4;cursor:default}
+  .vol{display:flex;align-items:center;gap:8px;margin-left:auto;color:var(--muted);
+    font-family:var(--mono);font-size:11px}
+  input[type=range]{accent-color:var(--amber);width:110px}
+
+  /* ---- Controls ---- */
+  .controls{
+    background:var(--panel);border:1px solid var(--edge);border-radius:12px;
+    padding:14px;margin-bottom:18px;
+  }
+  .controls .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:130px}
+  .field label{font-family:var(--display);letter-spacing:.14em;text-transform:uppercase;
+    font-size:10px;color:var(--muted)}
+  .field input,.field select{
+    background:#0d1218;border:1px solid var(--edge);color:var(--text);
+    border-radius:7px;padding:8px 10px;font-size:14px;font-family:var(--mono);
+  }
+  .field input:focus,.field select:focus{outline:none;border-color:var(--amber-dim);
+    box-shadow:0 0 0 2px rgba(245,166,35,.12)}
+  .field.check{flex:0 0 auto;flex-direction:row;align-items:center;gap:6px;min-width:0}
+  .field.check input{width:16px;height:16px;accent-color:var(--amber)}
+  .field.check label{align-self:center}
+  .go{flex:0 0 auto}
+  .go .btn{padding:9px 18px;font-family:var(--display);letter-spacing:.1em;
+    text-transform:uppercase;font-weight:600;font-size:13px}
+  .quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:12px;
+    border-top:1px solid var(--edge)}
+  .quick .btn{padding:6px 11px;font-size:12px}
+
+  /* ---- Main layout ---- */
+  .grid{display:grid;grid-template-columns:280px 1fr;gap:18px;align-items:start}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+
+  .panel{background:var(--panel);border:1px solid var(--edge);border-radius:12px;
+    overflow:hidden}
+  .panel h2{font-family:var(--display);font-weight:600;letter-spacing:.12em;
+    text-transform:uppercase;font-size:12px;color:var(--muted);margin:0;
+    padding:13px 15px;border-bottom:1px solid var(--edge);display:flex;
+    align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .panel h2 .count{color:var(--amber);font-family:var(--mono);letter-spacing:0}
+  .h2-actions{display:flex;gap:6px}
+  .ex-btn{background:var(--panel-2);border:1px solid var(--edge);color:var(--muted);
+    border-radius:6px;padding:4px 9px;font-size:11px;font-family:var(--mono);
+    letter-spacing:0;text-transform:none;cursor:pointer;white-space:nowrap}
+  .ex-btn:hover{border-color:var(--amber-dim);color:var(--amber)}
+  .fpresets{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;
+    border-top:1px solid var(--edge);flex-wrap:wrap}
+  .fp-label{font-family:var(--display);letter-spacing:.14em;text-transform:uppercase;
+    font-size:10px;color:var(--muted);flex-shrink:0}
+  .fp-slots{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+  .fp-io{display:flex;gap:6px;flex-shrink:0}
+  .fp-slot{display:flex;align-items:center;gap:7px;background:var(--panel-2);
+    border:1px solid var(--edge);border-radius:20px;padding:5px 11px;font-size:12px;
+    color:var(--text);cursor:pointer;font-family:var(--mono);max-width:230px}
+  .fp-slot.empty{border-style:dashed;color:var(--muted-2);background:transparent}
+  .fp-slot:hover{border-color:var(--amber-dim)}
+  .fp-slot .fp-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fp-slot .fp-x{color:var(--muted-2);font-size:11px;flex-shrink:0}
+  .fp-slot .fp-x:hover{color:var(--danger)}
+
+  .facet-body{padding:8px;max-height:none}
+  .genre{display:flex;align-items:center;justify-content:space-between;gap:8px;
+    width:100%;background:transparent;border:none;color:var(--text);
+    padding:7px 9px;border-radius:6px;text-align:left;font-size:13.5px}
+  .genre:hover{background:var(--panel-2)}
+  .genre.active{background:rgba(245,166,35,.1);color:var(--amber)}
+  .genre .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    text-transform:capitalize}
+  .genre .c{font-family:var(--mono);font-size:11px;color:var(--muted-2);flex-shrink:0}
+  .genre.active .c{color:var(--amber-dim)}
+  .facet-section{padding:8px 8px 4px;font-family:var(--display);font-size:10px;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--muted-2)}
+  .facet-group{border-bottom:1px solid var(--edge)}
+  .facet-group:last-child{border-bottom:none}
+  .facet-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;
+    gap:8px;background:transparent;border:none;color:var(--muted);cursor:pointer;
+    font-family:var(--display);font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+    font-size:12px;padding:13px 15px}
+  .facet-toggle:hover{color:var(--text)}
+  .facet-toggle .count{color:var(--amber);font-family:var(--mono);letter-spacing:0;margin-left:7px}
+  .facet-toggle .chev{color:var(--muted-2);font-size:10px;transition:transform .2s}
+  .facet-group.collapsed .chev{transform:rotate(-90deg)}
+  .facet-list{padding:8px;max-height:52vh;overflow-y:auto}
+  .facet-group.collapsed .facet-list{display:none}
+  .genre-more{width:100%;margin-top:6px;background:transparent;border:1px dashed var(--edge-hi);
+    color:var(--amber);border-radius:6px;padding:8px;cursor:pointer;font-family:var(--mono);
+    font-size:11.5px;letter-spacing:.03em}
+  .genre-more:hover{background:rgba(245,166,35,.06);border-color:var(--amber-dim)}
+
+  /* ---- Results ---- */
+  #results{display:flex;flex-direction:column}
+  .station{padding:13px 15px;border-bottom:1px solid var(--edge);display:flex;
+    gap:13px;align-items:flex-start}
+  .station:last-child{border-bottom:none}
+  .fav-ico{width:34px;height:34px;border-radius:7px;flex-shrink:0;object-fit:cover;
+    background:#0d1218;border:1px solid var(--edge)}
+  .st-main{flex:1;min-width:0}
+  .st-name{font-weight:600;font-size:15px;color:var(--text);background:none;
+    border:none;padding:0;text-align:left;cursor:pointer;font-family:var(--body)}
+  .st-name:hover{color:var(--amber)}
+  .st-meta{font-family:var(--mono);font-size:11.5px;color:var(--muted);
+    margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 10px}
+  .st-meta .up{color:var(--signal)}
+  .st-tags{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px}
+  .tag{font-size:10.5px;font-family:var(--mono);color:var(--muted);
+    background:#0d1218;border:1px solid var(--edge);border-radius:20px;
+    padding:2px 9px;cursor:pointer;text-transform:capitalize}
+  .tag:hover{border-color:var(--amber-dim);color:var(--amber)}
+  .st-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:stretch}
+  .mini{background:var(--panel-2);border:1px solid var(--edge);color:var(--text);
+    border-radius:6px;padding:5px 9px;font-size:12px;white-space:nowrap;
+    display:flex;align-items:center;gap:5px;justify-content:center}
+  .mini:hover{border-color:var(--edge-hi)}
+  .mini.on{color:var(--amber);border-color:var(--amber-dim)}
+  .mini.playing{color:var(--signal);border-color:var(--signal)}
+  .mini.rmv{color:var(--muted-2)}
+  .mini.rmv:hover{color:var(--danger);border-color:var(--danger)}
+
+  .status{padding:34px 20px;text-align:center;color:var(--muted);font-size:14px}
+  .status.err{color:var(--danger)}
+  .spinner{width:22px;height:22px;border:2px solid var(--edge);border-top-color:var(--amber);
+    border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ---- Presets drawer ---- */
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,92vw);
+    background:var(--panel);border-left:1px solid var(--edge);
+    box-shadow:-20px 0 60px -30px #000;transform:translateX(100%);
+    transition:transform .25s ease;z-index:50;display:flex;flex-direction:column}
+  .drawer.open{transform:translateX(0)}
+  .drawer-head{padding:16px 18px;border-bottom:1px solid var(--edge);
+    display:flex;align-items:center;justify-content:space-between}
+  .drawer-head h2{font-family:var(--display);letter-spacing:.12em;text-transform:uppercase;
+    font-size:14px;margin:0;color:var(--amber)}
+  .drawer-body{overflow-y:auto;flex:1;padding:8px}
+  .drawer-actions{padding:12px 14px;border-top:1px solid var(--edge);display:flex;
+    gap:8px;flex-wrap:wrap}
+  .preset{display:flex;gap:8px;align-items:center;padding:9px 10px;border-radius:8px}
+  .preset:hover{background:var(--panel-2)}
+  .preset .pn{flex:1;min-width:0;font-size:13.5px;white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis}
+  .preset-ord{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+  .ord-btn{background:transparent;border:1px solid var(--edge);color:var(--muted);
+    border-radius:4px;font-size:8px;line-height:1;padding:2px 4px;cursor:pointer}
+  .ord-btn:hover:not(:disabled){border-color:var(--amber-dim);color:var(--amber)}
+  .ord-btn:disabled{opacity:.28;cursor:default}
+
+  .map-modal{position:fixed;inset:0;z-index:70;background:var(--bg);display:none;flex-direction:column}
+  .map-modal.open{display:flex}
+  .map-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;
+    border-bottom:1px solid var(--edge);background:var(--panel);flex-wrap:wrap}
+  .map-title{font-family:var(--display);letter-spacing:.14em;text-transform:uppercase;
+    font-size:14px;color:var(--amber)}
+  .map-note{font-family:var(--mono);font-size:11px;color:var(--muted);margin-right:auto}
+  #map{flex:1;background:#0d1218}
+  .leaflet-popup-content{margin:10px 12px;font-family:var(--body)}
+  .map-pop b{color:#161b22;font-size:14px}
+  .map-approx{font-family:var(--mono);font-size:10.5px;color:#8a6d1a;margin-top:3px}
+  .map-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .map-play,.map-stop,.map-save{background:#161b22;color:#f5a623;border:1px solid #f5a623;
+    border-radius:5px;padding:4px 10px;cursor:pointer;font-size:12px;font-family:var(--body)}
+  .map-play:hover,.map-stop:hover,.map-save:hover{background:#1f2833}
+  .map-save.on{background:#f5a623;color:#161b22;font-weight:600}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;
+    pointer-events:none;transition:opacity .25s;z-index:40}
+  .overlay.open{opacity:1;pointer-events:auto}
+
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:#0d1218;border:1px solid var(--amber-dim);color:var(--amber);
+    padding:10px 18px;border-radius:8px;font-family:var(--mono);font-size:13px;
+    opacity:0;pointer-events:none;transition:all .25s;z-index:60}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .hint{font-size:12px;color:var(--muted-2);margin-top:10px;font-family:var(--mono)}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<input type="radio" name="posfilter" id="f-all" class="filter" checked>
-<input type="radio" name="posfilter" id="f-QB" class="filter">
-<input type="radio" name="posfilter" id="f-RB" class="filter">
-<input type="radio" name="posfilter" id="f-WR" class="filter">
-<input type="radio" name="posfilter" id="f-TE" class="filter">
-<input type="radio" name="posfilter" id="f-OL" class="filter">
-<input type="radio" name="posfilter" id="f-DL" class="filter">
-<input type="radio" name="posfilter" id="f-LB" class="filter">
-<input type="radio" name="posfilter" id="f-DB" class="filter">
-<input type="radio" name="posfilter" id="f-ST" class="filter">
+  <!-- Tuner console -->
+  <div class="console">
+    <div class="console-top">
+      <div class="brand">
+        <span class="logo">RBX</span>
+        <span class="sub">Radio&nbsp;Browser&nbsp;Explorer</span>
+        <span class="ver" id="appVer"></span>
+      </div>
+      <div class="server-readout">
+        <span class="led" id="serverLed"></span>
+        <label for="serverSelect">SRV</label>
+        <select id="serverSelect" class="srv-select"><option value="auto">connecting…</option></select>
+      </div>
+    </div>
 
-<header>
-  <div class="masthead"><h1>Tennessee Football</h1><span class="season">2026</span></div>
-  <div class="search">
-    <input id="q" type="search" inputmode="search" autocomplete="off" autocapitalize="off"
-           placeholder="Search name, number, position, hometown" aria-label="Search the roster">
-    <button id="clear" type="button" aria-label="Clear search">&times;</button>
+    <div class="dial">
+      <div class="ticks" id="ticks"></div>
+      <div class="needle" id="needle"></div>
+      <div class="nowplaying">
+        <span class="np-label">Tuned</span>
+        <img class="np-logo" id="npLogo" alt="" hidden>
+        <span class="np-name" id="npName">— select a station —</span>
+        <a class="np-site" id="npSite" target="_blank" rel="noopener" hidden>↗ site</a>
+        <span class="signal-bars"><i></i><i></i><i></i><i></i><i></i></span>
+      </div>
+    </div>
+    <div class="np-stats" id="npStats" hidden></div>
+
+    <div class="transport">
+      <div class="tcluster">
+        <button class="tbtn" id="prevBtn" title="Previous station in results" aria-label="Previous"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 6h2v12H7z"/><path d="M20 6v12l-9-6z"/></svg></button>
+        <button class="tbtn play" id="playToggle" disabled title="Play" aria-label="Play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+        <button class="tbtn" id="nextBtn" title="Next station in results" aria-label="Next"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6h2v12h-2z"/><path d="M4 6l9 6-9 6z"/></svg></button>
+      </div>
+      <button class="btn" id="autoBtn" title="Auto-skip to the next station when a stream won't play">⟳ Auto</button>
+      <button class="btn" id="presetsBtn">★ Presets <span id="presetCount" style="font-family:var(--mono);color:var(--muted)">(0)</span></button>
+      <div class="vol">
+        <span>VOL</span>
+        <input type="range" id="vol" min="0" max="1" step="0.01" value="0.9">
+      </div>
+    </div>
+    <audio id="audio"></audio>
   </div>
-  <div class="chips">
-    <label class="chip" for="f-all">All</label>
-    <label class="chip" for="f-QB">QB</label>
-    <label class="chip" for="f-RB">RB</label>
-    <label class="chip" for="f-WR">WR</label>
-    <label class="chip" for="f-TE">TE</label>
-    <label class="chip" for="f-OL">OL</label>
-    <label class="chip" for="f-DL">DL</label>
-    <label class="chip" for="f-LB">LB</label>
-    <label class="chip" for="f-DB">DB</label>
-    <label class="chip" for="f-ST">Special teams</label>
-  </div>
-</header>
-<div class="checker" aria-hidden="true"></div>
 
-<div class="statusbar">
-  <span id="count">112 players</span>
-  <label>Sort
-    <select id="sort" aria-label="Sort roster">
-      <option value="num">Number</option>
-      <option value="name">Last name</option>
-      <option value="pos">Position</option>
-      <option value="wt">Heaviest</option>
-      <option value="ht">Tallest</option>
-      <option value="cl">Class</option>
-    </select>
-  </label>
+  <!-- Controls -->
+  <div class="controls">
+    <div class="row">
+      <div class="field"><label>Name</label><input id="fName" placeholder="station name…"></div>
+      <div class="field"><label>Genre / Tag</label><input id="fTag" list="tagList" placeholder="news, jazz…"><datalist id="tagList"></datalist></div>
+      <div class="field"><label>Language</label><input id="fLang" list="langList" placeholder="english…"><datalist id="langList"></datalist></div>
+      <div class="field"><label>Country</label><input id="fCountry" list="countryList" placeholder="United Kingdom…"><datalist id="countryList"></datalist></div>
+      <div class="field"><label>Codec</label>
+        <select id="fCodec"><option value="">any</option><option>MP3</option><option>AAC</option><option>AAC+</option><option>OGG</option><option>FLAC</option></select>
+      </div>
+      <div class="field"><label>Min quality</label>
+        <select id="fQuality">
+          <option value="">any</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="veryhigh">Very high</option>
+        </select>
+      </div>
+      <div class="field"><label>Sort by</label>
+        <select id="fSort">
+          <option value="votes">Votes</option>
+          <option value="clickcount">Popularity</option>
+          <option value="bitrate">Bitrate</option>
+          <option value="name">Name</option>
+          <option value="random">Random</option>
+        </select>
+      </div>
+      <div class="field"><label>Results</label>
+        <select id="fLimit">
+          <option value="120">120</option>
+          <option value="250">250</option>
+          <option value="500">500</option>
+          <option value="1000">1000</option>
+        </select>
+      </div>
+      <div class="field check"><input type="checkbox" id="fBroken" checked><label>Hide broken</label></div>
+      <div class="go"><button class="btn amber" id="searchBtn">Tune ▸</button></div>
+    </div>
+    <div class="quick">
+      <button class="btn" data-quick="topvote">▲ Top Voted</button>
+      <button class="btn" data-quick="topclick">♪ Most Played</button>
+      <button class="btn" data-quick="random">⤮ Surprise Me</button>
+      <button class="btn" id="clearBtn">✕ Clear filters</button>
+    </div>
+    <div class="fpresets">
+      <span class="fp-label">Filter Presets</span>
+      <div class="fp-slots" id="fpSlots"></div>
+      <span class="fp-io">
+        <button class="ex-btn" id="fpBackup" title="Backup filter presets (JSON)">⤓</button>
+        <button class="ex-btn" id="fpRestore" title="Restore filter presets (JSON)">⤒</button>
+        <input type="file" id="fpRestoreFile" accept="application/json,.json" style="display:none">
+      </span>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="grid">
+    <div class="panel" id="facets">
+      <div id="facetBody">
+        <div class="status" style="padding:24px"><div class="spinner"></div>loading…</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>
+        <span><span id="resultsTitle">Stations</span> <span class="count" id="resultsCount"></span></span>
+        <span class="h2-actions">
+          <button class="ex-btn" id="mapResults" title="Map all results with coordinates">◱ Map</button>
+          <button class="ex-btn" id="expCopy" title="Copy every result URL">⧉ URLs</button>
+          <button class="ex-btn" id="expM3u" title="Download all results as a playlist">⭳ .m3u</button>
+        </span>
+      </h2>
+      <div id="results">
+        <div class="status">Pick a genre on the left, run a search, or hit <b style="color:var(--amber)">Top Voted</b> to start.</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint">Tip: use <b>Copy URL</b> on any station and paste into foobar2000 → File → Add location. Or save stations as presets and export a single <b>.m3u</b> to open the whole set at once.</p>
 </div>
 
-<ul id="list">
-<li data-g="LB" data-num="0" data-last="Campbell"
-    data-wt="230" data-ht="72" data-cl="4"
-    data-po="6" data-hay="0 #0 amare campbell lb linebacker  middle lb middle linebacker sr. 6-0 230 manassas, va./unity reed/north carolina/penn state">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">0</span>
-        <span class="who">
-          <span class="name">Amare Campbell</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-0, 230 &nbsp;&middot;&nbsp; Manassas, Va.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">LB</span>
-          <span class="role">Middle LB</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: uh-MAR-ee</div><dl><dt>Position</dt><dd>Linebacker</dd><dt>Plays</dt><dd>Middle linebacker <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Manassas, Va.</dd><dt>High school</dt><dd>Unity Reed</dd><dt>Came from</dt><dd>North Carolina, Penn State</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="TE" data-num="0" data-last="Davis"
-    data-wt="247" data-ht="77" data-cl="4"
-    data-po="3" data-hay="0 #0 ethan davis te tight end  tight end tight end sr. 6-5 247 atlanta, ga./collins hill">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">0</span>
-        <span class="who">
-          <span class="name">Ethan Davis</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-5, 247 &nbsp;&middot;&nbsp; Atlanta, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">TE</span>
-          <span class="role">Tight end</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Tight end</dd><dt>Plays</dt><dd>Tight end <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Atlanta, Ga.</dd><dt>High school</dt><dd>Collins Hill</dd><dt>Year at UT</dt><dd>4th</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="1" data-last="Metcalf"
-    data-wt="205" data-ht="73" data-cl="4"
-    data-po="7" data-hay="1 #1 tj metcalf db defensive back  free safety free safety sr. 6-1 205 birmingham, ala./pinson valley/arkansas/michigan">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">1</span>
-        <span class="who">
-          <span class="name">TJ Metcalf</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-1, 205 &nbsp;&middot;&nbsp; Birmingham, Ala.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Free safety</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Free safety <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Birmingham, Ala.</dd><dt>High school</dt><dd>Pinson Valley</dd><dt>Came from</dt><dd>Arkansas, Michigan</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="1" data-last="Smith"
-    data-wt="215" data-ht="75" data-cl="2"
-    data-po="2" data-hay="1 #1 travis smith jr. wr wide receiver  x receiver receiver, x (wide side) so. 6-3 215 atlanta, ga./westlake">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">1</span>
-        <span class="who">
-          <span class="name">Travis Smith Jr.</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-3, 215 &nbsp;&middot;&nbsp; Atlanta, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">X receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>Receiver, X (wide side) <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Atlanta, Ga.</dd><dt>High school</dt><dd>Westlake</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="RB" data-num="2" data-last="Baker"
-    data-wt="212" data-ht="70" data-cl="2"
-    data-po="1" data-hay="2 #2 justin baker rb running back  running back running back so. 5-10 212 stone mountain, ga./buford">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">2</span>
-        <span class="who">
-          <span class="name">Justin Baker</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 5-10, 212 &nbsp;&middot;&nbsp; Stone Mountain, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">RB</span>
-          <span class="role">Running back</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Running back</dd><dt>Plays</dt><dd>Running back <span class="rank">4th team</span></dd><dt>Hometown</dt><dd>Stone Mountain, Ga.</dd><dt>High school</dt><dd>Buford</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="2" data-last="Gilliam"
-    data-wt="305" data-ht="74" data-cl="3"
-    data-po="5" data-hay="2 #2 xavier gilliam dl defensive line  nose tackle nose tackle jr. 6-2 305 montgomery village, md./quince orchard/penn state">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">2</span>
-        <span class="who">
-          <span class="name">Xavier Gilliam</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-2, 305 &nbsp;&middot;&nbsp; Montgomery Village, Md.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Nose tackle</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: GIHL-yuhm</div><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>Nose tackle <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Montgomery Village, Md.</dd><dt>High school</dt><dd>Quince Orchard</dd><dt>Came from</dt><dd>Penn State</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="3" data-last="Jackson"
-    data-wt="208" data-ht="74" data-cl="2"
-    data-po="2" data-hay="3 #3 radarious jackson wr wide receiver  z receiver receiver, z (boundary) so. 6-2 208 memphis, tenn./sheffield">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">3</span>
-        <span class="who">
-          <span class="name">Radarious Jackson</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-2, 208 &nbsp;&middot;&nbsp; Memphis, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">Z receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: RUH-dair-ee-us</div><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>Receiver, Z (boundary) <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Memphis, Tenn.</dd><dt>High school</dt><dd>Sheffield</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="3" data-last="Poteat"
-    data-wt="192" data-ht="72" data-cl="2"
-    data-po="7" data-hay="3 #3 tre poteat iii db defensive back  left corner left cornerback so. 6-0 192 fitchburg, wis./verona area">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">3</span>
-        <span class="who">
-          <span class="name">Tre Poteat III</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-0, 192 &nbsp;&middot;&nbsp; Fitchburg, Wis.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Left corner</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: poh-TEET</div><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Left cornerback <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Fitchburg, Wis.</dd><dt>High school</dt><dd>Verona Area</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="4" data-last="Matthews"
-    data-wt="200" data-ht="73" data-cl="3"
-    data-po="2" data-hay="4 #4 mike matthews wr wide receiver  x receiver receiver, x (wide side) jr. 6-1 200 lilburn, ga./parkview">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">4</span>
-        <span class="who">
-          <span class="name">Mike Matthews</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-1, 200 &nbsp;&middot;&nbsp; Lilburn, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">X receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>Receiver, X (wide side) <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Lilburn, Ga.</dd><dt>High school</dt><dd>Parkview</dd><dt>Year at UT</dt><dd>3rd</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="4" data-last="Redmond"
-    data-wt="200" data-ht="75" data-cl="2"
-    data-po="7" data-hay="4 #4 ty redmond db defensive back  right corner right cornerback so. 6-3 200 duluth, ga./milton">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">4</span>
-        <span class="who">
-          <span class="name">Ty Redmond</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-3, 200 &nbsp;&middot;&nbsp; Duluth, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Right corner</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Right cornerback <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Duluth, Ga.</dd><dt>High school</dt><dd>Milton</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="5" data-last="Hobbs"
-    data-wt="290" data-ht="76" data-cl="4"
-    data-po="5" data-hay="5 #5 daevin hobbs dl defensive line  defensive tackle defensive tackle sr. 6-4 290 concord, n.c./jay m. robinson">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">5</span>
-        <span class="who">
-          <span class="name">Daevin Hobbs</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-4, 290 &nbsp;&middot;&nbsp; Concord, N.C.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Defensive tackle</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: DAY-vin</div><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>Defensive tackle <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Concord, N.C.</dd><dt>High school</dt><dd>Jay M. Robinson</dd><dt>Year at UT</dt><dd>4th</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="5" data-last="Keys"
-    data-wt="200" data-ht="74" data-cl="1"
-    data-po="2" data-hay="5 #5 tk keys wr wide receiver  z receiver receiver, z (boundary) fr. 6-2 200 hattiesburg, miss./hattiesburg">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">5</span>
-        <span class="who">
-          <span class="name">TK Keys</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-2, 200 &nbsp;&middot;&nbsp; Hattiesburg, Miss.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">Z receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>Receiver, Z (boundary) <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Hattiesburg, Miss.</dd><dt>High school</dt><dd>Hattiesburg</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="RB" data-num="6" data-last="Gordon"
-    data-wt="212" data-ht="70" data-cl="2"
-    data-po="1" data-hay="6 #6 javin gordon rb running back  running back running back so. 5-10 212 toccoa, ga./stephens county/tulane">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">6</span>
-        <span class="who">
-          <span class="name">Javin Gordon</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 5-10, 212 &nbsp;&middot;&nbsp; Toccoa, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">RB</span>
-          <span class="role">Running back</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: JAY-vin</div><dl><dt>Position</dt><dd>Running back</dd><dt>Plays</dt><dd>Running back <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Toccoa, Ga.</dd><dt>High school</dt><dd>Stephens County</dd><dt>Came from</dt><dd>Tulane</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="6" data-last="Moss"
-    data-wt="190" data-ht="70" data-cl="4"
-    data-po="7" data-hay="6 #6 qua moss db defensive back  nickel back nickel back sr. 5-10 190 west point, ga./troup county/west georgia/kansas state">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">6</span>
-        <span class="who">
-          <span class="name">Qua Moss</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 5-10, 190 &nbsp;&middot;&nbsp; West Point, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Nickel back</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: KWAY</div><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Nickel back <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>West Point, Ga.</dd><dt>High school</dt><dd>Troup County</dd><dt>Came from</dt><dd>West Georgia, Kansas State</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="TE" data-num="7" data-last="Brame"
-    data-wt="240" data-ht="77" data-cl="2"
-    data-po="3" data-hay="7 #7 dasaahn brame te tight end  tight end tight end so. 6-5 240 derby, kan./derby">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">7</span>
-        <span class="who">
-          <span class="name">DaSaahn Brame</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-5, 240 &nbsp;&middot;&nbsp; Derby, Kan.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">TE</span>
-          <span class="role">Tight end</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: duh-SAHN BRAIM</div><dl><dt>Position</dt><dd>Tight end</dd><dt>Plays</dt><dd>Tight end <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Derby, Kan.</dd><dt>High school</dt><dd>Derby</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="LB" data-num="7" data-last="Carter"
-    data-wt="238" data-ht="73" data-cl="4"
-    data-po="6" data-hay="7 #7 arion carter lb linebacker  weakside lb weakside linebacker sr. 6-1 238 smyrna, tenn./smyrna">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">7</span>
-        <span class="who">
-          <span class="name">Arion Carter</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-1, 238 &nbsp;&middot;&nbsp; Smyrna, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">LB</span>
-          <span class="role">Weakside LB</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: air-EE-on</div><dl><dt>Position</dt><dd>Linebacker</dd><dt>Plays</dt><dd>Weakside linebacker <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Smyrna, Tenn.</dd><dt>High school</dt><dd>Smyrna</dd><dt>Year at UT</dt><dd>4th</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="8" data-last="Richard"
-    data-wt="202" data-ht="73" data-cl="4"
-    data-po="7" data-hay="8 #8 jadais richard db defensive back  right corner right cornerback sr. 6-1 202 west monroe, la./west monroe/vanderbilt/miami">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">8</span>
-        <span class="who">
-          <span class="name">Jadais Richard</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-1, 202 &nbsp;&middot;&nbsp; West Monroe, La.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Right corner</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: JAY-diss</div><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Right cornerback <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>West Monroe, La.</dd><dt>High school</dt><dd>West Monroe</dd><dt>Came from</dt><dd>Vanderbilt, Miami</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="QB" data-num="8" data-last="Staub"
-    data-wt="205" data-ht="73" data-cl="4"
-    data-po="0" data-hay="8 #8 ryan staub qb quarterback  quarterback quarterback sr. 6-1 205 stevenson ranch, calif./west ranch/colorado">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">8</span>
-        <span class="who">
-          <span class="name">Ryan Staub</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-1, 205 &nbsp;&middot;&nbsp; Stevenson Ranch, Calif.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">QB</span>
-          <span class="role">Quarterback</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: STAAB (rhymes with job)</div><dl><dt>Position</dt><dd>Quarterback</dd><dt>Plays</dt><dd>Quarterback <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Stevenson Ranch, Calif.</dd><dt>High school</dt><dd>West Ranch</dd><dt>Came from</dt><dd>Colorado</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="9" data-last="Dodson"
-    data-wt="197" data-ht="72" data-cl="2"
-    data-po="2" data-hay="9 #9 joakim dodson wr wide receiver  slot receiver receiver, slot kick returner kick returner so. 6-0 197 memphis, tenn./baylor school">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">9</span>
-        <span class="who">
-          <span class="name">Joakim Dodson</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-0, 197 &nbsp;&middot;&nbsp; Memphis, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">Slot receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: JOE-kim</div><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>Receiver, slot <span class="rank">2nd team</span><br>Kick returner <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Memphis, Tenn.</dd><dt>High school</dt><dd>Baylor School</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="9" data-last="Dye"
-    data-wt="270" data-ht="77" data-cl="2"
-    data-po="5" data-hay="9 #9 mariyon dye dl defensive line  defensive end defensive end so. 6-5 270 elkhart, ind./elkhart">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">9</span>
-        <span class="who">
-          <span class="name">Mariyon Dye</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-5, 270 &nbsp;&middot;&nbsp; Elkhart, Ind.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Defensive end</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: MAR-ee-yahn</div><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>Defensive end <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Elkhart, Ind.</dd><dt>High school</dt><dd>Elkhart</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="10" data-last="Lane"
-    data-wt="215" data-ht="74" data-cl="3"
-    data-po="7" data-hay="10 #10 dejuan lane db defensive back  strong safety strong safety jr. 6-2 215 jessup, md./gillman school/penn state">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">10</span>
-        <span class="who">
-          <span class="name">Dejuan Lane</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-2, 215 &nbsp;&middot;&nbsp; Jessup, Md.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Strong safety</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: DAY-zhaan</div><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Strong safety <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Jessup, Md.</dd><dt>High school</dt><dd>Gillman School</dd><dt>Came from</dt><dd>Penn State</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="QB" data-num="11" data-last="Brandon"
-    data-wt="225" data-ht="76" data-cl="1"
-    data-po="0" data-hay="11 #11 faizon brandon qb quarterback  quarterback quarterback fr. 6-4 225 greensboro, n.c./grimsley">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">11</span>
-        <span class="who">
-          <span class="name">Faizon Brandon</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-4, 225 &nbsp;&middot;&nbsp; Greensboro, N.C.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">QB</span>
-          <span class="role">Quarterback</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: FAY-zahn</div><dl><dt>Position</dt><dd>Quarterback</dd><dt>Plays</dt><dd>Quarterback <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Greensboro, N.C.</dd><dt>High school</dt><dd>Grimsley</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="LB" data-num="11" data-last="Burns"
-    data-wt="227" data-ht="73" data-cl="3"
-    data-po="6" data-hay="11 #11 jordan burns lb linebacker   jr. 6-1 227 conyers, ga./pace academy">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">11</span>
-        <span class="who">
-          <span class="name">Jordan Burns</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-1, 227 &nbsp;&middot;&nbsp; Conyers, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">LB</span>
-          <span class="role">Linebacker</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Linebacker</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Conyers, Ga.</dd><dt>High school</dt><dd>Pace Academy</dd><dt>Year at UT</dt><dd>3rd</dd></dl></div>
-  </details>
-</li>
-<li data-g="LB" data-num="12" data-last="Harmon"
-    data-wt="225" data-ht="72" data-cl="2"
-    data-po="6" data-hay="12 #12 jaedon harmon lb linebacker  weakside lb weakside linebacker so. 6-0 225 rome, ga./rome">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">12</span>
-        <span class="who">
-          <span class="name">Jaedon Harmon</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-0, 225 &nbsp;&middot;&nbsp; Rome, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">LB</span>
-          <span class="role">Weakside LB</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: JAY-din</div><dl><dt>Position</dt><dd>Linebacker</dd><dt>Plays</dt><dd>Weakside linebacker <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Rome, Ga.</dd><dt>High school</dt><dd>Rome</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="QB" data-num="12" data-last="MacIntyre"
-    data-wt="208" data-ht="78" data-cl="2"
-    data-po="0" data-hay="12 #12 george macintyre qb quarterback  quarterback quarterback so. 6-6 208 franklin, tenn./brentwood academy">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">12</span>
-        <span class="who">
-          <span class="name">George MacIntyre</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-6, 208 &nbsp;&middot;&nbsp; Franklin, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">QB</span>
-          <span class="role">Quarterback</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: MAC-en-ty-er</div><dl><dt>Position</dt><dd>Quarterback</dd><dt>Plays</dt><dd>Quarterback <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Franklin, Tenn.</dd><dt>High school</dt><dd>Brentwood Academy</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="QB" data-num="13" data-last="Phillips"
-    data-wt="190" data-ht="73" data-cl="2"
-    data-po="0" data-hay="13 #13 mason phillips qb quarterback  quarterback quarterback so. 6-1 190 kodak, tenn./northview academy">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">13</span>
-        <span class="who">
-          <span class="name">Mason Phillips</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-1, 190 &nbsp;&middot;&nbsp; Kodak, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">QB</span>
-          <span class="role">Quarterback</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Quarterback</dd><dt>Plays</dt><dd>Quarterback <span class="rank">4th team</span></dd><dt>Hometown</dt><dd>Kodak, Tenn.</dd><dt>High school</dt><dd>Northview Academy</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="LB" data-num="13" data-last="Spillman"
-    data-wt="226" data-ht="73" data-cl="3"
-    data-po="6" data-hay="13 #13 edwin spillman lb linebacker  middle lb middle linebacker jr. 6-1 226 nashville, tenn./lipscomb academy">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">13</span>
-        <span class="who">
-          <span class="name">Edwin Spillman</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-1, 226 &nbsp;&middot;&nbsp; Nashville, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">LB</span>
-          <span class="role">Middle LB</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Linebacker</dd><dt>Plays</dt><dd>Middle linebacker <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Nashville, Tenn.</dd><dt>High school</dt><dd>Lipscomb Academy</dd><dt>Year at UT</dt><dd>3rd</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="14" data-last="Lee"
-    data-wt="191" data-ht="71" data-cl="4"
-    data-po="7" data-hay="14 #14 kayin lee db defensive back  left corner left cornerback sr. 5-11 191 ellenwood, ga./cedar grove/auburn">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">14</span>
-        <span class="who">
-          <span class="name">Kayin Lee</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 5-11, 191 &nbsp;&middot;&nbsp; Ellenwood, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Left corner</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: KAY-enn</div><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Left cornerback <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Ellenwood, Ga.</dd><dt>High school</dt><dd>Cedar Grove</dd><dt>Came from</dt><dd>Auburn</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="14" data-last="Staley"
-    data-wt="192" data-ht="72" data-cl="3"
-    data-po="2" data-hay="14 #14 braylon staley wr wide receiver  slot receiver receiver, slot jr. 6-0 192 aiken, s.c./strom thurmond">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">14</span>
-        <span class="who">
-          <span class="name">Braylon Staley</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-0, 192 &nbsp;&middot;&nbsp; Aiken, S.C.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">Slot receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>Receiver, slot <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Aiken, S.C.</dd><dt>High school</dt><dd>Strom Thurmond</dd><dt>Year at UT</dt><dd>3rd</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="15" data-last="Farooq"
-    data-wt="202" data-ht="72" data-cl="3"
-    data-po="7" data-hay="15 #15 edrees farooq db defensive back  strong safety strong safety jr. 6-0 202 columbia, md./saint frances academy">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">15</span>
-        <span class="who">
-          <span class="name">Edrees Farooq</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-0, 202 &nbsp;&middot;&nbsp; Columbia, Md.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Strong safety</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: EE-dreez fuh-RUKE</div><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Strong safety <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Columbia, Md.</dd><dt>High school</dt><dd>Saint Frances Academy</dd><dt>Year at UT</dt><dd>3rd</dd></dl></div>
-  </details>
-</li>
-<li data-g="RB" data-num="17" data-last="Morris"
-    data-wt="200" data-ht="70" data-cl="2"
-    data-po="1" data-hay="17 #17 daune morris rb running back  running back running back punt returner punt returner kick returner kick returner so. 5-10 200 chattanooga, tenn./oakland">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">17</span>
-        <span class="who">
-          <span class="name">Daune Morris</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 5-10, 200 &nbsp;&middot;&nbsp; Chattanooga, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">RB</span>
-          <span class="role">Running back</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: duh-WAN</div><dl><dt>Position</dt><dd>Running back</dd><dt>Plays</dt><dd>Running back <span class="rank">2nd team</span><br>Punt returner <span class="rank">1st team</span><br>Kick returner <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Chattanooga, Tenn.</dd><dt>High school</dt><dd>Oakland</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="17" data-last="Utley"
-    data-wt="288" data-ht="76" data-cl="2"
-    data-po="5" data-hay="17 #17 ethan utley dl defensive line  nose tackle nose tackle so. 6-4 288 nashville, tenn./ensworth">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">17</span>
-        <span class="who">
-          <span class="name">Ethan Utley</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-4, 288 &nbsp;&middot;&nbsp; Nashville, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Nose tackle</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>Nose tackle <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Nashville, Tenn.</dd><dt>High school</dt><dd>Ensworth</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="RB" data-num="18" data-last="Bishop"
-    data-wt="215" data-ht="70" data-cl="4"
-    data-po="1" data-hay="18 #18 desean bishop rb running back  running back running back sr. 5-10 215 knoxville, tenn./karns">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">18</span>
-        <span class="who">
-          <span class="name">DeSean Bishop</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 5-10, 215 &nbsp;&middot;&nbsp; Knoxville, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">RB</span>
-          <span class="role">Running back</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Running back</dd><dt>Plays</dt><dd>Running back <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Knoxville, Tenn.</dd><dt>High school</dt><dd>Karns</dd><dt>Year at UT</dt><dd>4th</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="18" data-last="Weathersby"
-    data-wt="268" data-ht="77" data-cl="4"
-    data-po="5" data-hay="18 #18 tyree weathersby dl defensive line  defensive end defensive end sr. 6-5 268 douglasville, ga./new manchester">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">18</span>
-        <span class="who">
-          <span class="name">Tyree Weathersby</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-5, 268 &nbsp;&middot;&nbsp; Douglasville, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Defensive end</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>Defensive end <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Douglasville, Ga.</dd><dt>High school</dt><dd>New Manchester</dd><dt>Year at UT</dt><dd>4th</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="19" data-last="King"
-    data-wt="178" data-ht="71" data-cl="1"
-    data-po="2" data-hay="19 #19 tyreek king wr wide receiver  x receiver receiver, x (wide side) fr. 5-11 178 knoxville, tenn./knoxville catholic">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">19</span>
-        <span class="who">
-          <span class="name">Tyreek King</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 5-11, 178 &nbsp;&middot;&nbsp; Knoxville, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">X receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>Receiver, X (wide side) <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Knoxville, Tenn.</dd><dt>High school</dt><dd>Knoxville Catholic</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="19" data-last="Robinson"
-    data-wt="295" data-ht="79" data-cl="4"
-    data-po="5" data-hay="19 #19 nathan robinson dl defensive line  nose tackle nose tackle sr. 6-7 295 greenbrier, tenn./greenbrier">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">19</span>
-        <span class="who">
-          <span class="name">Nathan Robinson</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-7, 295 &nbsp;&middot;&nbsp; Greenbrier, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Nose tackle</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>Nose tackle <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Greenbrier, Tenn.</dd><dt>High school</dt><dd>Greenbrier</dd><dt>Year at UT</dt><dd>4th</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="20" data-last="Metcalf"
-    data-wt="202" data-ht="70" data-cl="3"
-    data-po="7" data-hay="20 #20 tevis metcalf db defensive back  nickel back nickel back jr. 5-10 202 birmingham, ala./clay-chalkville/arkansas/michigan">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">20</span>
-        <span class="who">
-          <span class="name">Tevis Metcalf</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 5-10, 202 &nbsp;&middot;&nbsp; Birmingham, Ala.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Nickel back</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Nickel back <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Birmingham, Ala.</dd><dt>High school</dt><dd>Clay-Chalkville</dd><dt>Came from</dt><dd>Arkansas, Michigan</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="21" data-last="Theodore"
-    data-wt="175" data-ht="72" data-cl="1"
-    data-po="7" data-hay="21 #21 jamyan theodore db defensive back   fr. 6-0 175 montreal, quebec, canada/baylor (tenn.) school">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">21</span>
-        <span class="who">
-          <span class="name">Jamyan Theodore</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-0, 175 &nbsp;&middot;&nbsp; Montreal, Quebec, Canada</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Defensive back</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: JAY-mee-uhn</div><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Montreal, Quebec, Canada</dd><dt>High school</dt><dd>Baylor (Tenn.) School</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="LB" data-num="22" data-last="Telander"
-    data-wt="235" data-ht="74" data-cl="4"
-    data-po="6" data-hay="22 #22 jeremiah telander lb linebacker  middle lb middle linebacker sr. 6-2 235 gainesville, ga./gainesville">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">22</span>
-        <span class="who">
-          <span class="name">Jeremiah Telander</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-2, 235 &nbsp;&middot;&nbsp; Gainesville, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">LB</span>
-          <span class="role">Middle LB</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: TEE-lan-dur</div><dl><dt>Position</dt><dd>Linebacker</dd><dt>Plays</dt><dd>Middle linebacker <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Gainesville, Ga.</dd><dt>High school</dt><dd>Gainesville</dd><dt>Year at UT</dt><dd>4th</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="23" data-last="Walton"
-    data-wt="197" data-ht="73" data-cl="2"
-    data-po="7" data-hay="23 #23 sidney walton db defensive back  free safety free safety so. 6-1 197 moody, ala./moody">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">23</span>
-        <span class="who">
-          <span class="name">Sidney Walton</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-1, 197 &nbsp;&middot;&nbsp; Moody, Ala.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Free safety</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Free safety <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Moody, Ala.</dd><dt>High school</dt><dd>Moody</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="RB" data-num="24" data-last="Barnes"
-    data-wt="200" data-ht="72" data-cl="5"
-    data-po="1" data-hay="24 #24 hunter barnes rb running back   5th 6-0 200 memphis, tenn./memphis school">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">24</span>
-        <span class="who">
-          <span class="name">Hunter Barnes</span>
-          <span class="sub">5th &nbsp;&middot;&nbsp; 6-0, 200 &nbsp;&middot;&nbsp; Memphis, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">RB</span>
-          <span class="role">Running back</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Running back</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Memphis, Tenn.</dd><dt>High school</dt><dd>Memphis School</dd><dt>Year at UT</dt><dd>5th</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="24" data-last="Lewis"
-    data-wt="198" data-ht="72" data-cl="2"
-    data-po="7" data-hay="24 #24 dylan lewis db defensive back  free safety free safety so. 6-0 198 atlanta, ga./milton">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">24</span>
-        <span class="who">
-          <span class="name">Dylan Lewis</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-0, 198 &nbsp;&middot;&nbsp; Atlanta, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Free safety</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Free safety <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Atlanta, Ga.</dd><dt>High school</dt><dd>Milton</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="25" data-last="Merritt"
-    data-wt="194" data-ht="73" data-cl="2"
-    data-po="7" data-hay="25 #25 tim merritt db defensive back  left corner left cornerback so. 6-1 194 birmingham, ala./parker">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">25</span>
-        <span class="who">
-          <span class="name">Tim Merritt</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-1, 194 &nbsp;&middot;&nbsp; Birmingham, Ala.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Left corner</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Left cornerback <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Birmingham, Ala.</dd><dt>High school</dt><dd>Parker</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="26" data-last="Finch"
-    data-wt="297" data-ht="75" data-cl="1"
-    data-po="5" data-hay="26 #26 jj finch dl defensive line  nose tackle nose tackle fr. 6-3 297 indianapolis, ind./warren central">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">26</span>
-        <span class="who">
-          <span class="name">JJ Finch</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-3, 297 &nbsp;&middot;&nbsp; Indianapolis, Ind.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Nose tackle</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>Nose tackle <span class="rank">4th team</span></dd><dt>Hometown</dt><dd>Indianapolis, Ind.</dd><dt>High school</dt><dd>Warren Central</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="26" data-last="Sacha"
-    data-wt="183" data-ht="73" data-cl="3"
-    data-po="2" data-hay="26 #26 doren sacha wr wide receiver   jr. 6-1 183 denver, colo./thomas jefferson/northern colorado">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">26</span>
-        <span class="who">
-          <span class="name">Doren Sacha</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-1, 183 &nbsp;&middot;&nbsp; Denver, Colo.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">Wide receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Denver, Colo.</dd><dt>High school</dt><dd>Thomas Jefferson</dd><dt>Came from</dt><dd>Northern Colorado</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="LB" data-num="27" data-last="Perlotte"
-    data-wt="215" data-ht="75" data-cl="2"
-    data-po="6" data-hay="27 #27 jadon perlotte lb linebacker  weakside lb weakside linebacker so. 6-3 215 lawrenceville, ga./buford">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">27</span>
-        <span class="who">
-          <span class="name">Jadon Perlotte</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-3, 215 &nbsp;&middot;&nbsp; Lawrenceville, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">LB</span>
-          <span class="role">Weakside LB</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: PUR-lah-tee</div><dl><dt>Position</dt><dd>Linebacker</dd><dt>Plays</dt><dd>Weakside linebacker <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Lawrenceville, Ga.</dd><dt>High school</dt><dd>Buford</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="ST" data-num="28" data-last="Ranvier"
-    data-wt="199" data-ht="74" data-cl="3"
-    data-po="8" data-hay="28 #28 cooper ranvier pk place kicker special teams kicking kicker place kicker jr. 6-2 199 lexington, ky./douglass/louisville">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">28</span>
-        <span class="who">
-          <span class="name">Cooper Ranvier</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-2, 199 &nbsp;&middot;&nbsp; Lexington, Ky.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">PK</span>
-          <span class="role">Kicker</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: RAN-vee-ay</div><dl><dt>Position</dt><dd>Place kicker</dd><dt>Plays</dt><dd>Place kicker <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Lexington, Ky.</dd><dt>High school</dt><dd>Douglass</dd><dt>Came from</dt><dd>Louisville</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="LB" data-num="28" data-last="Rouse"
-    data-wt="225" data-ht="75" data-cl="1"
-    data-po="6" data-hay="28 #28 brayden rouse lb linebacker  weakside lb weakside linebacker fr. 6-3 225 woodstock, ga./kell">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">28</span>
-        <span class="who">
-          <span class="name">Brayden Rouse</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-3, 225 &nbsp;&middot;&nbsp; Woodstock, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">LB</span>
-          <span class="role">Weakside LB</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Linebacker</dd><dt>Plays</dt><dd>Weakside linebacker <span class="rank">4th team</span></dd><dt>Hometown</dt><dd>Woodstock, Ga.</dd><dt>High school</dt><dd>Kell</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="29" data-last="Hardge"
-    data-wt="182" data-ht="70" data-cl="4"
-    data-po="7" data-hay="29 #29 isaiah hardge db defensive back  nickel back nickel back sr. 5-10 182 hollywood, fla./st. thomas aquinas/colorado">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">29</span>
-        <span class="who">
-          <span class="name">Isaiah Hardge</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 5-10, 182 &nbsp;&middot;&nbsp; Hollywood, Fla.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Nickel back</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Nickel back <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Hollywood, Fla.</dd><dt>High school</dt><dd>St. Thomas Aquinas</dd><dt>Came from</dt><dd>Colorado</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="29" data-last="Jakobik"
-    data-wt="200" data-ht="76" data-cl="4"
-    data-po="2" data-hay="29 #29 jack-henry jakobik wr wide receiver   sr. 6-4 200 brentwood, tenn./ravenwood">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">29</span>
-        <span class="who">
-          <span class="name">Jack-Henry Jakobik</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-4, 200 &nbsp;&middot;&nbsp; Brentwood, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">Wide receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: juh-KOE-bick</div><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Brentwood, Tenn.</dd><dt>High school</dt><dd>Ravenwood</dd><dt>Year at UT</dt><dd>4th</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="30" data-last="Cooper"
-    data-wt="175" data-ht="72" data-cl="1"
-    data-po="2" data-hay="30 #30 jacolby cooper wr wide receiver   fr. 6-0 175 alcoa, tenn./alcoa">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">30</span>
-        <span class="who">
-          <span class="name">JaColby Cooper</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-0, 175 &nbsp;&middot;&nbsp; Alcoa, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">Wide receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Alcoa, Tenn.</dd><dt>High school</dt><dd>Alcoa</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="30" data-last="Smith"
-    data-wt="185" data-ht="72" data-cl="1"
-    data-po="7" data-hay="30 #30 javonte smith db defensive back   fr. 6-0 185 jackson, tenn./north side">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">30</span>
-        <span class="who">
-          <span class="name">Javonte Smith</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-0, 185 &nbsp;&middot;&nbsp; Jackson, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Defensive back</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: ja-VON-tay</div><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Jackson, Tenn.</dd><dt>High school</dt><dd>North Side</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="31" data-last="Cope"
-    data-wt="180" data-ht="69" data-cl="1"
-    data-po="2" data-hay="31 #31 lane cope wr wide receiver   fr. 5-9 180 maryville, tenn./eagleton">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">31</span>
-        <span class="who">
-          <span class="name">Lane Cope</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 5-9, 180 &nbsp;&middot;&nbsp; Maryville, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">Wide receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Maryville, Tenn.</dd><dt>High school</dt><dd>Eagleton</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="31" data-last="Wyatt"
-    data-wt="210" data-ht="76" data-cl="1"
-    data-po="7" data-hay="31 #31 joel wyatt db defensive back  free safety free safety fr. 6-4 210 shelbyville, tenn./oakland">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">31</span>
-        <span class="who">
-          <span class="name">Joel Wyatt</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-4, 210 &nbsp;&middot;&nbsp; Shelbyville, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Free safety</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: joe-ELL</div><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Free safety <span class="rank">4th team</span></dd><dt>Hometown</dt><dd>Shelbyville, Tenn.</dd><dt>High school</dt><dd>Oakland</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="33" data-last="Norman"
-    data-wt="265" data-ht="76" data-cl="4"
-    data-po="5" data-hay="33 #33 jordan norman dl defensive line  edge rusher edge rusher (leo) sr. 6-4 265 birmingham, ala./hoover/south alabama/tulane">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">33</span>
-        <span class="who">
-          <span class="name">Jordan Norman</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-4, 265 &nbsp;&middot;&nbsp; Birmingham, Ala.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Edge rusher</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>Edge rusher (Leo) <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Birmingham, Ala.</dd><dt>High school</dt><dd>Hoover</dd><dt>Came from</dt><dd>South Alabama, Tulane</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="34" data-last="Anderson"
-    data-wt="176" data-ht="72" data-cl="1"
-    data-po="7" data-hay="34 #34 zay anderson db defensive back  right corner right cornerback fr. 6-0 176 greeneville, tenn./greeneville">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">34</span>
-        <span class="who">
-          <span class="name">Zay Anderson</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-0, 176 &nbsp;&middot;&nbsp; Greeneville, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Right corner</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Right cornerback <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Greeneville, Tenn.</dd><dt>High school</dt><dd>Greeneville</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="RB" data-num="34" data-last="Rajecki"
-    data-wt="210" data-ht="71" data-cl="1"
-    data-po="1" data-hay="34 #34 will rajecki rb running back   fr. 5-11 210 canton, ga./sequoyah">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">34</span>
-        <span class="who">
-          <span class="name">Will Rajecki</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 5-11, 210 &nbsp;&middot;&nbsp; Canton, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">RB</span>
-          <span class="role">Running back</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Running back</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Canton, Ga.</dd><dt>High school</dt><dd>Sequoyah</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="35" data-last="Gentle"
-    data-wt="267" data-ht="75" data-cl="3"
-    data-po="5" data-hay="35 #35 carson gentle dl defensive line  defensive end defensive end jr. 6-3 267 chattanooga, tenn./mccallie school">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">35</span>
-        <span class="who">
-          <span class="name">Carson Gentle</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-3, 267 &nbsp;&middot;&nbsp; Chattanooga, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Defensive end</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>Defensive end <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Chattanooga, Tenn.</dd><dt>High school</dt><dd>McCallie School</dd><dt>Year at UT</dt><dd>3rd</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="35" data-last="Petermann"
-    data-wt="208" data-ht="75" data-cl="2"
-    data-po="2" data-hay="35 #35 ben petermann wr wide receiver   so. 6-3 208 chicago, ill./rolling meadows">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">35</span>
-        <span class="who">
-          <span class="name">Ben Petermann</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-3, 208 &nbsp;&middot;&nbsp; Chicago, Ill.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">Wide receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Chicago, Ill.</dd><dt>High school</dt><dd>Rolling Meadows</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="36" data-last="Gooden"
-    data-wt="270" data-ht="76" data-cl="1"
-    data-po="5" data-hay="36 #36 carter gooden dl defensive line  defensive end defensive end fr. 6-4 270 marion, mass./tabor academy">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">36</span>
-        <span class="who">
-          <span class="name">Carter Gooden</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-4, 270 &nbsp;&middot;&nbsp; Marion, Mass.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Defensive end</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>Defensive end <span class="rank">4th team</span></dd><dt>Hometown</dt><dd>Marion, Mass.</dd><dt>High school</dt><dd>Tabor Academy</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="36" data-last="Roberts"
-    data-wt="210" data-ht="76" data-cl="4"
-    data-po="2" data-hay="36 #36 nathan roberts wr wide receiver   sr. 6-4 210 morristown, tenn./morristown-hamblen east">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">36</span>
-        <span class="who">
-          <span class="name">Nathan Roberts</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-4, 210 &nbsp;&middot;&nbsp; Morristown, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">Wide receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Morristown, Tenn.</dd><dt>High school</dt><dd>Morristown-Hamblen East</dd><dt>Year at UT</dt><dd>4th</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="37" data-last="Golston"
-    data-wt="243" data-ht="75" data-cl="1"
-    data-po="5" data-hay="37 #37 kedric golston ii dl defensive line  edge rusher edge rusher (leo) fr. 6-3 243 leesburg, va./stone bridge">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">37</span>
-        <span class="who">
-          <span class="name">Kedric Golston II</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-3, 243 &nbsp;&middot;&nbsp; Leesburg, Va.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Edge rusher</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: KEH-drick GOAL-stun</div><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>Edge rusher (Leo) <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Leesburg, Va.</dd><dt>High school</dt><dd>Stone Bridge</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="38" data-last="Carroll"
-    data-wt="190" data-ht="73" data-cl="1"
-    data-po="2" data-hay="38 #38 brayden carroll wr wide receiver   fr. 6-1 190 cleveland, tenn./bradley central">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">38</span>
-        <span class="who">
-          <span class="name">Brayden Carroll</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-1, 190 &nbsp;&middot;&nbsp; Cleveland, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">Wide receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Cleveland, Tenn.</dd><dt>High school</dt><dd>Bradley Central</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="38" data-last="Combay"
-    data-wt="202" data-ht="73" data-cl="1"
-    data-po="7" data-hay="38 #38 jowell combay db defensive back   fr. 6-1 202 atlanta, ga./kell">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">38</span>
-        <span class="who">
-          <span class="name">Jowell Combay</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-1, 202 &nbsp;&middot;&nbsp; Atlanta, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Defensive back</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Atlanta, Ga.</dd><dt>High school</dt><dd>Kell</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="39" data-last="Rivers"
-    data-wt="287" data-ht="77" data-cl="1"
-    data-po="5" data-hay="39 #39 darryl rivers dl defensive line  defensive tackle defensive tackle fr. 6-5 287 atlanta, ga./mceachern">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">39</span>
-        <span class="who">
-          <span class="name">Darryl Rivers</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-5, 287 &nbsp;&middot;&nbsp; Atlanta, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Defensive tackle</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>Defensive tackle <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Atlanta, Ga.</dd><dt>High school</dt><dd>McEachern</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="40" data-last="McClain"
-    data-wt="188" data-ht="72" data-cl="1"
-    data-po="7" data-hay="40 #40 kj mcclain db defensive back   fr. 6-0 188 rahway, n.j./saint joseph regional">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">40</span>
-        <span class="who">
-          <span class="name">KJ McClain</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-0, 188 &nbsp;&middot;&nbsp; Rahway, N.J.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Defensive back</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Rahway, N.J.</dd><dt>High school</dt><dd>Saint Joseph Regional</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="42" data-last="Burks"
-    data-wt="196" data-ht="72" data-cl="5"
-    data-po="7" data-hay="42 #42 dj burks db defensive back  strong safety strong safety 5th 6-0 196 maryville, tenn./maryville/app state">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">42</span>
-        <span class="who">
-          <span class="name">DJ Burks</span>
-          <span class="sub">5th &nbsp;&middot;&nbsp; 6-0, 196 &nbsp;&middot;&nbsp; Maryville, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Strong safety</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>Strong safety <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Maryville, Tenn.</dd><dt>High school</dt><dd>Maryville</dd><dt>Came from</dt><dd>App State</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DB" data-num="43" data-last="Mathews"
-    data-wt="198" data-ht="72" data-cl="3"
-    data-po="7" data-hay="43 #43 jackson mathews db defensive back   jr. 6-0 198 franklin, tenn./christ presbyterian academy">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">43</span>
-        <span class="who">
-          <span class="name">Jackson Mathews</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-0, 198 &nbsp;&middot;&nbsp; Franklin, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DB</span>
-          <span class="role">Defensive back</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive back</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Franklin, Tenn.</dd><dt>High school</dt><dd>Christ Presbyterian Academy</dd><dt>Year at UT</dt><dd>3rd</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="44" data-last="Gass"
-    data-wt="245" data-ht="75" data-cl="2"
-    data-po="5" data-hay="44 #44 christian gass dl defensive line  edge rusher edge rusher (leo) so. 6-3 245 covington, ga./eastside">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">44</span>
-        <span class="who">
-          <span class="name">Christian Gass</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-3, 245 &nbsp;&middot;&nbsp; Covington, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Edge rusher</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: GAS</div><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>Edge rusher (Leo) <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Covington, Ga.</dd><dt>High school</dt><dd>Eastside</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="TE" data-num="44" data-last="Martinez"
-    data-wt="245" data-ht="75" data-cl="4"
-    data-po="3" data-hay="44 #44 drake martinez te tight end   sr. 6-3 245 houston, texas/st. thomas/houston christian/ut martin">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">44</span>
-        <span class="who">
-          <span class="name">Drake Martinez</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-3, 245 &nbsp;&middot;&nbsp; Houston, Texas</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">TE</span>
-          <span class="role">Tight end</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Tight end</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Houston, Texas</dd><dt>High school</dt><dd>St. Thomas</dd><dt>Came from</dt><dd>Houston Christian, UT Martin</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="47" data-last="Campbell"
-    data-wt="295" data-ht="76" data-cl="2"
-    data-po="5" data-hay="47 #47 isaiah campbell dl defensive line  defensive tackle defensive tackle so. 6-4 295 durham, n.c./southern durham">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">47</span>
-        <span class="who">
-          <span class="name">Isaiah Campbell</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-4, 295 &nbsp;&middot;&nbsp; Durham, N.C.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Defensive tackle</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>Defensive tackle <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Durham, N.C.</dd><dt>High school</dt><dd>Southern Durham</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="ST" data-num="48" data-last="Brady"
-    data-wt="210" data-ht="73" data-cl="5"
-    data-po="11" data-hay="48 #48 bennett brady ls long snapper special teams kicking long snapper long snapper 5th 6-1 210 memphis, tenn./evangelical christian">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">48</span>
-        <span class="who">
-          <span class="name">Bennett Brady</span>
-          <span class="sub">5th &nbsp;&middot;&nbsp; 6-1, 210 &nbsp;&middot;&nbsp; Memphis, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">LS</span>
-          <span class="role">Long snapper</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Long snapper</dd><dt>Plays</dt><dd>Long snapper <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Memphis, Tenn.</dd><dt>High school</dt><dd>Evangelical Christian</dd><dt>Year at UT</dt><dd>5th</dd></dl></div>
-  </details>
-</li>
-<li data-g="LB" data-num="50" data-last="Scott"
-    data-wt="220" data-ht="73" data-cl="3"
-    data-po="6" data-hay="50 #50 ryan scott lb linebacker   jr. 6-1 220 knoxville, tenn./west">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">50</span>
-        <span class="who">
-          <span class="name">Ryan Scott</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-1, 220 &nbsp;&middot;&nbsp; Knoxville, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">LB</span>
-          <span class="role">Linebacker</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Linebacker</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Knoxville, Tenn.</dd><dt>High school</dt><dd>West</dd><dt>Year at UT</dt><dd>3rd</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="51" data-last="Heard"
-    data-wt="335" data-ht="80" data-cl="3"
-    data-po="4" data-hay="51 #51 jeremias heard ol offensive line  right tackle right tackle jr. 6-8 335 rome, ga./model">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">51</span>
-        <span class="who">
-          <span class="name">Jeremias Heard</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-8, 335 &nbsp;&middot;&nbsp; Rome, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Right tackle</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>Right tackle <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Rome, Ga.</dd><dt>High school</dt><dd>Model</dd><dt>Year at UT</dt><dd>3rd</dd></dl></div>
-  </details>
-</li>
-<li data-g="LB" data-num="51" data-last="White"
-    data-wt="235" data-ht="74" data-cl="1"
-    data-po="6" data-hay="51 #51 tj white lb linebacker  middle lb middle linebacker fr. 6-2 235 jackson, miss./jackson academy">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">51</span>
-        <span class="who">
-          <span class="name">TJ White</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-2, 235 &nbsp;&middot;&nbsp; Jackson, Miss.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">LB</span>
-          <span class="role">Middle LB</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Linebacker</dd><dt>Plays</dt><dd>Middle linebacker <span class="rank">4th team</span></dd><dt>Hometown</dt><dd>Jackson, Miss.</dd><dt>High school</dt><dd>Jackson Academy</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="ST" data-num="53" data-last="Howard"
-    data-wt="223" data-ht="74" data-cl="4"
-    data-po="11" data-hay="53 #53 blake howard ls long snapper special teams kicking long snapper long snapper sr. 6-2 223 cincinnati, ohio/princeton/etsu/eastern kentucky">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">53</span>
-        <span class="who">
-          <span class="name">Blake Howard</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-2, 223 &nbsp;&middot;&nbsp; Cincinnati, Ohio</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">LS</span>
-          <span class="role">Long snapper</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Long snapper</dd><dt>Plays</dt><dd>Long snapper <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Cincinnati, Ohio</dd><dt>High school</dt><dd>Princeton</dd><dt>Came from</dt><dd>ETSU, Eastern Kentucky</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="55" data-last="Bethea"
-    data-wt="222" data-ht="73" data-cl="5"
-    data-po="5" data-hay="55 #55 mike bethea ii dl defensive line   5th 6-1 222 destin, fla./maryville/maryville college">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">55</span>
-        <span class="who">
-          <span class="name">Mike Bethea II</span>
-          <span class="sub">5th &nbsp;&middot;&nbsp; 6-1, 222 &nbsp;&middot;&nbsp; Destin, Fla.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Defensive line</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: buh-THAY</div><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Destin, Fla.</dd><dt>High school</dt><dd>Maryville</dd><dt>Came from</dt><dd>Maryville College</dd><dt>Year at UT</dt><dd>3rd</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="55" data-last="Ogumoro"
-    data-wt="320" data-ht="76" data-cl="2"
-    data-po="4" data-hay="55 #55 antoni ogumoro ol offensive line  left guard left guard so. 6-4 320 saipan, northern mariana islands/elgin (okla.)">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">55</span>
-        <span class="who">
-          <span class="name">Antoni Ogumoro</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-4, 320 &nbsp;&middot;&nbsp; Saipan, Northern Mariana Islands</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Left guard</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: AN-tuh-nee OH-goo-mo-row</div><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>Left guard <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Saipan, Northern Mariana Islands</dd><dt>High school</dt><dd>Elgin (Okla.)</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="56" data-last="Groves"
-    data-wt="252" data-ht="76" data-cl="1"
-    data-po="5" data-hay="56 #56 zach groves dl defensive line   fr. 6-4 252 cross plains, tenn./east robertson">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">56</span>
-        <span class="who">
-          <span class="name">Zach Groves</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-4, 252 &nbsp;&middot;&nbsp; Cross Plains, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Defensive line</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Cross Plains, Tenn.</dd><dt>High school</dt><dd>East Robertson</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="56" data-last="Pendleton"
-    data-wt="315" data-ht="76" data-cl="4"
-    data-po="4" data-hay="56 #56 sam pendleton ol offensive line  center center sr. 6-4 315 lawsonville, n.c./reagan/notre dame">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">56</span>
-        <span class="who">
-          <span class="name">Sam Pendleton</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-4, 315 &nbsp;&middot;&nbsp; Lawsonville, N.C.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Center</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>Center <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Lawsonville, N.C.</dd><dt>High school</dt><dd>Reagan</dd><dt>Came from</dt><dd>Notre Dame</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="LB" data-num="57" data-last="Short"
-    data-wt="222" data-ht="73" data-cl="3"
-    data-po="6" data-hay="57 #57 grier short lb linebacker   jr. 6-1 222 franklin, tenn./ensworth">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">57</span>
-        <span class="who">
-          <span class="name">Grier Short</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-1, 222 &nbsp;&middot;&nbsp; Franklin, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">LB</span>
-          <span class="role">Linebacker</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Linebacker</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Franklin, Tenn.</dd><dt>High school</dt><dd>Ensworth</dd><dt>Year at UT</dt><dd>3rd</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="58" data-last="Moore"
-    data-wt="312" data-ht="75" data-cl="2"
-    data-po="4" data-hay="58 #58 nic moore ol offensive line  center center so. 6-3 312 talbott, tenn./jefferson county">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">58</span>
-        <span class="who">
-          <span class="name">Nic Moore</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-3, 312 &nbsp;&middot;&nbsp; Talbott, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Center</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>Center <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Talbott, Tenn.</dd><dt>High school</dt><dd>Jefferson County</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="59" data-last="Albert"
-    data-wt="305" data-ht="73" data-cl="1"
-    data-po="5" data-hay="59 #59 dereon albert dl defensive line   fr. 6-1 305 jackson, miss./jackson academy">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">59</span>
-        <span class="who">
-          <span class="name">Dereon Albert</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-1, 305 &nbsp;&middot;&nbsp; Jackson, Miss.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Defensive line</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Jackson, Miss.</dd><dt>High school</dt><dd>Jackson Academy</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="59" data-last="Powell"
-    data-wt="312" data-ht="75" data-cl="2"
-    data-po="4" data-hay="59 #59 charlie powell iii ol offensive line   so. 6-3 312 cincinnati, ohio/archbishop moeller">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">59</span>
-        <span class="who">
-          <span class="name">Charlie Powell III</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-3, 312 &nbsp;&middot;&nbsp; Cincinnati, Ohio</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Offensive line</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Cincinnati, Ohio</dd><dt>High school</dt><dd>Archbishop Moeller</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="60" data-last="Storm"
-    data-wt="285" data-ht="76" data-cl="1"
-    data-po="4" data-hay="60 #60 thomas storm ol offensive line   fr. 6-4 285 brighton, mich./brighton">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">60</span>
-        <span class="who">
-          <span class="name">Thomas Storm</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-4, 285 &nbsp;&middot;&nbsp; Brighton, Mich.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Offensive line</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Brighton, Mich.</dd><dt>High school</dt><dd>Brighton</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="63" data-last="George-El"
-    data-wt="310" data-ht="76" data-cl="1"
-    data-po="4" data-hay="63 #63 jeremy george-el ol offensive line   fr. 6-4 310 montreal, quebec, canada/knoxville catholic">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">63</span>
-        <span class="who">
-          <span class="name">Jeremy George-El</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-4, 310 &nbsp;&middot;&nbsp; Montreal, Quebec, Canada</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Offensive line</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Montreal, Quebec, Canada</dd><dt>High school</dt><dd>Knoxville Catholic</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="65" data-last="Kostantonov"
-    data-wt="322" data-ht="76" data-cl="3"
-    data-po="4" data-hay="65 #65 michael kostantonov ol offensive line   jr. 6-4 322 northbrook, ill./loyola academy/central michigan">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">65</span>
-        <span class="who">
-          <span class="name">Michael Kostantonov</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-4, 322 &nbsp;&middot;&nbsp; Northbrook, Ill.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Offensive line</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: KOZZ-tan-toe-nov</div><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Northbrook, Ill.</dd><dt>High school</dt><dd>Loyola Academy</dd><dt>Came from</dt><dd>Central Michigan</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="66" data-last="Blair"
-    data-wt="293" data-ht="78" data-cl="1"
-    data-po="4" data-hay="66 #66 kamari blair ol offensive line   fr. 6-6 293 clarksville, tenn./kirkwood">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">66</span>
-        <span class="who">
-          <span class="name">Kamari Blair</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-6, 293 &nbsp;&middot;&nbsp; Clarksville, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Offensive line</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: kuh-MAR-ee</div><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Clarksville, Tenn.</dd><dt>High school</dt><dd>Kirkwood</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="69" data-last="Haslam"
-    data-wt="350" data-ht="75" data-cl="5"
-    data-po="4" data-hay="69 #69 donovan haslam ol offensive line  right guard right guard 5th 6-3 350 perry, ga./perry/austin peay/west virginia">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">69</span>
-        <span class="who">
-          <span class="name">Donovan Haslam</span>
-          <span class="sub">5th &nbsp;&middot;&nbsp; 6-3, 350 &nbsp;&middot;&nbsp; Perry, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Right guard</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>Right guard <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Perry, Ga.</dd><dt>High school</dt><dd>Perry</dd><dt>Came from</dt><dd>Austin Peay, West Virginia</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="70" data-last="Sanders"
-    data-wt="310" data-ht="78" data-cl="2"
-    data-po="4" data-hay="70 #70 david sanders jr. ol offensive line  left tackle left tackle so. 6-6 310 charlotte, n.c./providence day">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">70</span>
-        <span class="who">
-          <span class="name">David Sanders Jr.</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-6, 310 &nbsp;&middot;&nbsp; Charlotte, N.C.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Left tackle</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>Left tackle <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Charlotte, N.C.</dd><dt>High school</dt><dd>Providence Day</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="71" data-last="Baker"
-    data-wt="322" data-ht="76" data-cl="1"
-    data-po="4" data-hay="71 #71 ed baker ol offensive line   fr. 6-4 322 baltimore, md./st. frances academy">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">71</span>
-        <span class="who">
-          <span class="name">Ed Baker</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-4, 322 &nbsp;&middot;&nbsp; Baltimore, Md.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Offensive line</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Baltimore, Md.</dd><dt>High school</dt><dd>St. Frances Academy</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="72" data-last="Perry"
-    data-wt="320" data-ht="78" data-cl="3"
-    data-po="4" data-hay="72 #72 jesse perry ol offensive line  right guard right guard jr. 6-6 320 murfreesboro, tenn./middle tennessee christian">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">72</span>
-        <span class="who">
-          <span class="name">Jesse Perry</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-6, 320 &nbsp;&middot;&nbsp; Murfreesboro, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Right guard</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>Right guard <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Murfreesboro, Tenn.</dd><dt>High school</dt><dd>Middle Tennessee Christian</dd><dt>Year at UT</dt><dd>3rd</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="74" data-last="Umarov"
-    data-wt="321" data-ht="79" data-cl="4"
-    data-po="4" data-hay="74 #74 shamurad umarov ol offensive line  left guard left guard sr. 6-7 321 alpharetta, ga./denmark">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">74</span>
-        <span class="who">
-          <span class="name">Shamurad Umarov</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-7, 321 &nbsp;&middot;&nbsp; Alpharetta, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Left guard</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: oo-MAH-rawf (goes by Sham)</div><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>Left guard <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Alpharetta, Ga.</dd><dt>High school</dt><dd>Denmark</dd><dt>Year at UT</dt><dd>4th</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="75" data-last="Moe"
-    data-wt="330" data-ht="74" data-cl="5"
-    data-po="4" data-hay="75 #75 wendell moe jr. ol offensive line  left guard left guard 5th 6-2 330 long beach, calif./long beach poly/arizona">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">75</span>
-        <span class="who">
-          <span class="name">Wendell Moe Jr.</span>
-          <span class="sub">5th &nbsp;&middot;&nbsp; 6-2, 330 &nbsp;&middot;&nbsp; Long Beach, Calif.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Left guard</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: MOY (rhymes with boy)</div><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>Left guard <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Long Beach, Calif.</dd><dt>High school</dt><dd>Long Beach Poly</dd><dt>Came from</dt><dd>Arizona</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="77" data-last="Williams"
-    data-wt="330" data-ht="80" data-cl="3"
-    data-po="4" data-hay="77 #77 ory williams ol offensive line  right tackle right tackle jr. 6-8 330 san marcos, texas/san marcos/lsu">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">77</span>
-        <span class="who">
-          <span class="name">Ory Williams</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-8, 330 &nbsp;&middot;&nbsp; San Marcos, Texas</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Right tackle</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>Right tackle <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>San Marcos, Texas</dd><dt>High school</dt><dd>San Marcos</dd><dt>Came from</dt><dd>LSU</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="78" data-last="Ginther"
-    data-wt="310" data-ht="77" data-cl="3"
-    data-po="4" data-hay="78 #78 gage ginther ol offensive line   jr. 6-5 310 fort collins, colo./fossil ridge">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">78</span>
-        <span class="who">
-          <span class="name">Gage Ginther</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-5, 310 &nbsp;&middot;&nbsp; Fort Collins, Colo.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Offensive line</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Fort Collins, Colo.</dd><dt>High school</dt><dd>Fossil Ridge</dd><dt>Year at UT</dt><dd>3rd</dd></dl></div>
-  </details>
-</li>
-<li data-g="OL" data-num="79" data-last="Osenda"
-    data-wt="332" data-ht="80" data-cl="1"
-    data-po="4" data-hay="79 #79 gabriel osenda ol offensive line  left tackle left tackle fr. 6-8 332 airdrie, alberta, canada/baylor school">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">79</span>
-        <span class="who">
-          <span class="name">Gabriel Osenda</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-8, 332 &nbsp;&middot;&nbsp; Airdrie, Alberta, Canada</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">OL</span>
-          <span class="role">Left tackle</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: oh-SEN-duh</div><dl><dt>Position</dt><dd>Offensive line</dd><dt>Plays</dt><dd>Left tackle <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Airdrie, Alberta, Canada</dd><dt>High school</dt><dd>Baylor School</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="TE" data-num="80" data-last="Harrison"
-    data-wt="241" data-ht="77" data-cl="3"
-    data-po="3" data-hay="80 #80 cole harrison te tight end  tight end tight end jr. 6-5 241 san mateo, calif./junipero serra">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">80</span>
-        <span class="who">
-          <span class="name">Cole Harrison</span>
-          <span class="sub">Jr. &nbsp;&middot;&nbsp; 6-5, 241 &nbsp;&middot;&nbsp; San Mateo, Calif.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">TE</span>
-          <span class="role">Tight end</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Tight end</dd><dt>Plays</dt><dd>Tight end <span class="rank">4th team</span></dd><dt>Hometown</dt><dd>San Mateo, Calif.</dd><dt>High school</dt><dd>Junipero Serra</dd><dt>Year at UT</dt><dd>3rd</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="81" data-last="Duarte"
-    data-wt="181" data-ht="70" data-cl="4"
-    data-po="2" data-hay="81 #81 ian duarte wr wide receiver  slot receiver receiver, slot punt returner punt returner sr. 5-10 181 santa clarita, calif./eagle/idaho state">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">81</span>
-        <span class="who">
-          <span class="name">Ian Duarte</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 5-10, 181 &nbsp;&middot;&nbsp; Santa Clarita, Calif.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">Slot receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: DWAR-tay</div><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>Receiver, slot <span class="rank">3rd team</span><br>Punt returner <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Santa Clarita, Calif.</dd><dt>High school</dt><dd>Eagle</dd><dt>Came from</dt><dd>Idaho State</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="TE" data-num="82" data-last="Thomas"
-    data-wt="254" data-ht="77" data-cl="4"
-    data-po="3" data-hay="82 #82 trent thomas te tight end  tight end tight end sr. 6-5 254 mobile, ala./cottage hill/south alabama">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">82</span>
-        <span class="who">
-          <span class="name">Trent Thomas</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-5, 254 &nbsp;&middot;&nbsp; Mobile, Ala.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">TE</span>
-          <span class="role">Tight end</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Tight end</dd><dt>Plays</dt><dd>Tight end <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Mobile, Ala.</dd><dt>High school</dt><dd>Cottage Hill</dd><dt>Came from</dt><dd>South Alabama</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="85" data-last="Edwards"
-    data-wt="232" data-ht="75" data-cl="1"
-    data-po="5" data-hay="85 #85 cj edwards dl defensive line   fr. 6-3 232 edison, n.j./saint joseph">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">85</span>
-        <span class="who">
-          <span class="name">CJ Edwards</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-3, 232 &nbsp;&middot;&nbsp; Edison, N.J.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Defensive line</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Edison, N.J.</dd><dt>High school</dt><dd>Saint Joseph</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="85" data-last="Thompson"
-    data-wt="193" data-ht="73" data-cl="1"
-    data-po="2" data-hay="85 #85 luke thompson wr wide receiver   fr. 6-1 193 franklin, tenn./franklin">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">85</span>
-        <span class="who">
-          <span class="name">Luke Thompson</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-1, 193 &nbsp;&middot;&nbsp; Franklin, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">Wide receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Franklin, Tenn.</dd><dt>High school</dt><dd>Franklin</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="87" data-last="Simmons"
-    data-wt="300" data-ht="75" data-cl="1"
-    data-po="5" data-hay="87 #87 nuk simmons dl defensive line   fr. 6-3 300 lumpkin, ga./carver">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">87</span>
-        <span class="who">
-          <span class="name">Nuk Simmons</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-3, 300 &nbsp;&middot;&nbsp; Lumpkin, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Defensive line</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Lumpkin, Ga.</dd><dt>High school</dt><dd>Carver</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="TE" data-num="87" data-last="Wolf"
-    data-wt="256" data-ht="77" data-cl="1"
-    data-po="3" data-hay="87 #87 luca wolf te tight end   fr. 6-5 256 vienna, austria/nfl (uk) academy">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">87</span>
-        <span class="who">
-          <span class="name">Luca Wolf</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-5, 256 &nbsp;&middot;&nbsp; Vienna, Austria</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">TE</span>
-          <span class="role">Tight end</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Tight end</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Vienna, Austria</dd><dt>High school</dt><dd>NFL (UK) Academy</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="WR" data-num="88" data-last="Hardin"
-    data-wt="190" data-ht="72" data-cl="4"
-    data-po="2" data-hay="88 #88 deon hardin wr wide receiver   sr. 6-0 190 knoxville, tenn./biloxi/east central (miss.) cc">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">88</span>
-        <span class="who">
-          <span class="name">Deon Hardin</span>
-          <span class="sub">Sr. &nbsp;&middot;&nbsp; 6-0, 190 &nbsp;&middot;&nbsp; Knoxville, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">WR</span>
-          <span class="role">Wide receiver</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Wide receiver</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Knoxville, Tenn.</dd><dt>High school</dt><dd>Biloxi</dd><dt>Came from</dt><dd>East Central (Miss.) CC</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="ST" data-num="93" data-last="Dangerfield"
-    data-wt="215" data-ht="72" data-cl="2"
-    data-po="8" data-hay="93 #93 grady dangerfield pk place kicker special teams kicking kicker place kicker kickoffs kickoffs so. 6-0 215 charleston, s.c./james island charter">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">93</span>
-        <span class="who">
-          <span class="name">Grady Dangerfield</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-0, 215 &nbsp;&middot;&nbsp; Charleston, S.C.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">PK</span>
-          <span class="role">Kicker</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Place kicker</dd><dt>Plays</dt><dd>Place kicker <span class="rank">3rd team</span><br>Kickoffs <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Charleston, S.C.</dd><dt>High school</dt><dd>James Island Charter</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li data-g="ST" data-num="94" data-last="Turbyville"
-    data-wt="195" data-ht="74" data-cl="5"
-    data-po="10" data-hay="94 #94 josh turbyville p/pk punter and place kicker special teams kicking punter punter kicker place kicker kickoffs kickoffs holder holder 5th 6-2 195 knoxville, tenn./knoxville catholic">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">94</span>
-        <span class="who">
-          <span class="name">Josh Turbyville</span>
-          <span class="sub">5th &nbsp;&middot;&nbsp; 6-2, 195 &nbsp;&middot;&nbsp; Knoxville, Tenn.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">P/PK</span>
-          <span class="role">Punter</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Punter and place kicker</dd><dt>Plays</dt><dd>Punter <span class="rank">2nd team</span><br>Place kicker <span class="rank">2nd team</span><br>Kickoffs <span class="rank">1st team</span><br>Holder <span class="rank">2nd team</span></dd><dt>Hometown</dt><dd>Knoxville, Tenn.</dd><dt>High school</dt><dd>Knoxville Catholic</dd><dt>Year at UT</dt><dd>5th</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="95" data-last="Carter"
-    data-wt="255" data-ht="75" data-cl="1"
-    data-po="5" data-hay="95 #95 breeze carter dl defensive line   fr. 6-3 255 atlanta, ga./douglas county">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">95</span>
-        <span class="who">
-          <span class="name">Breeze Carter</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-3, 255 &nbsp;&middot;&nbsp; Atlanta, Ga.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Defensive line</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Atlanta, Ga.</dd><dt>High school</dt><dd>Douglas County</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="97" data-last="Harris"
-    data-wt="250" data-ht="78" data-cl="1"
-    data-po="5" data-hay="97 #97 hezekiah harris dl defensive line   fr. 6-6 250 anniston, ala./mae jemison">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">97</span>
-        <span class="who">
-          <span class="name">Hezekiah Harris</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-6, 250 &nbsp;&middot;&nbsp; Anniston, Ala.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Defensive line</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><div class="say">Say it: hez-uh-KAI-uh</div><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>No specific spot listed on the two-deep</dd><dt>Hometown</dt><dd>Anniston, Ala.</dd><dt>High school</dt><dd>Mae Jemison</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="ST" data-num="98" data-last="Ross"
-    data-wt="204" data-ht="76" data-cl="5"
-    data-po="9" data-hay="98 #98 jackson ross p punter special teams kicking punter punter holder holder 5th 6-4 204 melbourne, australia/haileybury college">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">98</span>
-        <span class="who">
-          <span class="name">Jackson Ross</span>
-          <span class="sub">5th &nbsp;&middot;&nbsp; 6-4, 204 &nbsp;&middot;&nbsp; Melbourne, Australia</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">P</span>
-          <span class="role">Punter</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Punter</dd><dt>Plays</dt><dd>Punter <span class="rank">1st team</span><br>Holder <span class="rank">1st team</span></dd><dt>Hometown</dt><dd>Melbourne, Australia</dd><dt>High school</dt><dd>Haileybury College</dd><dt>Year at UT</dt><dd>5th</dd></dl></div>
-  </details>
-</li>
-<li data-g="ST" data-num="99" data-last="Foley"
-    data-wt="237" data-ht="78" data-cl="1"
-    data-po="9" data-hay="99 #99 logan foley p punter special teams kicking punter punter holder holder fr. 6-6 237 perth, australia/univ. southern queensland">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">99</span>
-        <span class="who">
-          <span class="name">Logan Foley</span>
-          <span class="sub">Fr. &nbsp;&middot;&nbsp; 6-6, 237 &nbsp;&middot;&nbsp; Perth, Australia</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">P</span>
-          <span class="role">Punter</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Punter</dd><dt>Plays</dt><dd>Punter <span class="rank">3rd team</span><br>Holder <span class="rank">3rd team</span></dd><dt>Hometown</dt><dd>Perth, Australia</dd><dt>High school</dt><dd>Univ. Southern Queensland</dd><dt>Year at UT</dt><dd>1st</dd></dl></div>
-  </details>
-</li>
-<li data-g="DL" data-num="99" data-last="House"
-    data-wt="290" data-ht="75" data-cl="2"
-    data-po="5" data-hay="99 #99 charles house iii dl defensive line  defensive tackle defensive tackle so. 6-3 290 charlotte, n.c./north mecklenburg">
-  <details>
-    <summary class="row">
-      <span class="rowinner">
-        <span class="jersey">99</span>
-        <span class="who">
-          <span class="name">Charles House III</span>
-          <span class="sub">So. &nbsp;&middot;&nbsp; 6-3, 290 &nbsp;&middot;&nbsp; Charlotte, N.C.</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">DL</span>
-          <span class="role">Defensive tackle</span>
-        </span>
-      </span>
-    </summary>
-    <div class="detail"><dl><dt>Position</dt><dd>Defensive line</dd><dt>Plays</dt><dd>Defensive tackle <span class="rank">4th team</span></dd><dt>Hometown</dt><dd>Charlotte, N.C.</dd><dt>High school</dt><dd>North Mecklenburg</dd><dt>Year at UT</dt><dd>2nd</dd></dl></div>
-  </details>
-</li>
-<li id="noresults" class="hide"><div class="empty"><b>No one by that name</b>Try a jersey number, a position, or a hometown like Nashville.</div></li>
-</ul>
+<!-- Presets drawer -->
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h2>★ Presets</h2>
+    <button class="btn" id="closeDrawer">✕</button>
+  </div>
+  <div class="drawer-body" id="presetBody">
+    <div class="status">No presets yet. Tap the ★ on any station to save it here.</div>
+  </div>
+  <div class="drawer-actions">
+    <button class="btn amber" id="mapBtn">◱ Map it</button>
+    <button class="btn amber" id="copyAll">⧉ Copy all URLs</button>
+    <button class="btn amber" id="exportM3u">⭳ Export .m3u</button>
+    <button class="btn" id="backupBtn">⭳ Backup</button>
+    <button class="btn" id="restoreBtn">⭱ Restore</button>
+    <button class="btn" id="clearPresets">✕ Clear</button>
+    <input type="file" id="restoreFile" accept="application/json,.json" style="display:none">
+  </div>
+</div>
 
-<footer>Tap a player for hometown, high school, previous schools and where he lines up.
-Class: Fr. first year &middot; So. second &middot; Jr. third &middot; Sr. fourth &middot; 5th fifth.
-Players, numbers and hometowns come from the 2026 UT roster on utsports.com. Specific spots &mdash; corner vs. safety, guard vs. tackle &mdash;
-are not on that roster; they come from the Ourlads two-deep of Aug. 24, 2026, which lists only the top few at each position,
-so anyone deeper down shows just his position group.</footer>
+<div class="map-modal" id="mapModal">
+  <div class="map-bar">
+    <span class="map-title" id="mapTitle">◱ Station Map</span>
+    <span class="map-note" id="mapNote"></span>
+    <button class="btn" id="closeMap">✕ Close</button>
+  </div>
+  <div id="map"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="floatplayer" id="floatPlayer">
+  <div class="fp-now">
+    <span class="fp-dot"></span>
+    <span class="fp-title" id="fpNow">—</span>
+  </div>
+  <div class="fp-controls">
+    <button class="tbtn sm fpstar" id="fpStar" title="Save to presets" aria-label="Save to presets">☆</button>
+    <button class="tbtn sm" id="fpPrev" title="Previous" aria-label="Previous"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 6h2v12H7z"/><path d="M20 6v12l-9-6z"/></svg></button>
+    <button class="tbtn sm play" id="fpPlay" title="Play" aria-label="Play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+    <button class="tbtn sm" id="fpNext" title="Next" aria-label="Next"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6h2v12h-2z"/><path d="M4 6l9 6-9 6z"/></svg></button>
+  </div>
+</div>
 
 <script>
-document.documentElement.className = "js";
 (function(){
-  var list = document.getElementById("list");
-  var items = [].slice.call(list.querySelectorAll("li[data-num]"));
-  var none = document.getElementById("noresults");
-  var q = document.getElementById("q");
-  var countEl = document.getElementById("count");
-  var sortEl = document.getElementById("sort");
+  "use strict";
 
-  function apply(){
-    var s = q.value.trim().toLowerCase();
-    var jersey = s.match(/^#?(\d{1,2})$/);
-    var shown = 0;
-    items.forEach(function(li){
-      var ok;
-      if (!s) ok = true;
-      else if (jersey) ok = li.getAttribute("data-num") === String(Number(jersey[1]));
-      else ok = li.getAttribute("data-hay").indexOf(s) > -1;
-      li.classList.toggle("hide", !ok);
-      if (ok) shown++;
-    });
-    if (jersey && shown === 0){
-      items.forEach(function(li){
-        var ok = li.getAttribute("data-hay").indexOf(s) > -1;
-        li.classList.toggle("hide", !ok);
-        if (ok) shown++;
-      });
-    }
-    none.classList.toggle("hide", shown > 0);
-    countEl.textContent = shown === 1 ? "1 player" : shown + " players";
-  }
-
-  function sortBy(){
-    var s = sortEl.value;
-    var n = function(li, k){ return Number(li.getAttribute(k)); };
-    items.sort(function(a, b){
-      if (s === "name") return a.getAttribute("data-last").localeCompare(b.getAttribute("data-last"));
-      if (s === "wt") return n(b,"data-wt") - n(a,"data-wt");
-      if (s === "ht") return n(b,"data-ht") - n(a,"data-ht") || n(b,"data-wt") - n(a,"data-wt");
-      if (s === "cl") return n(b,"data-cl") - n(a,"data-cl") || n(a,"data-num") - n(b,"data-num");
-      if (s === "pos") return n(a,"data-po") - n(b,"data-po") || n(a,"data-num") - n(b,"data-num");
-      return n(a,"data-num") - n(b,"data-num");
-    });
-    items.forEach(function(li){ list.insertBefore(li, none); });
-  }
-
-  q.addEventListener("input", apply);
-  sortEl.addEventListener("change", sortBy);
-  document.getElementById("clear").addEventListener("click", function(){
-    q.value = ""; q.focus(); apply();
+  // ---------- API ----------
+  let API_BASE = "https://all.api.radio-browser.info";
+  const j = (path) => fetch(API_BASE + path, {headers:{"Accept":"application/json"}}).then(r=>{
+    if(!r.ok) throw new Error("HTTP "+r.status); return r.json();
   });
+
+  const KNOWN_SERVERS = [
+    "de1.api.radio-browser.info",
+    "de2.api.radio-browser.info",
+    "nl1.api.radio-browser.info",
+    "at1.api.radio-browser.info",
+    "fi1.api.radio-browser.info"
+  ];
+  const DEFAULT_HOST = "de1.api.radio-browser.info";
+  let serverHosts = [];
+  async function initServer(){
+    let fetched = [];
+    try{
+      const servers = await fetch("https://all.api.radio-browser.info/json/servers").then(r=>r.json());
+      fetched = servers.map(s=>s.name).filter(Boolean);
+    }catch(e){ /* offline/blocked — fall back to known mirrors */ }
+    serverHosts = [...new Set([...fetched, ...KNOWN_SERVERS])].sort();
+    API_BASE = "https://" + (serverHosts.includes(DEFAULT_HOST) ? DEFAULT_HOST : serverHosts[0]);
+    populateServers();
+    setServer("on");
+  }
+  function populateServers(){
+    const sel = $("serverSelect");
+    sel.innerHTML = '<option value="auto">Auto (random)</option>' +
+      serverHosts.map(h=>'<option value="'+esc(h)+'">'+esc(h)+'</option>').join("");
+    const host = API_BASE.replace("https://","");
+    sel.value = [...sel.options].some(o=>o.value===host) ? host : "auto";
+  }
+  function setServer(state){
+    $("serverLed").className = "led " + (state||"");
+    const sel = $("serverSelect");
+    const host = API_BASE.replace("https://","");
+    if([...sel.options].some(o=>o.value===host)) sel.value = host;
+  }
+  function onServerChange(){
+    const v = $("serverSelect").value;
+    if(v==="auto" && serverHosts.length){
+      API_BASE = "https://" + serverHosts[Math.floor(Math.random()*serverHosts.length)];
+    }else if(v!=="auto"){
+      API_BASE = "https://" + v;
+    }
+    setServer("on");
+    toast("Server → " + API_BASE.replace("https://",""));
+    loadGenres(); loadCountries();
+  }
+
+  // ---------- State ----------
+  let presets = load("rbx_presets", []);
+  let currentUuid = null;
+  let currentStation = null;
+  let lastResults = [];
+  const $ = (id)=>document.getElementById(id);
+
+  function load(k,d){ try{return JSON.parse(localStorage.getItem(k))||d;}catch(e){return d;} }
+  function save(k,v){ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} }
+
+  // ---------- Toast ----------
+  let toastT;
+  function toast(msg){
+    const t=$("toast"); t.textContent=msg; t.classList.add("show");
+    clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),1800);
+  }
+  function copy(text,label){
+    navigator.clipboard.writeText(text).then(()=>toast(label||"Copied")).catch(()=>{
+      // fallback
+      const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta);
+      ta.select(); try{document.execCommand("copy");toast(label||"Copied");}catch(e){toast("Copy failed");}
+      document.body.removeChild(ta);
+    });
+  }
+
+  // ---------- Dial ticks ----------
+  (function(){
+    const t=$("ticks");
+    for(let i=0;i<60;i++){
+      const d=document.createElement("div");
+      d.className="tick"+(i%5===0?" major":"");
+      t.appendChild(d);
+    }
+  })();
+
+  // ---------- Genres ----------
+  function facetGroup(title, items, buildItem, collapseKey){
+    const group = document.createElement("div");
+    group.className = "facet-group" + (load(collapseKey,false) ? " collapsed" : "");
+    const btn = document.createElement("button");
+    btn.className = "facet-toggle";
+    btn.innerHTML = '<span>'+esc(title)+'<span class="count">'+items.length+'</span></span><span class="chev">\u25BE</span>';
+    btn.onclick = ()=>{ save(collapseKey, group.classList.toggle("collapsed")); };
+    const list = document.createElement("div");
+    list.className = "facet-list";
+    items.forEach(it=>list.appendChild(buildItem(it)));
+    group.appendChild(btn); group.appendChild(list);
+    return group;
+  }
+
+  function tagButton(t){
+    const b=document.createElement("button");
+    b.className="genre"; b.dataset.tag=t.name;
+    b.innerHTML='<span class="n">'+esc(t.name)+'</span><span class="c">'+fmt(t.stationcount)+'</span>';
+    b.onclick=()=>{ $("fTag").value=t.name; markGenre(t.name); runSearch({tag:t.name}); };
+    return b;
+  }
+  function langButton(l){
+    const b=document.createElement("button");
+    b.className="genre"; b.dataset.lang=l.name;
+    b.innerHTML='<span class="n">'+esc(l.name)+'</span><span class="c">'+fmt(l.stationcount)+'</span>';
+    b.onclick=()=>{ $("fLang").value=l.name; runSearch({language:l.name}); };
+    return b;
+  }
+
+  let topGenreTags=[], langCache=[], allGenreTags=null, genreShowAll=false;
+
+  function renderFacets(){
+    const host=$("facetBody"); host.innerHTML="";
+    const showingAll = genreShowAll && allGenreTags;
+    const tags = showingAll ? allGenreTags : topGenreTags;
+    const g = facetGroup(showingAll?"All Genres":"Top Genres", tags, tagButton, "rbx_collapse_genres");
+    const foot=document.createElement("button");
+    foot.className="genre-more";
+    foot.textContent = showingAll ? "\u25B4 Show top 200" : "\u25BE Show all genres…";
+    foot.onclick = toggleAllGenres;
+    g.querySelector(".facet-list").appendChild(foot);
+    host.appendChild(g);
+    host.appendChild(facetGroup("Top Languages", langCache.slice(0,24), langButton, "rbx_collapse_langs"));
+  }
+
+  async function toggleAllGenres(){
+    if(!genreShowAll){
+      if(!allGenreTags){
+        toast("Loading all genres…");
+        try{
+          allGenreTags = await j("/json/tags?order=stationcount&reverse=true&hidebroken=true");
+          $("tagList").innerHTML = allGenreTags.map(t=>'<option value="'+esc(t.name)+'">').join("");
+        }catch(e){ return toast("Couldn't load the full genre list"); }
+      }
+      genreShowAll = true;
+    }else{
+      genreShowAll = false;
+    }
+    renderFacets();
+  }
+
+  async function loadGenres(){
+    try{
+      topGenreTags = await j("/json/tags?order=stationcount&reverse=true&hidebroken=true&limit=200");
+      langCache = await j("/json/languages?order=stationcount&reverse=true&hidebroken=true&limit=40");
+      // preserve show-all view across a server switch if already expanded
+      renderFacets();
+      $("tagList").innerHTML = (genreShowAll&&allGenreTags?allGenreTags:topGenreTags).map(t=>'<option value="'+esc(t.name)+'">').join("");
+      $("langList").innerHTML = langCache.map(l=>'<option value="'+esc(l.name)+'">').join("");
+    }catch(e){
+      $("facetBody").innerHTML='<div class="status err" style="padding:24px">Could not load genres. Check your connection and reload.</div>';
+    }
+  }
+  function markGenre(tag){
+    document.querySelectorAll(".genre").forEach(g=>{
+      g.classList.toggle("active", g.dataset.tag===tag);
+    });
+  }
+
+  // ---------- Countries ----------
+  let countryByName = {}, countryByCode = {};
+  async function loadCountries(){
+    try{
+      const cs = await j("/json/countries?order=stationcount&reverse=true&hidebroken=true");
+      countryByName = {}; countryByCode = {};
+      const opts = [];
+      cs.forEach(c=>{
+        if(!c.name || !c.iso_3166_1) return;
+        countryByName[c.name.toLowerCase()] = c.iso_3166_1;
+        countryByCode[c.iso_3166_1] = c.name;
+        opts.push('<option value="'+esc(c.name)+'">'+esc(c.iso_3166_1)+' · '+fmt(c.stationcount)+'</option>');
+      });
+      $("countryList").innerHTML = opts.join("");
+    }catch(e){ /* leave country field as free-text code entry */ }
+  }
+  function resolveCountry(raw){
+    if(!raw) return "";
+    if(countryByName[raw.toLowerCase()]) return countryByName[raw.toLowerCase()];
+    if(raw.length===2) return raw.toUpperCase();   // fall back to raw ISO code
+    return "";
+  }
+
+  // ---------- Search ----------
+  // Codec-aware quality model. Tiers are MP3-equivalent kbps targets; each codec's
+  // real bitrate is scaled by its efficiency so AAC/AAC+/Opus aren't unfairly filtered.
+  const QUALITY = {
+    low:      {label:"Low",       mp3eq:96},
+    medium:   {label:"Medium",    mp3eq:128},
+    high:     {label:"High",      mp3eq:192},
+    veryhigh: {label:"Very high", mp3eq:256}
+  };
+  function codecMult(codec){
+    const c=(codec||"").toUpperCase();
+    if(c.indexOf("AAC+")>=0 || c.indexOf("HE-AAC")>=0) return 2.0;
+    if(c.indexOf("AAC")>=0) return 1.5;
+    if(c.indexOf("OPUS")>=0) return 1.8;
+    if(c.indexOf("OGG")>=0 || c.indexOf("VORBIS")>=0) return 1.3;
+    return 1.0; // MP3 / unknown
+  }
+  function effectiveKbps(s){
+    const c=(s.codec||"").toUpperCase();
+    if(c.indexOf("FLAC")>=0 || c.indexOf("WAV")>=0 || c.indexOf("ALAC")>=0) return Infinity; // lossless
+    return (s.bitrate||0) * codecMult(s.codec);
+  }
+
+  function resultLimit(){ return $("fLimit").value || "120"; }
+  function currentFilters(){
+    return {
+      name:$("fName").value.trim(),
+      tag:$("fTag").value.trim(),
+      language:$("fLang").value.trim(),
+      countrycode:resolveCountry($("fCountry").value.trim()),
+      codec:$("fCodec").value.trim(),
+      quality:$("fQuality").value,
+      order:$("fSort").value,
+      hidebroken:$("fBroken").checked
+    };
+  }
+
+  async function runSearch(override){
+    const f = Object.assign(currentFilters(), override||{});
+    if(override && override.tag) $("fTag").value=override.tag;
+    const params = new URLSearchParams();
+    if(f.name) params.set("name", f.name);
+    if(f.tag) params.set("tagList", f.tag.toLowerCase());
+    if(f.language) params.set("language", f.language);
+    if(f.countrycode) params.set("countrycode", f.countrycode);
+    if(f.codec) params.set("codec", f.codec);
+    if(f.quality && QUALITY[f.quality]) params.set("bitrateMin", String(Math.floor(QUALITY[f.quality].mp3eq/2)));
+    params.set("order", f.order==="random"?"random":f.order);
+    if(f.order!=="random" && f.order!=="name") params.set("reverse","true");
+    params.set("hidebroken", f.hidebroken?"true":"false");
+    params.set("limit", resultLimit());
+
+    setResultsTitle(describe(f));
+    showLoading();
+    try{
+      const st = await j("/json/stations/search?"+params.toString());
+      renderStations(st);
+    }catch(e){
+      $("results").innerHTML='<div class="status err">Search failed — the radio-browser server may be busy. Try again in a moment.</div>';
+    }
+  }
+
+  async function quick(kind){
+    markGenre(null);
+    if(kind==="random"){ return runSearch({order:"random", tag:"", name:"", language:"", countrycode:"", codec:""}); }
+    setResultsTitle(kind==="topvote"?"Top Voted":"Most Played");
+    showLoading();
+    try{
+      const st = await j("/json/stations/"+(kind==="topvote"?"topvote":"topclick")+"/"+resultLimit());
+      renderStations(st);
+    }catch(e){
+      $("results").innerHTML='<div class="status err">Could not load chart. Try again shortly.</div>';
+    }
+  }
+
+  function describe(f){
+    const bits=[];
+    if(f.tag) bits.push('“'+f.tag+'”');
+    if(f.language) bits.push(cap(f.language));
+    if(f.countrycode) bits.push(countryByCode[f.countrycode]||f.countrycode);
+    if(f.codec) bits.push(f.codec);
+    if(f.quality && QUALITY[f.quality]) bits.push(QUALITY[f.quality].label+" quality");
+    if(f.name) bits.push('name~'+f.name);
+    return bits.length?bits.join(" · "):"All stations";
+  }
+  function setResultsTitle(t){ $("resultsTitle").textContent=t; }
+  function showLoading(){
+    $("results").innerHTML='<div class="status"><div class="spinner"></div>tuning…</div>';
+    $("resultsCount").textContent="";
+  }
+
+  function renderStations(list){
+    // de-dupe by uuid, drop entries with no playable url
+    const seen=new Set();
+    let clean=list.filter(s=>{
+      const u=s.url_resolved||s.url;
+      if(!u||seen.has(s.stationuuid)) return false;
+      seen.add(s.stationuuid); return true;
+    });
+    const tier=QUALITY[$("fQuality").value];
+    if(tier){ clean=clean.filter(s=>effectiveKbps(s) >= tier.mp3eq); }
+    $("resultsCount").textContent = clean.length;
+    lastResults = clean;
+    $("playToggle").disabled = clean.length===0;
+    if(!clean.length){
+      $("results").innerHTML='<div class="status">No stations matched. Loosen a filter — genre + language + country together can get narrow fast.</div>';
+      return;
+    }
+    const box=$("results"); box.innerHTML="";
+    clean.forEach(s=>box.appendChild(stationRow(s)));
+  }
+
+  function stationRow(s){
+    const url=s.url_resolved||s.url;
+    const row=document.createElement("div"); row.className="station";
+
+    const ico=document.createElement("img");
+    ico.className="fav-ico"; ico.loading="lazy"; ico.alt="";
+    ico.src=s.favicon||"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
+    ico.onerror=()=>{ico.style.visibility="hidden";};
+
+    const main=document.createElement("div"); main.className="st-main";
+    const nameBtn=document.createElement("button"); nameBtn.className="st-name";
+    nameBtn.textContent=s.name||"(unnamed)";
+    nameBtn.onclick=()=>play(s);
+
+    const meta=document.createElement("div"); meta.className="st-meta";
+    const parts=[];
+    if(s.country) parts.push('<span>'+esc(s.country)+'</span>');
+    else if(s.countrycode) parts.push('<span>'+esc(s.countrycode)+'</span>');
+    if(s.language) parts.push('<span>'+esc(cap(s.language.split(",")[0]))+'</span>');
+    if(s.codec) parts.push('<span>'+esc(s.codec)+(s.bitrate?" "+s.bitrate+"k":"")+'</span>');
+    parts.push('<span class="up">▲'+fmt(s.votes||0)+'</span>');
+    if(s.clickcount) parts.push('<span>♪'+fmt(s.clickcount)+'</span>');
+    meta.innerHTML=parts.join("");
+
+    const tags=document.createElement("div"); tags.className="st-tags";
+    (s.tags||"").split(",").map(x=>x.trim()).filter(Boolean).slice(0,6).forEach(tg=>{
+      const b=document.createElement("button"); b.className="tag"; b.textContent=tg;
+      b.onclick=()=>{ $("fTag").value=tg; markGenre(tg); runSearch({tag:tg}); window.scrollTo({top:0,behavior:"smooth"}); };
+      tags.appendChild(b);
+    });
+
+    main.appendChild(nameBtn); main.appendChild(meta);
+    if(tags.children.length) main.appendChild(tags);
+
+    const act=document.createElement("div"); act.className="st-actions";
+    const playBtn=document.createElement("button"); playBtn.className="mini playbtn";
+    playBtn.innerHTML="▶ Play"; playBtn.dataset.uuid=s.stationuuid; playBtn.onclick=()=>play(s);
+    const favBtn=document.createElement("button"); favBtn.dataset.uuid=s.stationuuid;
+    favBtn.className="mini favbtn"+(isSaved(s.stationuuid)?" on":"");
+    favBtn.innerHTML=isSaved(s.stationuuid)?"★ Saved":"☆ Save";
+    favBtn.onclick=()=>{ togglePreset(s); syncFavButtons(); };
+    const copyBtn=document.createElement("button"); copyBtn.className="mini"; copyBtn.innerHTML="⧉ Copy URL";
+    copyBtn.onclick=()=>copy(url,"Stream URL copied — paste into foobar");
+    act.appendChild(playBtn); act.appendChild(favBtn); act.appendChild(copyBtn);
+    if(s.homepage){
+      const site=document.createElement("a"); site.className="mini"; site.href=s.homepage;
+      site.target="_blank"; site.rel="noopener"; site.innerHTML="↗ Site"; act.appendChild(site);
+    }
+    const rmv=document.createElement("button"); rmv.className="mini rmv"; rmv.innerHTML="✕ Remove";
+    rmv.title="Drop from this results list (won't affect saved presets)";
+    rmv.onclick=()=>{
+      lastResults = lastResults.filter(x=>x.stationuuid!==s.stationuuid);
+      row.remove();
+      $("resultsCount").textContent = lastResults.length;
+      if(!lastResults.length){
+        $("results").innerHTML='<div class="status">List emptied. Re-run the search to bring stations back.</div>';
+      }
+    };
+    act.appendChild(rmv);
+
+    row.appendChild(ico); row.appendChild(main); row.appendChild(act);
+    return row;
+  }
+
+  // ---------- Playback ----------
+  const audio=$("audio");
+  $("vol").oninput=e=>{audio.volume=parseFloat(e.target.value);};
+  audio.volume=0.9;
+
+  const ICON_PLAY  = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+  const ICON_PAUSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
+  function setNowPlaying(t){ $("npName").textContent=t; $("fpNow").textContent=t; }
+  function showFloatPlayer(){ $("floatPlayer").classList.add("show"); document.body.classList.add("has-float"); }
+  function updateFpStar(){
+    const b=$("fpStar");
+    const on = currentStation && currentStation.uuid && presets.some(p=>p.uuid===currentStation.uuid);
+    b.textContent = on ? "★" : "☆";
+    b.classList.toggle("on", !!on);
+  }
+  function updatePlayToggle(){
+    const playing = !audio.paused && audio.src;
+    [$("playToggle"), $("fpPlay")].forEach(b=>{
+      if(!b) return;
+      b.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
+      b.title = playing ? "Pause" : "Play";
+      b.setAttribute("aria-label", playing ? "Pause" : "Play");
+    });
+  }
+
+  function play(s){
+    currentUuid=s.stationuuid;
+    currentStation=rec(s);
+    setNowPlaying(s.name||"(unnamed)");
+    updateStationInfo();
+    $("playToggle").disabled=false;
+    showFloatPlayer(); updateFpStar();
+    audio.src=currentStation.url; audio.play().catch(()=>{});
+    armGrace();
+    document.querySelectorAll(".playbtn.playing").forEach(b=>{b.classList.remove("playing");b.innerHTML="▶ Play";});
+    document.querySelectorAll('.playbtn[data-uuid="'+s.stationuuid+'"]').forEach(b=>{b.classList.add("playing");b.innerHTML="♪ Playing";});
+    // community click stat (best-effort)
+    fetch(API_BASE+"/json/url/"+s.stationuuid).catch(()=>{});
+  }
+  function stop(){
+    clearGrace();
+    audio.pause(); audio.removeAttribute("src"); audio.load();
+    document.body.classList.remove("playing");
+    setNowPlaying("— stopped —");
+    currentUuid=null; currentStation=null;
+    updateStationInfo(); updatePlayToggle();
+    document.querySelectorAll(".playbtn.playing").forEach(b=>{b.classList.remove("playing");b.innerHTML="▶ Play";});
+  }
+  function togglePlay(){
+    if(!audio.paused && audio.src){ clearGrace(); audio.pause(); return; }        // pause
+    if(audio.src && currentUuid){                                                 // resume
+      audio.play().then(()=>armGrace()).catch(()=>toast("Couldn't resume — try next"));
+      return;
+    }
+    if(lastResults.length){ play(lastResults[0]); }                              // start list
+    else toast("Run a search first, then press play");
+  }
+  audio.onplay    = ()=>{ document.body.classList.add("playing"); updatePlayToggle(); if('mediaSession' in navigator) navigator.mediaSession.playbackState="playing"; };
+  audio.onpause   = ()=>{ document.body.classList.remove("playing"); updatePlayToggle(); if('mediaSession' in navigator) navigator.mediaSession.playbackState="paused"; };
+  audio.onplaying = ()=>{ clearGrace(); autoSkips=0; };   // real playback started → this one is good
+  if('mediaSession' in navigator){
+    const setMS=(a,h)=>{ try{ navigator.mediaSession.setActionHandler(a,h); }catch(e){} };
+    setMS('play',          ()=>{ if(audio.paused) togglePlay(); });
+    setMS('pause',         ()=>{ if(!audio.paused) audio.pause(); });
+    setMS('previoustrack', ()=>playByOffset(-1));
+    setMS('nexttrack',     ()=>playByOffset(1));
+    setMS('stop',          ()=>stop());
+    // iOS often insists on showing seek buttons for live audio; make them skip stations too,
+    // so whichever control the phone/car sends, it moves through the station list.
+    setMS('seekbackward',  ()=>playByOffset(-1));
+    setMS('seekforward',   ()=>playByOffset(1));
+    setMS('seekto',        null);
+  }
+  $("playToggle").onclick=togglePlay;
+  $("fpPlay").onclick=togglePlay;
+  $("fpPrev").onclick=()=>playByOffset(-1);
+  $("fpNext").onclick=()=>playByOffset(1);
+  $("fpStar").onclick=()=>{ if(currentStation){ saveMapItem(currentStation); updateFpStar(); } };
+  function playByOffset(delta){
+    if(!lastResults.length) return toast("No results to step through — run a search first");
+    let idx = lastResults.findIndex(s=>s.stationuuid===currentUuid);
+    let ni;
+    if(idx<0){ ni = delta>0 ? 0 : lastResults.length-1; }
+    else { ni = (idx + delta + lastResults.length) % lastResults.length; }
+    play(lastResults[ni]);
+  }
+  $("prevBtn").onclick=()=>playByOffset(-1);
+  $("nextBtn").onclick=()=>playByOffset(1);
+
+  // Auto-skip with an 8-second connect grace period (manual skips stay instant).
+  let autoAdvance = load("rbx_auto", false), autoSkips = 0, graceTimer = null;
+  const GRACE_MS = 8000;
+  function clearGrace(){ if(graceTimer){ clearTimeout(graceTimer); graceTimer=null; } }
+  function armGrace(){
+    clearGrace();
+    graceTimer = setTimeout(()=>{
+      graceTimer=null;
+      if(audio.readyState>=3 && !audio.paused) return;   // it's actually playing; leave it
+      autoStep("didn't connect");
+    }, GRACE_MS);
+  }
+  function autoStep(){
+    clearGrace();
+    if(autoAdvance && lastResults.length){
+      if(autoSkips < Math.min(lastResults.length, 20)){ autoSkips++; playByOffset(1); }
+      else { autoSkips=0; toast("No working stream found nearby"); }
+    }else{
+      toast("Stream won't play here — the URL still works in foobar");
+    }
+  }
+  $("autoBtn").onclick=()=>{
+    autoAdvance=!autoAdvance; save("rbx_auto", autoAdvance);
+    $("autoBtn").classList.toggle("active", autoAdvance);
+    toast(autoAdvance ? "Auto-skip on — dead streams advance after ~8s" : "Auto-skip off");
+  };
+  $("autoBtn").classList.toggle("active", autoAdvance);
+
+  audio.onerror=()=>{
+    if(!audio.src) return;
+    if(audio.error && audio.error.code===1) return;   // MEDIA_ERR_ABORTED (from switching stations) — ignore
+    autoStep();
+  };
+
+  // ---------- Presets ----------
+  function num(v){ const n=parseFloat(v); return isFinite(n)?n:null; }
+  function hasGeo(p){ return p.lat!=null && p.lon!=null && !(p.lat===0 && p.lon===0); }
+  // Normalize a raw radio-browser station (or an existing record) into one shape.
+  function rec(s){
+    return {
+      uuid: s.stationuuid || s.uuid,
+      name: s.name,
+      url: s.url_resolved || s.url,
+      homepage: s.homepage || "",
+      favicon: s.favicon || "",
+      countrycode: (s.countrycode || "").toUpperCase(),
+      country: s.country || "",
+      state: s.state || "",
+      tags: s.tags || "",
+      codec: s.codec || "",
+      bitrate: s.bitrate || 0,
+      votes: s.votes || 0,
+      lat: (s.lat!=null ? num(s.lat) : num(s.geo_lat)),
+      lon: (s.lon!=null ? num(s.lon) : num(s.geo_long))
+    };
+  }
+  function updateStationInfo(){
+    const logo=$("npLogo"), site=$("npSite"), stats=$("npStats");
+    const fav = currentStation && currentStation.favicon;
+    if(fav){ logo.src=fav; logo.hidden=false; } else { logo.hidden=true; logo.removeAttribute("src"); }
+    logo.onerror=()=>{ logo.hidden=true; };
+    const hp = currentStation && currentStation.homepage;
+    if(hp){ site.href=hp; site.hidden=false; } else { site.hidden=true; site.removeAttribute("href"); }
+    if(currentStation && currentStation.uuid){
+      const bits=[];
+      const loc=[currentStation.country || (countryByCode[currentStation.countrycode]||currentStation.countrycode||""), currentStation.state].filter(Boolean);
+      if(loc.length) bits.push(esc(loc.join(" · ")));
+      const tags=(currentStation.tags||"").split(",").map(x=>x.trim()).filter(Boolean).slice(0,5);
+      if(tags.length) bits.push(esc(tags.join(", ")));
+      if(currentStation.codec) bits.push(esc(currentStation.codec)+(currentStation.bitrate?" "+currentStation.bitrate+"k":""));
+      if(currentStation.votes) bits.push('<span class="up">▲'+fmt(currentStation.votes)+'</span>');
+      stats.innerHTML = bits.join(" · ");
+      stats.hidden = bits.length===0;
+    }else{
+      stats.hidden = true; stats.innerHTML="";
+    }
+    updateMediaSession();
+  }
+  function updateMediaSession(){
+    if(!('mediaSession' in navigator)) return;
+    try{
+      if(currentStation && currentStation.uuid){
+        const loc=[currentStation.country||(countryByCode[currentStation.countrycode]||currentStation.countrycode||""), currentStation.state].filter(Boolean).join(" · ");
+        const art = currentStation.favicon ? [{src:currentStation.favicon, sizes:"256x256"}] : [];
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: currentStation.name || "Radio",
+          artist: loc || "RBX Radio",
+          album: (currentStation.tags||"").split(",").map(x=>x.trim()).filter(Boolean).slice(0,3).join(", "),
+          artwork: art
+        });
+      }else{
+        navigator.mediaSession.metadata = null;
+      }
+    }catch(e){}
+  }
+  function isSaved(uuid){ return presets.some(p=>p.uuid===uuid); }
+  function togglePreset(s){
+    if(isSaved(s.stationuuid)){
+      presets=presets.filter(p=>p.uuid!==s.stationuuid);
+    }else{
+      presets.push(rec(s));
+    }
+    save("rbx_presets",presets); renderPresets();
+  }
+  function movePreset(i,dir){
+    const jj=i+dir; if(jj<0||jj>=presets.length) return;
+    const t=presets[i]; presets[i]=presets[jj]; presets[jj]=t;
+    save("rbx_presets",presets); renderPresets();
+  }
+  function renderPresets(){
+    $("presetCount").textContent="("+presets.length+")";
+    const body=$("presetBody");
+    if(!presets.length){ body.innerHTML='<div class="status">No presets yet. Tap the ★ on any station to save it here.</div>'; return; }
+    body.innerHTML="";
+    presets.forEach((p,i)=>{
+      const row=document.createElement("div"); row.className="preset";
+      const ord=document.createElement("div"); ord.className="preset-ord";
+      const up=document.createElement("button"); up.className="ord-btn"; up.innerHTML="\u25B2"; up.title="Move up";
+      up.disabled=(i===0); up.onclick=()=>movePreset(i,-1);
+      const dn=document.createElement("button"); dn.className="ord-btn"; dn.innerHTML="\u25BC"; dn.title="Move down";
+      dn.disabled=(i===presets.length-1); dn.onclick=()=>movePreset(i,1);
+      ord.appendChild(up); ord.appendChild(dn);
+      const play=document.createElement("button"); play.className="mini"; play.innerHTML="\u25B6";
+      play.onclick=()=>{ play_stub(p); };
+      const nm=document.createElement("div"); nm.className="pn"; nm.textContent=p.name||"(unnamed)";
+      if(hasGeo(p)) nm.title="\uD83D\uDCCD has location";
+      const cp=document.createElement("button"); cp.className="mini"; cp.innerHTML="\u29C9";
+      cp.title="Copy URL"; cp.onclick=()=>copy(p.url,"URL copied");
+      const rm=document.createElement("button"); rm.className="mini"; rm.innerHTML="\u2715";
+      rm.title="Delete"; rm.onclick=()=>{ presets.splice(i,1); save("rbx_presets",presets); renderPresets(); syncFavButtons(); };
+      row.appendChild(ord); row.appendChild(play); row.appendChild(nm); row.appendChild(cp); row.appendChild(rm);
+      body.appendChild(row);
+    });
+  }
+  function play_stub(p){
+    currentUuid=p.uuid; currentStation=rec(p);
+    setNowPlaying(p.name||"(unnamed)");
+    updateStationInfo();
+    $("playToggle").disabled=false;
+    showFloatPlayer(); updateFpStar();
+    audio.src=currentStation.url; audio.play().catch(()=>{});
+    armGrace();
+  }
+
+  // ---------- Geo fallback (approx placement when a station has no coordinates) ----------
+  const COUNTRY_CENTROIDS = {
+    US:[39.8,-98.6],CA:[56.1,-106.3],MX:[23.6,-102.5],GB:[54.0,-2.9],IE:[53.4,-8.2],FR:[46.6,2.2],
+    DE:[51.2,10.4],ES:[40.2,-3.7],PT:[39.6,-8.0],IT:[41.9,12.6],NL:[52.1,5.3],BE:[50.5,4.6],LU:[49.8,6.1],
+    CH:[46.8,8.2],AT:[47.6,14.1],DK:[56.0,10.0],NO:[60.5,8.5],SE:[60.1,18.6],FI:[61.9,25.7],IS:[64.9,-19.0],
+    PL:[51.9,19.1],CZ:[49.8,15.5],SK:[48.7,19.7],HU:[47.2,19.5],RO:[45.9,24.9],BG:[42.7,25.5],GR:[39.1,22.0],
+    HR:[45.1,15.2],SI:[46.1,14.8],RS:[44.0,20.9],BA:[43.9,17.7],MK:[41.6,21.7],AL:[41.1,20.0],ME:[42.7,19.4],
+    UA:[48.4,31.2],BY:[53.7,28.0],RU:[61.5,105.3],EE:[58.6,25.0],LV:[56.9,24.6],LT:[55.2,23.9],MD:[47.4,28.4],
+    TR:[39.0,35.2],CY:[35.1,33.4],MT:[35.9,14.4],
+    CN:[35.9,104.2],JP:[36.2,138.3],KR:[36.5,127.9],IN:[22.4,78.7],PK:[30.4,69.3],BD:[23.7,90.4],LK:[7.9,80.8],
+    NP:[28.4,84.1],TH:[15.9,100.9],VN:[16.0,107.9],PH:[12.9,121.8],ID:[-0.8,113.9],MY:[4.2,109.7],SG:[1.35,103.8],
+    MM:[21.9,95.9],KH:[12.6,104.9],LA:[19.9,102.5],TW:[23.7,120.9],HK:[22.3,114.2],
+    AU:[-25.7,134.5],NZ:[-41.8,171.8],PG:[-6.5,145.0],FJ:[-17.7,178.0],
+    SA:[24.0,45.1],AE:[24.0,54.0],QA:[25.3,51.2],KW:[29.3,47.5],BH:[26.0,50.5],OM:[21.5,55.9],YE:[15.6,48.5],
+    JO:[31.3,36.2],LB:[33.9,35.9],SY:[35.0,38.5],IQ:[33.0,43.7],IR:[32.4,53.7],IL:[31.4,35.0],PS:[31.9,35.2],
+    AF:[33.9,67.7],AZ:[40.3,47.7],AM:[40.3,45.0],GE:[42.3,43.4],KZ:[48.0,66.9],UZ:[41.4,63.6],TM:[39.1,59.4],
+    KG:[41.2,74.8],TJ:[38.9,71.3],MN:[46.8,103.1],
+    EG:[26.8,30.8],MA:[31.8,-7.1],DZ:[28.0,2.6],TN:[34.0,9.6],LY:[26.3,17.2],SD:[12.9,30.2],ET:[8.6,39.6],
+    KE:[0.2,37.9],TZ:[-6.4,34.9],UG:[1.3,32.4],RW:[-1.9,29.9],NG:[9.1,8.7],GH:[7.9,-1.0],CI:[7.5,-5.5],
+    SN:[14.5,-14.5],ML:[17.6,-4.0],ZA:[-30.6,22.9],ZW:[-19.0,29.9],ZM:[-13.1,27.8],MZ:[-18.7,35.5],AO:[-11.2,17.9],
+    CM:[5.7,12.7],CD:[-4.0,21.8],CG:[-0.7,14.5],GA:[-0.6,11.6],BW:[-22.3,24.7],NA:[-22.1,17.2],MG:[-18.8,46.9],
+    MW:[-13.3,34.3],MU:[-20.2,57.5],
+    BR:[-14.2,-51.9],AR:[-38.4,-63.6],CL:[-35.7,-71.5],CO:[4.6,-74.3],PE:[-9.2,-75.0],VE:[6.4,-66.6],
+    EC:[-1.8,-78.2],BO:[-16.3,-63.6],PY:[-23.4,-58.4],UY:[-32.5,-55.8],GY:[4.9,-58.9],SR:[4.0,-56.0],
+    PA:[8.5,-80.1],CR:[9.7,-83.8],NI:[12.9,-85.2],HN:[15.2,-86.2],SV:[13.8,-88.9],GT:[15.8,-90.2],BZ:[17.2,-88.5],
+    CU:[21.5,-77.8],DO:[18.7,-70.2],HT:[19.1,-72.3],JM:[18.1,-77.3],PR:[18.2,-66.5],TT:[10.7,-61.2],BS:[24.9,-76.8]
+  };
+  const US_STATES = {
+    "alabama":[32.8,-86.8],"alaska":[64.1,-152.3],"arizona":[34.2,-111.7],"arkansas":[34.9,-92.4],
+    "california":[37.2,-119.3],"colorado":[39.0,-105.5],"connecticut":[41.6,-72.7],"delaware":[39.0,-75.5],
+    "florida":[28.6,-82.4],"georgia":[32.6,-83.4],"hawaii":[20.3,-156.4],"idaho":[44.3,-114.5],
+    "illinois":[40.0,-89.2],"indiana":[39.9,-86.3],"iowa":[42.0,-93.5],"kansas":[38.5,-98.4],
+    "kentucky":[37.5,-85.3],"louisiana":[31.0,-92.0],"maine":[45.4,-69.2],"maryland":[39.0,-76.8],
+    "massachusetts":[42.3,-71.8],"michigan":[44.3,-85.4],"minnesota":[46.3,-94.3],"mississippi":[32.7,-89.7],
+    "missouri":[38.4,-92.5],"montana":[47.0,-109.6],"nebraska":[41.5,-99.8],"nevada":[39.3,-116.6],
+    "new hampshire":[43.7,-71.6],"new jersey":[40.2,-74.7],"new mexico":[34.4,-106.1],"new york":[42.9,-75.5],
+    "north carolina":[35.6,-79.4],"north dakota":[47.4,-100.5],"ohio":[40.3,-82.8],"oklahoma":[35.6,-97.5],
+    "oregon":[44.0,-120.5],"pennsylvania":[40.9,-77.8],"rhode island":[41.7,-71.5],"south carolina":[33.9,-80.9],
+    "south dakota":[44.4,-100.2],"tennessee":[35.9,-86.4],"texas":[31.5,-99.3],"utah":[39.3,-111.7],
+    "vermont":[44.1,-72.7],"virginia":[37.5,-78.9],"washington":[47.4,-120.5],"west virginia":[38.6,-80.6],
+    "wisconsin":[44.6,-89.9],"wyoming":[43.0,-107.6],"district of columbia":[38.9,-77.0]
+  };
+  const US_ABBR = {AL:"alabama",AK:"alaska",AZ:"arizona",AR:"arkansas",CA:"california",CO:"colorado",CT:"connecticut",
+    DE:"delaware",FL:"florida",GA:"georgia",HI:"hawaii",ID:"idaho",IL:"illinois",IN:"indiana",IA:"iowa",KS:"kansas",
+    KY:"kentucky",LA:"louisiana",ME:"maine",MD:"maryland",MA:"massachusetts",MI:"michigan",MN:"minnesota",
+    MS:"mississippi",MO:"missouri",MT:"montana",NE:"nebraska",NV:"nevada",NH:"new hampshire",NJ:"new jersey",
+    NM:"new mexico",NY:"new york",NC:"north carolina",ND:"north dakota",OH:"ohio",OK:"oklahoma",OR:"oregon",
+    PA:"pennsylvania",RI:"rhode island",SC:"south carolina",SD:"south dakota",TN:"tennessee",TX:"texas",UT:"utah",
+    VT:"vermont",VA:"virginia",WA:"washington",WV:"west virginia",WI:"wisconsin",WY:"wyoming",DC:"district of columbia"};
+  function usStateKey(st){
+    const s=(st||"").trim().toLowerCase(); if(!s) return null;
+    if(s.length===2 && US_ABBR[s.toUpperCase()]) return US_ABBR[s.toUpperCase()];
+    if(US_STATES[s]) return s;
+    return null;
+  }
+  function coordsFor(it){
+    if(hasGeo(it)) return {lat:it.lat, lon:it.lon, approx:null};
+    const cc=(it.countrycode||"").toUpperCase();
+    if(cc==="US" || cc===""){
+      const k=usStateKey(it.state);
+      if(k) return {lat:US_STATES[k][0], lon:US_STATES[k][1], approx:"state"};
+    }
+    if(cc && COUNTRY_CENTROIDS[cc]) return {lat:COUNTRY_CENTROIDS[cc][0], lon:COUNTRY_CENTROIDS[cc][1], approx:"country"};
+    return null;
+  }
+  function jitterCoord(it, base){
+    let h=2166136261; const s=it.uuid||it.name||"";
+    for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); }
+    h=h>>>0;
+    const dLat=((h&1023)/1023-0.5)*0.8;
+    const dLon=(((h>>>10)&1023)/1023-0.5)*0.8;
+    return [base[0]+dLat, base[1]+dLon];
+  }
+
+  // ---------- Map ----------
+  let map=null, markerLayer=null;
+  function showMap(items, label){
+    if(typeof L==="undefined") return toast("Map library didn't load — needs internet");
+    const placed=[]; let exact=0, approxN=0;
+    items.forEach(it=>{
+      const c=coordsFor(it); if(!c) return;
+      let pos=[c.lat,c.lon];
+      if(c.approx){ pos=jitterCoord(it,pos); approxN++; } else { exact++; }
+      placed.push({item:it, pos, approx:c.approx});
+    });
+    if(!placed.length) return toast("None of these "+label+" have a location to map");
+    $("mapTitle").textContent = "◱ " + (label==="results" ? "Results Map" : "Preset Map");
+    $("mapModal").classList.add("open");
+    if(!map){
+      map = L.map("map",{zoomControl:true,attributionControl:true}).setView([20,0],2);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+        maxZoom:19, attribution:"&copy; OpenStreetMap"
+      }).addTo(map);
+      markerLayer = L.layerGroup().addTo(map);
+    }
+    markerLayer.clearLayers();
+    const pts=[];
+    placed.forEach(pl=>{
+      const it=pl.item;
+      const style = pl.approx
+        ? {radius:9,color:"#e0464b",fillColor:"#e0464b",fillOpacity:.4,weight:2,dashArray:"2,3"}
+        : {radius:12,color:"#f5a623",fillColor:"#f5a623",fillOpacity:.7,weight:3};
+      const m=L.circleMarker(pl.pos, style);
+      const where = pl.approx==="state" ? esc(it.state)
+                  : pl.approx==="country" ? esc(countryByCode[it.countrycode]||it.countrycode) : "";
+
+      const pop=document.createElement("div"); pop.className="map-pop";
+      const title=document.createElement("b"); title.textContent=it.name||"Station"; pop.appendChild(title);
+      if(pl.approx){
+        const note=document.createElement("div"); note.className="map-approx";
+        note.textContent="≈ approximate · "+(pl.approx==="state"?it.state:(countryByCode[it.countrycode]||it.countrycode||""));
+        pop.appendChild(note);
+      }
+      const acts=document.createElement("div"); acts.className="map-actions";
+      const pB=document.createElement("button"); pB.className="map-play"; pB.textContent="▶ Play"; pB.onclick=()=>play_stub(it);
+      const sB=document.createElement("button"); sB.className="map-stop"; sB.textContent="■ Stop"; sB.onclick=stop;
+      const vB=document.createElement("button"); vB.className="map-save";
+      const lbl=()=>{ const on=it.uuid&&presets.some(x=>x.uuid===it.uuid); vB.textContent=on?"★ Saved":"☆ Save"; vB.classList.toggle("on",!!on); };
+      lbl(); vB.onclick=()=>{ saveMapItem(it); lbl(); };
+      acts.appendChild(pB); acts.appendChild(sB); acts.appendChild(vB);
+      pop.appendChild(acts);
+      m.bindPopup(pop);
+
+      m.addTo(markerLayer); pts.push(pl.pos);
+    });
+    $("mapNote").textContent = placed.length+" of "+items.length+" "+label+" mapped · "+exact+" exact, "+approxN+" approx"+
+      (placed.length<items.length?" · "+(items.length-placed.length)+" unplaceable":"");
+    setTimeout(()=>{ map.invalidateSize(); if(pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.25)); },60);
+  }
+  function mapResults(){
+    if(!lastResults.length) return toast("No results to map — run a search first");
+    showMap(lastResults.map(rec), "results");
+  }
+  function mapPresets(){
+    if(!presets.length) return toast("No presets to map yet");
+    showMap(presets.map(rec), "presets");
+  }
+  function saveMapItem(p){
+    if(!p.uuid) return toast("Can't save — station has no id");
+    if(presets.some(x=>x.uuid===p.uuid)){
+      presets = presets.filter(x=>x.uuid!==p.uuid);
+      toast("Removed from presets");
+    }else{
+      presets.push(rec(p));
+      toast("Saved to presets");
+    }
+    save("rbx_presets", presets); renderPresets(); syncFavButtons();
+  }
+  function closeMap(){ $("mapModal").classList.remove("open"); }
+  function syncFavButtons(){
+    document.querySelectorAll(".favbtn").forEach(b=>{
+      const on = isSaved(b.dataset.uuid);
+      b.className = "mini favbtn" + (on?" on":"");
+      b.innerHTML = on ? "★ Saved" : "☆ Save";
+    });
+    if(typeof updateFpStar==="function") updateFpStar();
+  }
+
+  $("presetsBtn").onclick=()=>{ $("drawer").classList.add("open"); $("overlay").classList.add("open"); };
+  $("closeDrawer").onclick=closeDrawer;
+  $("mapBtn").onclick=mapPresets;
+  $("mapResults").onclick=mapResults;
+  $("closeMap").onclick=closeMap;
+  $("overlay").onclick=closeDrawer;
+  function closeDrawer(){ $("drawer").classList.remove("open"); $("overlay").classList.remove("open"); }
+
+  function stationUrl(s){ return s.url_resolved || s.url || ""; }
+  function toM3u(list){
+    let s="#EXTM3U\n";
+    list.forEach(x=>{ s += "#EXTINF:-1,"+String(x.name||"Station").replace(/[\r\n]+/g," ")+"\n"+stationUrl(x)+"\n"; });
+    return s;
+  }
+  function download(name, text, mime){
+    const blob=new Blob([text],{type:mime});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download=name; a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  $("expCopy").onclick=()=>{
+    if(!lastResults.length) return toast("No results to copy");
+    copy(lastResults.map(stationUrl).join("\n"), lastResults.length+" URLs copied");
+  };
+  $("expM3u").onclick=()=>{
+    if(!lastResults.length) return toast("No results to export");
+    download("radio-results.m3u", toM3u(lastResults), "audio/x-mpegurl");
+    toast("radio-results.m3u exported ("+lastResults.length+")");
+  };
+
+  $("copyAll").onclick=()=>{
+    if(!presets.length) return toast("No presets to copy");
+    copy(presets.map(p=>p.url).join("\n"), presets.length+" URLs copied");
+  };
+  $("exportM3u").onclick=()=>{
+    if(!presets.length) return toast("No presets to export");
+    download("radio-presets.m3u", toM3u(presets), "audio/x-mpegurl");
+    toast("radio-presets.m3u exported");
+  };
+  $("backupBtn").onclick=()=>{
+    if(!presets.length) return toast("No presets to back up");
+    const blob=new Blob([JSON.stringify(presets,null,2)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download="rbx-presets.json"; a.click(); URL.revokeObjectURL(a.href);
+    toast("Backed up "+presets.length+" presets");
+  };
+  $("restoreBtn").onclick=()=>$("restoreFile").click();
+  $("restoreFile").onchange=e=>{
+    const file=e.target.files[0]; if(!file) return;
+    const reader=new FileReader();
+    reader.onload=()=>{
+      try{
+        const data=JSON.parse(reader.result);
+        if(!Array.isArray(data)) throw new Error("not a preset backup");
+        let added=0;
+        data.forEach(p=>{
+          if(p&&p.uuid&&p.url&&!presets.some(x=>x.uuid===p.uuid)){
+            presets.push(rec(p));
+            added++;
+          }
+        });
+        save("rbx_presets",presets); renderPresets(); syncFavButtons();
+        toast(added+" preset"+(added===1?"":"s")+" restored"+(added<data.length?" ("+(data.length-added)+" already saved)":""));
+      }catch(err){ toast("Couldn't read that backup file"); }
+      $("restoreFile").value="";
+    };
+    reader.readAsText(file);
+  };
+  $("clearPresets").onclick=()=>{
+    if(!presets.length) return;
+    if(confirm("Remove all "+presets.length+" presets?")){ presets=[]; save("rbx_presets",presets); renderPresets(); syncFavButtons(); }
+  };
+
+  // ---------- Wire controls ----------
+  $("searchBtn").onclick=()=>{ markGenre($("fTag").value.trim()); runSearch(); };
+  $("clearBtn").onclick=()=>{
+    ["fName","fTag","fLang","fCountry"].forEach(id=>$(id).value="");
+    $("fCodec").value=""; $("fQuality").value=""; $("fSort").value="votes"; markGenre(null);
+  };
+  document.querySelectorAll("[data-quick]").forEach(b=>b.onclick=()=>quick(b.dataset.quick));
+  $("serverSelect").onchange=onServerChange;
+  $("fLimit").value = load("rbx_limit", "120");
+  $("fLimit").onchange = ()=>save("rbx_limit", $("fLimit").value);
+  ["fName","fTag","fLang","fCountry"].forEach(id=>{
+    $(id).addEventListener("keydown",e=>{ if(e.key==="Enter") runSearch(); });
+  });
+
+  // ---------- Helpers ----------
+  function esc(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function fmt(n){ n=+n||0; return n>=1000?(n/1000).toFixed(n>=10000?0:1)+"k":n; }
+  function cap(s){ return String(s).replace(/\b\w/g,c=>c.toUpperCase()); }
+
+  // ---------- Filter presets (saved search setups) ----------
+  let filterSlots = load("rbx_filterslots", [null,null,null,null,null,null]);
+  if(!Array.isArray(filterSlots)) filterSlots=[];
+  while(filterSlots.length<6) filterSlots.push(null);
+  filterSlots = filterSlots.slice(0,6);
+
+  function saveFilterSlots(){ save("rbx_filterslots", filterSlots); }
+  function captureFilters(){
+    return {
+      name:$("fName").value.trim(), tag:$("fTag").value.trim(), lang:$("fLang").value.trim(),
+      country:$("fCountry").value.trim(), codec:$("fCodec").value, quality:$("fQuality").value,
+      sort:$("fSort").value, limit:$("fLimit").value, broken:$("fBroken").checked
+    };
+  }
+  function filterLabel(f){
+    const bits=[];
+    if(f.country) bits.push(f.country.length<=3 ? f.country.toUpperCase() : cap(f.country));
+    if(f.tag) bits.push(f.tag);
+    if(f.lang) bits.push(cap(f.lang));
+    if(f.codec) bits.push(f.codec);
+    if(f.quality && QUALITY[f.quality]) bits.push(QUALITY[f.quality].label);
+    if(f.name) bits.push('"'+f.name+'"');
+    return bits.length ? bits.join(" · ") : "All / default";
+  }
+  function saveFilterSlot(i){ filterSlots[i]=captureFilters(); saveFilterSlots(); renderFilterSlots(); toast("Saved to slot "+(i+1)); }
+  function loadFilterSlot(i){
+    const f=filterSlots[i]; if(!f) return;
+    $("fName").value=f.name||""; $("fTag").value=f.tag||""; $("fLang").value=f.lang||"";
+    $("fCountry").value=f.country||""; $("fCodec").value=f.codec||""; $("fQuality").value=f.quality||"";
+    $("fSort").value=f.sort||"votes"; $("fLimit").value=f.limit||"120"; $("fBroken").checked=(f.broken!==false);
+    markGenre(f.tag||null);
+    runSearch();
+    toast("Loaded: "+filterLabel(f));
+  }
+  function renderFilterSlots(){
+    const host=$("fpSlots"); host.innerHTML="";
+    filterSlots.forEach((f,i)=>{
+      const chip=document.createElement("div");
+      if(f){
+        chip.className="fp-slot";
+        const nm=document.createElement("span"); nm.className="fp-name"; nm.textContent=filterLabel(f);
+        nm.title="Load: "+filterLabel(f); nm.onclick=()=>loadFilterSlot(i);
+        const x=document.createElement("span"); x.className="fp-x"; x.textContent="\u2715"; x.title="Clear slot";
+        x.onclick=(e)=>{ e.stopPropagation(); filterSlots[i]=null; saveFilterSlots(); renderFilterSlots(); };
+        chip.appendChild(nm); chip.appendChild(x);
+      }else{
+        chip.className="fp-slot empty"; chip.textContent="\uFF0B Slot "+(i+1);
+        chip.title="Save current filters to this slot"; chip.onclick=()=>saveFilterSlot(i);
+      }
+      host.appendChild(chip);
+    });
+  }
+  $("fpBackup").onclick=()=>{
+    download("rbx-filter-presets.json", JSON.stringify(filterSlots,null,2), "application/json");
+    toast("Filter presets backed up");
+  };
+  $("fpRestore").onclick=()=>$("fpRestoreFile").click();
+  $("fpRestoreFile").onchange=e=>{
+    const file=e.target.files[0]; if(!file) return;
+    const r=new FileReader();
+    r.onload=()=>{
+      try{
+        const d=JSON.parse(r.result);
+        if(!Array.isArray(d)) throw new Error("bad");
+        filterSlots = d.slice(0,6);
+        while(filterSlots.length<6) filterSlots.push(null);
+        saveFilterSlots(); renderFilterSlots(); toast("Filter presets restored");
+      }catch(err){ toast("Couldn't read that file"); }
+      $("fpRestoreFile").value="";
+    };
+    r.readAsText(file);
+  };
+
+  // ---------- Boot ----------
+  const APP_VERSION = "26.08.31g";   // bump on each deploy (yy.mm.dd)
+  $("appVer").textContent = "v" + APP_VERSION;
+  renderPresets();
+  renderFilterSlots();
+  initServer().then(()=>{ loadGenres(); loadCountries(); });
+
 })();
 </script>
 </body>
