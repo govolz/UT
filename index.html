@@ -1,1448 +1,523 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>RBX — Radio Browser Explorer</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ff8200">
+<title>2026 Tennessee Football Roster</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0e1116;
-    --panel:#161b22;
-    --panel-2:#1b2129;
-    --edge:#2a323c;
-    --edge-hi:#3a4553;
-    --amber:#f5a623;
-    --amber-dim:#a9781f;
-    --signal:#48d17a;
-    --text:#e8e3d8;
-    --muted:#8b95a3;
-    --muted-2:#5f6a78;
-    --danger:#e06666;
-    --mono:ui-monospace,"SF Mono","Cascadia Code","JetBrains Mono",Consolas,monospace;
-    --display:"Oswald","Arial Narrow",system-ui,sans-serif;
-    --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --orange:#ff8200;
+    --ink:#232323;
+    --smokey:#66686b;
+    --rule:#e4e4e2;
+    --paper:#ffffff;
+    --wash:#f6f6f4;
+    --num:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+    --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
   }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{
-    background:
-      radial-gradient(1200px 400px at 50% -160px, #1a222c 0%, transparent 70%),
-      var(--bg);
-    color:var(--text);
-    font-family:var(--body);
-    font-size:15px;
-    line-height:1.45;
-    min-height:100vh;
-  }
-  a{color:var(--amber);text-decoration:none}
-  a:hover{text-decoration:underline}
-  button{font-family:var(--body);cursor:pointer}
-  ::selection{background:var(--amber);color:#161b22}
-
-  .wrap{max-width:1180px;margin:0 auto;padding:20px 20px 80px}
-
-  /* ---- Tuner console header ---- */
-  .console{
-    background:linear-gradient(180deg,#1c2530 0%,#12171e 100%);
-    border:1px solid var(--edge);
-    border-radius:14px;
-    box-shadow:0 1px 0 #333d49 inset, 0 18px 40px -24px #000;
-    padding:16px 18px;
-    margin-bottom:18px;
-  }
-  .console-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-  .brand{display:flex;align-items:baseline;gap:10px;flex-shrink:0}
-  .brand .logo{
-    font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.14em;
-    color:var(--amber);text-shadow:0 0 18px rgba(245,166,35,.35);line-height:1;
-  }
-  .brand .sub{font-family:var(--display);font-weight:400;letter-spacing:.28em;
-    text-transform:uppercase;font-size:11px;color:var(--muted)}
-  .brand .ver{font-family:var(--mono);font-size:10px;color:var(--muted-2);letter-spacing:.02em}
-  .server-readout{
-    margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);
-    display:flex;align-items:center;gap:8px;text-align:right;
-  }
-  .led{width:8px;height:8px;border-radius:50%;background:var(--muted-2);flex-shrink:0}
-  .led.on{background:var(--signal);box-shadow:0 0 8px var(--signal)}
-  .led.err{background:var(--danger);box-shadow:0 0 8px var(--danger)}
-  .server-readout label{font-family:var(--display);letter-spacing:.16em}
-  .srv-select{background:#0d1218;border:1px solid var(--edge);color:var(--muted);
-    border-radius:6px;padding:4px 7px;font-family:var(--mono);font-size:11px;max-width:220px}
-  .srv-select:focus{outline:none;border-color:var(--amber-dim);color:var(--text)}
-
-  /* dial strip */
-  .dial{
-    margin-top:14px;position:relative;height:56px;border-radius:8px;
-    background:linear-gradient(180deg,#0b0f14,#12181f);
-    border:1px solid var(--edge);overflow:hidden;
-  }
-  .dial .ticks{position:absolute;inset:0;display:flex;align-items:flex-end;
-    padding:0 2px;opacity:.5}
-  .dial .tick{flex:1;border-left:1px solid #2f3a46;height:40%}
-  .dial .tick.major{height:70%;border-left:1px solid #45525f}
-  .needle{position:absolute;top:0;bottom:0;width:2px;left:50%;
-    background:var(--amber);box-shadow:0 0 10px var(--amber);transition:left .5s ease}
-  .nowplaying{position:absolute;inset:0;display:flex;align-items:center;
-    padding:0 14px;gap:12px;font-family:var(--mono);font-size:13px}
-  .nowplaying .np-label{color:var(--muted);font-size:10px;letter-spacing:.18em;
-    text-transform:uppercase}
-  .nowplaying .np-name{color:var(--text);white-space:nowrap;overflow:hidden;
-    text-overflow:ellipsis;max-width:min(42vw,460px)}
-  .nowplaying .np-logo{width:22px;height:22px;border-radius:4px;object-fit:cover;flex-shrink:0;
-    background:#0d1218;border:1px solid var(--edge)}
-  .nowplaying .np-site{font-family:var(--mono);font-size:11px;color:var(--amber);flex-shrink:0;
-    white-space:nowrap;text-decoration:none}
-  .nowplaying .np-site:hover{text-decoration:underline}
-  .np-stats{margin-top:10px;font-family:var(--mono);font-size:11.5px;color:var(--muted);
-    display:flex;flex-wrap:wrap;gap:3px 8px;align-items:center;line-height:1.5}
-  .np-stats .up{color:var(--signal)}
-  .signal-bars{display:flex;align-items:flex-end;gap:2px;height:18px;margin-left:auto}
-  .signal-bars i{width:3px;background:var(--muted-2);height:4px;border-radius:1px}
-  body.playing .signal-bars i{background:var(--signal);animation:eq .9s ease-in-out infinite}
-  .signal-bars i:nth-child(2){animation-delay:.15s}
-  .signal-bars i:nth-child(3){animation-delay:.3s}
-  .signal-bars i:nth-child(4){animation-delay:.45s}
-  .signal-bars i:nth-child(5){animation-delay:.6s}
-  @keyframes eq{0%,100%{height:4px}50%{height:16px}}
-  body.playing .needle{animation:drift 4s ease-in-out infinite alternate}
-  @keyframes drift{from{left:46%}to{left:54%}}
-
-  .transport{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
-  .tcluster{display:flex;align-items:center;gap:8px}
-  .tbtn{width:42px;height:42px;border-radius:50%;background:var(--panel-2);
-    border:1px solid var(--edge);color:var(--text);display:inline-flex;align-items:center;
-    justify-content:center;cursor:pointer;transition:border-color .15s,background .15s,transform .06s}
-  .tbtn svg{width:19px;height:19px;fill:currentColor;display:block}
-  .tbtn:hover:not(:disabled){border-color:var(--amber-dim);color:var(--amber);background:#20272f}
-  .tbtn:active:not(:disabled){transform:scale(.92)}
-  .tbtn:disabled{opacity:.4;cursor:default}
-  .tbtn.stop,.tbtn.play{color:var(--amber);border-color:var(--amber-dim)}
-  .tbtn.stop:disabled,.tbtn.play:disabled{color:var(--muted-2);border-color:var(--edge);opacity:.55}
-  .btn.active{border-color:var(--amber-dim);color:var(--amber);background:rgba(245,166,35,.1)}
-  .floatplayer{position:fixed;left:0;right:0;bottom:0;z-index:45;display:flex;align-items:center;
-    gap:12px;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));
-    background:rgba(20,25,32,.97);border-top:1px solid var(--edge);
-    box-shadow:0 -12px 30px -20px #000;transform:translateY(130%);
-    transition:transform .28s ease;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
-  .floatplayer.show{transform:translateY(0)}
-  .fp-now{flex:1;min-width:0;display:flex;align-items:center;gap:9px}
-  .fp-dot{width:8px;height:8px;border-radius:50%;background:var(--muted-2);flex-shrink:0}
-  body.playing .fp-dot{background:var(--signal);box-shadow:0 0 8px var(--signal)}
-  .fp-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;color:var(--text)}
-  .fp-controls{display:flex;align-items:center;gap:8px;flex-shrink:0}
-  .tbtn.sm{width:38px;height:38px}
-  .tbtn.sm svg{width:17px;height:17px}
-  .fpstar{font-size:19px;line-height:1}
-  .fpstar.on{color:var(--amber);border-color:var(--amber-dim)}
-  body.has-float .wrap{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
-  @media(max-width:820px){
-    .floatplayer{padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));gap:14px}
-    .floatplayer .tbtn.sm{width:54px;height:54px}
-    .floatplayer .tbtn.sm svg{width:24px;height:24px}
-    .floatplayer .fp-title{font-size:16px}
-    .floatplayer .fp-controls{gap:12px}
-    .floatplayer .fp-dot{width:10px;height:10px}
-    .floatplayer .fpstar{font-size:26px}
-    body.has-float .wrap{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}
-  }
-  .btn{
-    background:var(--panel-2);color:var(--text);border:1px solid var(--edge);
-    border-radius:8px;padding:8px 12px;font-size:13px;display:inline-flex;
-    align-items:center;gap:7px;transition:border-color .15s,background .15s;
-  }
-  .btn:hover{border-color:var(--edge-hi);background:#20272f}
-  .btn.amber{border-color:var(--amber-dim);color:var(--amber)}
-  .btn.amber:hover{background:rgba(245,166,35,.08)}
-  .btn:disabled{opacity:.4;cursor:default}
-  .vol{display:flex;align-items:center;gap:8px;margin-left:auto;color:var(--muted);
-    font-family:var(--mono);font-size:11px}
-  input[type=range]{accent-color:var(--amber);width:110px}
-
-  /* ---- Controls ---- */
-  .controls{
-    background:var(--panel);border:1px solid var(--edge);border-radius:12px;
-    padding:14px;margin-bottom:18px;
-  }
-  .controls .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
-  .field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:130px}
-  .field label{font-family:var(--display);letter-spacing:.14em;text-transform:uppercase;
-    font-size:10px;color:var(--muted)}
-  .field input,.field select{
-    background:#0d1218;border:1px solid var(--edge);color:var(--text);
-    border-radius:7px;padding:8px 10px;font-size:14px;font-family:var(--mono);
-  }
-  .field input:focus,.field select:focus{outline:none;border-color:var(--amber-dim);
-    box-shadow:0 0 0 2px rgba(245,166,35,.12)}
-  .field.check{flex:0 0 auto;flex-direction:row;align-items:center;gap:6px;min-width:0}
-  .field.check input{width:16px;height:16px;accent-color:var(--amber)}
-  .field.check label{align-self:center}
-  .go{flex:0 0 auto}
-  .go .btn{padding:9px 18px;font-family:var(--display);letter-spacing:.1em;
-    text-transform:uppercase;font-weight:600;font-size:13px}
-  .quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:12px;
-    border-top:1px solid var(--edge)}
-  .quick .btn{padding:6px 11px;font-size:12px}
-
-  /* ---- Main layout ---- */
-  .grid{display:grid;grid-template-columns:280px 1fr;gap:18px;align-items:start}
-  @media(max-width:820px){.grid{grid-template-columns:1fr}}
-
-  .panel{background:var(--panel);border:1px solid var(--edge);border-radius:12px;
-    overflow:hidden}
-  .panel h2{font-family:var(--display);font-weight:600;letter-spacing:.12em;
-    text-transform:uppercase;font-size:12px;color:var(--muted);margin:0;
-    padding:13px 15px;border-bottom:1px solid var(--edge);display:flex;
-    align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
-  .panel h2 .count{color:var(--amber);font-family:var(--mono);letter-spacing:0}
-  .h2-actions{display:flex;gap:6px}
-  .ex-btn{background:var(--panel-2);border:1px solid var(--edge);color:var(--muted);
-    border-radius:6px;padding:4px 9px;font-size:11px;font-family:var(--mono);
-    letter-spacing:0;text-transform:none;cursor:pointer;white-space:nowrap}
-  .ex-btn:hover{border-color:var(--amber-dim);color:var(--amber)}
-  .fpresets{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;
-    border-top:1px solid var(--edge);flex-wrap:wrap}
-  .fp-label{font-family:var(--display);letter-spacing:.14em;text-transform:uppercase;
-    font-size:10px;color:var(--muted);flex-shrink:0}
-  .fp-slots{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
-  .fp-io{display:flex;gap:6px;flex-shrink:0}
-  .fp-slot{display:flex;align-items:center;gap:7px;background:var(--panel-2);
-    border:1px solid var(--edge);border-radius:20px;padding:5px 11px;font-size:12px;
-    color:var(--text);cursor:pointer;font-family:var(--mono);max-width:230px}
-  .fp-slot.empty{border-style:dashed;color:var(--muted-2);background:transparent}
-  .fp-slot:hover{border-color:var(--amber-dim)}
-  .fp-slot .fp-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fp-slot .fp-x{color:var(--muted-2);font-size:11px;flex-shrink:0}
-  .fp-slot .fp-x:hover{color:var(--danger)}
-
-  .facet-body{padding:8px;max-height:none}
-  .genre{display:flex;align-items:center;justify-content:space-between;gap:8px;
-    width:100%;background:transparent;border:none;color:var(--text);
-    padding:7px 9px;border-radius:6px;text-align:left;font-size:13.5px}
-  .genre:hover{background:var(--panel-2)}
-  .genre.active{background:rgba(245,166,35,.1);color:var(--amber)}
-  .genre .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    text-transform:capitalize}
-  .genre .c{font-family:var(--mono);font-size:11px;color:var(--muted-2);flex-shrink:0}
-  .genre.active .c{color:var(--amber-dim)}
-  .facet-section{padding:8px 8px 4px;font-family:var(--display);font-size:10px;
-    letter-spacing:.16em;text-transform:uppercase;color:var(--muted-2)}
-  .facet-group{border-bottom:1px solid var(--edge)}
-  .facet-group:last-child{border-bottom:none}
-  .facet-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;
-    gap:8px;background:transparent;border:none;color:var(--muted);cursor:pointer;
-    font-family:var(--display);font-weight:600;letter-spacing:.12em;text-transform:uppercase;
-    font-size:12px;padding:13px 15px}
-  .facet-toggle:hover{color:var(--text)}
-  .facet-toggle .count{color:var(--amber);font-family:var(--mono);letter-spacing:0;margin-left:7px}
-  .facet-toggle .chev{color:var(--muted-2);font-size:10px;transition:transform .2s}
-  .facet-group.collapsed .chev{transform:rotate(-90deg)}
-  .facet-list{padding:8px;max-height:52vh;overflow-y:auto}
-  .facet-group.collapsed .facet-list{display:none}
-  .genre-more{width:100%;margin-top:6px;background:transparent;border:1px dashed var(--edge-hi);
-    color:var(--amber);border-radius:6px;padding:8px;cursor:pointer;font-family:var(--mono);
-    font-size:11.5px;letter-spacing:.03em}
-  .genre-more:hover{background:rgba(245,166,35,.06);border-color:var(--amber-dim)}
-
-  /* ---- Results ---- */
-  #results{display:flex;flex-direction:column}
-  .station{padding:13px 15px;border-bottom:1px solid var(--edge);display:flex;
-    gap:13px;align-items:flex-start}
-  .station:last-child{border-bottom:none}
-  .fav-ico{width:34px;height:34px;border-radius:7px;flex-shrink:0;object-fit:cover;
-    background:#0d1218;border:1px solid var(--edge)}
-  .st-main{flex:1;min-width:0}
-  .st-name{font-weight:600;font-size:15px;color:var(--text);background:none;
-    border:none;padding:0;text-align:left;cursor:pointer;font-family:var(--body)}
-  .st-name:hover{color:var(--amber)}
-  .st-meta{font-family:var(--mono);font-size:11.5px;color:var(--muted);
-    margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 10px}
-  .st-meta .up{color:var(--signal)}
-  .st-tags{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px}
-  .tag{font-size:10.5px;font-family:var(--mono);color:var(--muted);
-    background:#0d1218;border:1px solid var(--edge);border-radius:20px;
-    padding:2px 9px;cursor:pointer;text-transform:capitalize}
-  .tag:hover{border-color:var(--amber-dim);color:var(--amber)}
-  .st-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:stretch}
-  .mini{background:var(--panel-2);border:1px solid var(--edge);color:var(--text);
-    border-radius:6px;padding:5px 9px;font-size:12px;white-space:nowrap;
-    display:flex;align-items:center;gap:5px;justify-content:center}
-  .mini:hover{border-color:var(--edge-hi)}
-  .mini.on{color:var(--amber);border-color:var(--amber-dim)}
-  .mini.playing{color:var(--signal);border-color:var(--signal)}
-  .mini.rmv{color:var(--muted-2)}
-  .mini.rmv:hover{color:var(--danger);border-color:var(--danger)}
-
-  .status{padding:34px 20px;text-align:center;color:var(--muted);font-size:14px}
-  .status.err{color:var(--danger)}
-  .spinner{width:22px;height:22px;border:2px solid var(--edge);border-top-color:var(--amber);
-    border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
-  @keyframes spin{to{transform:rotate(360deg)}}
-
-  /* ---- Presets drawer ---- */
-  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,92vw);
-    background:var(--panel);border-left:1px solid var(--edge);
-    box-shadow:-20px 0 60px -30px #000;transform:translateX(100%);
-    transition:transform .25s ease;z-index:50;display:flex;flex-direction:column}
-  .drawer.open{transform:translateX(0)}
-  .drawer-head{padding:16px 18px;border-bottom:1px solid var(--edge);
-    display:flex;align-items:center;justify-content:space-between}
-  .drawer-head h2{font-family:var(--display);letter-spacing:.12em;text-transform:uppercase;
-    font-size:14px;margin:0;color:var(--amber)}
-  .drawer-body{overflow-y:auto;flex:1;padding:8px}
-  .drawer-actions{padding:12px 14px;border-top:1px solid var(--edge);display:flex;
-    gap:8px;flex-wrap:wrap}
-  .preset{display:flex;gap:8px;align-items:center;padding:9px 10px;border-radius:8px}
-  .preset:hover{background:var(--panel-2)}
-  .preset .pn{flex:1;min-width:0;font-size:13.5px;white-space:nowrap;overflow:hidden;
-    text-overflow:ellipsis}
-  .preset-ord{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
-  .ord-btn{background:transparent;border:1px solid var(--edge);color:var(--muted);
-    border-radius:4px;font-size:8px;line-height:1;padding:2px 4px;cursor:pointer}
-  .ord-btn:hover:not(:disabled){border-color:var(--amber-dim);color:var(--amber)}
-  .ord-btn:disabled{opacity:.28;cursor:default}
-
-  .map-modal{position:fixed;inset:0;z-index:70;background:var(--bg);display:none;flex-direction:column}
-  .map-modal.open{display:flex}
-  .map-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;
-    border-bottom:1px solid var(--edge);background:var(--panel);flex-wrap:wrap}
-  .map-title{font-family:var(--display);letter-spacing:.14em;text-transform:uppercase;
-    font-size:14px;color:var(--amber)}
-  .map-note{font-family:var(--mono);font-size:11px;color:var(--muted);margin-right:auto}
-  #map{flex:1;background:#0d1218}
-  .leaflet-popup-content{margin:10px 12px;font-family:var(--body)}
-  .map-pop b{color:#161b22;font-size:14px}
-  .map-approx{font-family:var(--mono);font-size:10.5px;color:#8a6d1a;margin-top:3px}
-  .map-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-  .map-play,.map-stop,.map-save{background:#161b22;color:#f5a623;border:1px solid #f5a623;
-    border-radius:5px;padding:4px 10px;cursor:pointer;font-size:12px;font-family:var(--body)}
-  .map-play:hover,.map-stop:hover,.map-save:hover{background:#1f2833}
-  .map-save.on{background:#f5a623;color:#161b22;font-weight:600}
-  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;
-    pointer-events:none;transition:opacity .25s;z-index:40}
-  .overlay.open{opacity:1;pointer-events:auto}
-
-  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
-    background:#0d1218;border:1px solid var(--amber-dim);color:var(--amber);
-    padding:10px 18px;border-radius:8px;font-family:var(--mono);font-size:13px;
-    opacity:0;pointer-events:none;transition:all .25s;z-index:60}
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-  .hint{font-size:12px;color:var(--muted-2);margin-top:10px;font-family:var(--mono)}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%;}
+  header{position:sticky;top:0;z-index:20;background:var(--paper);padding:14px 16px 0;padding-top:calc(14px + env(safe-area-inset-top));border-bottom:1px solid var(--rule);}
+  .masthead{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;}
+  h1{font-family:var(--num);font-weight:700;font-size:29px;letter-spacing:.005em;margin:0;line-height:1;}
+  .season{font-family:var(--num);font-size:29px;font-weight:600;color:var(--orange);line-height:1;}
+  .checker{height:10px;background-color:#fff;
+    background-image:linear-gradient(45deg,var(--orange) 25%,transparent 25%,transparent 75%,var(--orange) 75%),
+                     linear-gradient(45deg,var(--orange) 25%,transparent 25%,transparent 75%,var(--orange) 75%);
+    background-size:20px 20px;background-position:0 0,10px 10px;}
+  .search{position:relative;margin-bottom:10px;}
+  #q{width:100%;font-family:var(--body);font-size:16px;padding:11px 40px 11px 13px;border:1.5px solid var(--rule);border-radius:8px;background:var(--wash);color:var(--ink);}
+  #q:focus{outline:none;border-color:var(--orange);background:#fff;}
+  #clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--smokey);font-size:20px;line-height:1;padding:6px 9px;cursor:pointer;display:none;}
+  #clear.on{display:block;}
+  .chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:11px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{flex:0 0 auto;font-family:var(--num);font-size:16px;font-weight:600;letter-spacing:.02em;padding:5px 12px;border-radius:999px;border:1.5px solid var(--rule);background:#fff;color:var(--smokey);cursor:pointer;}
+  .chip[aria-pressed="true"]{background:var(--orange);border-color:var(--orange);color:#fff;}
+  .chip:focus-visible,#q:focus-visible,.row:focus-visible,select:focus-visible,#clear:focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
+  .statusbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 16px;background:var(--wash);border-bottom:1px solid var(--rule);font-size:13.5px;color:var(--smokey);}
+  .statusbar select{font-family:var(--body);font-size:13.5px;color:var(--ink);border:1px solid var(--rule);border-radius:6px;background:#fff;padding:4px 6px;}
+  ul{list-style:none;margin:0;padding:0 0 40px;}
+  li{border-bottom:1px solid var(--rule);}
+  .row{display:block;width:100%;padding:11px 16px;background:#fff;border:0;text-align:left;cursor:pointer;font-family:var(--body);color:inherit;}
+  .rowinner{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px;}
+  .jersey{font-family:var(--num);font-weight:700;font-size:31px;line-height:1;color:var(--orange);text-align:right;font-variant-numeric:tabular-nums;}
+  .who{min-width:0;overflow:hidden;}
+  .name{display:block;font-size:16.5px;font-weight:600;line-height:1.25;}
+  .sub{display:block;font-size:13px;color:var(--smokey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .posbox{text-align:right;}
+  .pos{display:inline-block;font-family:var(--num);font-size:17px;font-weight:600;color:var(--ink);background:var(--wash);border-radius:5px;padding:3px 8px;letter-spacing:.02em;}
+  .role{display:block;margin-top:3px;font-size:11px;line-height:1.1;color:var(--smokey);white-space:nowrap;}
+  .detail{display:none;padding:2px 16px 15px 72px;background:#fff;font-size:14.5px;}
+  li.open .detail{display:block;}
+  li.open .row{background:var(--wash);}
+  li.open .pos{background:#fff;}
+  .detail dl{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:0;}
+  .detail dt{color:var(--smokey);font-size:13px;}
+  .detail dd{margin:0;}
+  .rank{color:var(--smokey);font-size:12.5px;}
+  .say{display:inline-block;margin-bottom:8px;font-size:14px;color:var(--ink);border-left:3px solid var(--orange);padding-left:9px;}
+  .empty{padding:44px 24px;text-align:center;color:var(--smokey);}
+  .empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:5px;font-weight:600;}
+  footer p{margin:0 0 9px;}
+  footer{padding:18px 16px calc(28px + env(safe-area-inset-bottom));font-size:12.5px;color:var(--smokey);border-top:1px solid var(--rule);}
+  .flag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;
+        vertical-align:2px;padding:1px 6px;border-radius:4px;background:var(--wash);color:var(--smokey);border:1px solid var(--rule);}
+  .flag.out{background:#fdece0;border-color:#f6c9a3;color:#a64b00;}
+  .tabs{display:flex;border-bottom:1px solid var(--rule);background:#fff;}
+  .tab{flex:1;font-family:var(--num);font-size:18px;font-weight:600;letter-spacing:.02em;
+       padding:10px 8px;background:#fff;border:0;border-bottom:3px solid transparent;color:var(--smokey);cursor:pointer;}
+  .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--orange);}
+  body.show-depth .search,body.show-depth .chips,body.show-depth .statusbar,body.show-depth #list{display:none;}
+  #depth{display:none;padding:0 0 40px;}
+  body.show-depth #depth{display:block;}
+  .unit{padding:0 0 6px;}
+  .unit h2{font-family:var(--num);font-size:22px;font-weight:700;margin:0;padding:12px 16px 8px;
+           background:var(--wash);border-bottom:1px solid var(--rule);letter-spacing:.02em;}
+  .spot{padding:11px 16px;border-bottom:1px solid var(--rule);}
+  .spot h3{font-size:13px;font-weight:600;color:var(--smokey);margin:0 0 5px;letter-spacing:.02em;}
+  .spot ol{list-style:none;margin:0;padding:0;}
+  .spot li{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:10px;align-items:baseline;
+           border:0;padding:2px 0;font-size:15px;}
+  .spot li.starter{font-weight:600;}
+  .dnum{font-family:var(--num);font-weight:700;font-size:19px;color:var(--orange);text-align:right;font-variant-numeric:tabular-nums;}
+  .drank{font-size:12px;color:var(--smokey);white-space:nowrap;}
+  .asof{padding:14px 16px 0;margin:0;font-size:12.5px;color:var(--smokey);}
+  @media (prefers-reduced-motion:no-preference){ .row{transition:background .12s ease;} }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <!-- Tuner console -->
-  <div class="console">
-    <div class="console-top">
-      <div class="brand">
-        <span class="logo">RBX</span>
-        <span class="sub">Radio&nbsp;Browser&nbsp;Explorer</span>
-        <span class="ver" id="appVer"></span>
-      </div>
-      <div class="server-readout">
-        <span class="led" id="serverLed"></span>
-        <label for="serverSelect">SRV</label>
-        <select id="serverSelect" class="srv-select"><option value="auto">connecting…</option></select>
-      </div>
-    </div>
-
-    <div class="dial">
-      <div class="ticks" id="ticks"></div>
-      <div class="needle" id="needle"></div>
-      <div class="nowplaying">
-        <span class="np-label">Tuned</span>
-        <img class="np-logo" id="npLogo" alt="" hidden>
-        <span class="np-name" id="npName">— select a station —</span>
-        <a class="np-site" id="npSite" target="_blank" rel="noopener" hidden>↗ site</a>
-        <span class="signal-bars"><i></i><i></i><i></i><i></i><i></i></span>
-      </div>
-    </div>
-    <div class="np-stats" id="npStats" hidden></div>
-
-    <div class="transport">
-      <div class="tcluster">
-        <button class="tbtn" id="prevBtn" title="Previous station in results" aria-label="Previous"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 6h2v12H7z"/><path d="M20 6v12l-9-6z"/></svg></button>
-        <button class="tbtn play" id="playToggle" disabled title="Play" aria-label="Play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
-        <button class="tbtn" id="nextBtn" title="Next station in results" aria-label="Next"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6h2v12h-2z"/><path d="M4 6l9 6-9 6z"/></svg></button>
-      </div>
-      <button class="btn" id="autoBtn" title="Auto-skip to the next station when a stream won't play">⟳ Auto</button>
-      <button class="btn" id="presetsBtn">★ Presets <span id="presetCount" style="font-family:var(--mono);color:var(--muted)">(0)</span></button>
-      <div class="vol">
-        <span>VOL</span>
-        <input type="range" id="vol" min="0" max="1" step="0.01" value="0.9">
-      </div>
-    </div>
-    <audio id="audio"></audio>
+<header>
+  <div class="masthead"><h1>Tennessee Football</h1><span class="season">2026</span></div>
+  <div class="search">
+    <input id="q" type="search" inputmode="search" autocomplete="off" autocapitalize="off"
+           placeholder="Search name, number, position, hometown" aria-label="Search the roster">
+    <button id="clear" type="button" aria-label="Clear search">&times;</button>
   </div>
+  <div class="chips" id="chips" role="group" aria-label="Filter by position"></div>
+</header>
+<div class="checker" aria-hidden="true"></div>
 
-  <!-- Controls -->
-  <div class="controls">
-    <div class="row">
-      <div class="field"><label>Name</label><input id="fName" placeholder="station name…"></div>
-      <div class="field"><label>Genre / Tag</label><input id="fTag" list="tagList" placeholder="news, jazz…"><datalist id="tagList"></datalist></div>
-      <div class="field"><label>Language</label><input id="fLang" list="langList" placeholder="english…"><datalist id="langList"></datalist></div>
-      <div class="field"><label>Country</label><input id="fCountry" list="countryList" placeholder="United Kingdom…"><datalist id="countryList"></datalist></div>
-      <div class="field"><label>Codec</label>
-        <select id="fCodec"><option value="">any</option><option>MP3</option><option>AAC</option><option>AAC+</option><option>OGG</option><option>FLAC</option></select>
-      </div>
-      <div class="field"><label>Min quality</label>
-        <select id="fQuality">
-          <option value="">any</option>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-          <option value="veryhigh">Very high</option>
-        </select>
-      </div>
-      <div class="field"><label>Sort by</label>
-        <select id="fSort">
-          <option value="votes">Votes</option>
-          <option value="clickcount">Popularity</option>
-          <option value="bitrate">Bitrate</option>
-          <option value="name">Name</option>
-          <option value="random">Random</option>
-        </select>
-      </div>
-      <div class="field"><label>Results</label>
-        <select id="fLimit">
-          <option value="120">120</option>
-          <option value="250">250</option>
-          <option value="500">500</option>
-          <option value="1000">1000</option>
-        </select>
-      </div>
-      <div class="field check"><input type="checkbox" id="fBroken" checked><label>Hide broken</label></div>
-      <div class="go"><button class="btn amber" id="searchBtn">Tune ▸</button></div>
-    </div>
-    <div class="quick">
-      <button class="btn" data-quick="topvote">▲ Top Voted</button>
-      <button class="btn" data-quick="topclick">♪ Most Played</button>
-      <button class="btn" data-quick="random">⤮ Surprise Me</button>
-      <button class="btn" id="clearBtn">✕ Clear filters</button>
-    </div>
-    <div class="fpresets">
-      <span class="fp-label">Filter Presets</span>
-      <div class="fp-slots" id="fpSlots"></div>
-      <span class="fp-io">
-        <button class="ex-btn" id="fpBackup" title="Backup filter presets (JSON)">⤓</button>
-        <button class="ex-btn" id="fpRestore" title="Restore filter presets (JSON)">⤒</button>
-        <input type="file" id="fpRestoreFile" accept="application/json,.json" style="display:none">
-      </span>
-    </div>
-  </div>
-
-  <!-- Main -->
-  <div class="grid">
-    <div class="panel" id="facets">
-      <div id="facetBody">
-        <div class="status" style="padding:24px"><div class="spinner"></div>loading…</div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>
-        <span><span id="resultsTitle">Stations</span> <span class="count" id="resultsCount"></span></span>
-        <span class="h2-actions">
-          <button class="ex-btn" id="mapResults" title="Map all results with coordinates">◱ Map</button>
-          <button class="ex-btn" id="expCopy" title="Copy every result URL">⧉ URLs</button>
-          <button class="ex-btn" id="expM3u" title="Download all results as a playlist">⭳ .m3u</button>
-        </span>
-      </h2>
-      <div id="results">
-        <div class="status">Pick a genre on the left, run a search, or hit <b style="color:var(--amber)">Top Voted</b> to start.</div>
-      </div>
-    </div>
-  </div>
-
-  <p class="hint">Tip: use <b>Copy URL</b> on any station and paste into foobar2000 → File → Add location. Or save stations as presets and export a single <b>.m3u</b> to open the whole set at once.</p>
+<div class="tabs" role="tablist">
+  <button class="tab" type="button" role="tab" data-view="roster" aria-selected="true">Roster</button>
+  <button class="tab" type="button" role="tab" data-view="depth" aria-selected="false">Depth chart</button>
 </div>
 
-<!-- Presets drawer -->
-<div class="overlay" id="overlay"></div>
-<div class="drawer" id="drawer">
-  <div class="drawer-head">
-    <h2>★ Presets</h2>
-    <button class="btn" id="closeDrawer">✕</button>
-  </div>
-  <div class="drawer-body" id="presetBody">
-    <div class="status">No presets yet. Tap the ★ on any station to save it here.</div>
-  </div>
-  <div class="drawer-actions">
-    <button class="btn amber" id="mapBtn">◱ Map it</button>
-    <button class="btn amber" id="copyAll">⧉ Copy all URLs</button>
-    <button class="btn amber" id="exportM3u">⭳ Export .m3u</button>
-    <button class="btn" id="backupBtn">⭳ Backup</button>
-    <button class="btn" id="restoreBtn">⭱ Restore</button>
-    <button class="btn" id="clearPresets">✕ Clear</button>
-    <input type="file" id="restoreFile" accept="application/json,.json" style="display:none">
-  </div>
+<div class="statusbar">
+  <span id="count">112 players</span>
+  <label>Sort
+    <select id="sort" aria-label="Sort roster">
+      <option value="num">Number</option>
+      <option value="name">Last name</option>
+      <option value="pos">Position</option>
+      <option value="wt">Heaviest</option>
+      <option value="ht">Tallest</option>
+      <option value="cl">Class</option>
+    </select>
+  </label>
 </div>
 
-<div class="map-modal" id="mapModal">
-  <div class="map-bar">
-    <span class="map-title" id="mapTitle">◱ Station Map</span>
-    <span class="map-note" id="mapNote"></span>
-    <button class="btn" id="closeMap">✕ Close</button>
-  </div>
-  <div id="map"></div>
-</div>
+<ul id="list"></ul>
+<div id="depth"></div>
 
-<div class="toast" id="toast"></div>
-
-<div class="floatplayer" id="floatPlayer">
-  <div class="fp-now">
-    <span class="fp-dot"></span>
-    <span class="fp-title" id="fpNow">—</span>
-  </div>
-  <div class="fp-controls">
-    <button class="tbtn sm fpstar" id="fpStar" title="Save to presets" aria-label="Save to presets">☆</button>
-    <button class="tbtn sm" id="fpPrev" title="Previous" aria-label="Previous"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 6h2v12H7z"/><path d="M20 6v12l-9-6z"/></svg></button>
-    <button class="tbtn sm play" id="fpPlay" title="Play" aria-label="Play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
-    <button class="tbtn sm" id="fpNext" title="Next" aria-label="Next"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6h2v12h-2z"/><path d="M4 6l9 6-9 6z"/></svg></button>
-  </div>
-</div>
+<footer>
+<p><b>Roster updated:</b> Aug. 2026 &middot; <b>Depth chart updated:</b> Sept. 1, 2026 (opening week)</p>
+<p>Tap a player for hometown, high school, previous schools and where he lines up.
+Class: Fr. first year &middot; So. second &middot; Jr. third &middot; Sr. fourth &middot; 5th fifth.</p>
+<p>Players, numbers and hometowns come from the 2026 UT roster on utsports.com. Specific spots &mdash; corner vs. safety,
+guard vs. tackle &mdash; are not on that roster; they start from the Ourlads two-deep of Aug. 24, 2026, adjusted for
+season-ending injuries to Edrees Farooq, Jadais Richard and Jaedon Harmon and Arion Carter's one-game suspension.
+The chart lists only the top few at each spot, so anyone deeper down shows just his position group.</p>
+</footer>
 
 <script>
-(function(){
-  "use strict";
 
-  // ---------- API ----------
-  let API_BASE = "https://all.api.radio-browser.info";
-  const j = (path) => fetch(API_BASE + path, {headers:{"Accept":"application/json"}}).then(r=>{
-    if(!r.ok) throw new Error("HTTP "+r.status); return r.json();
+// num, name, pos, class, yr at UT, height, weight, hometown/high school/previous schools
+const RAW = [
+[0,"Amare Campbell","LB","Sr.","1st","6-0",230,"Manassas, Va./Unity Reed/North Carolina/Penn State"],
+[0,"Ethan Davis","TE","Sr.","4th","6-5",247,"Atlanta, Ga./Collins Hill"],
+[1,"TJ Metcalf","DB","Sr.","1st","6-1",205,"Birmingham, Ala./Pinson Valley/Arkansas/Michigan"],
+[1,"Travis Smith Jr.","WR","So.","2nd","6-3",215,"Atlanta, Ga./Westlake"],
+[2,"Justin Baker","RB","So.","2nd","5-10",212,"Stone Mountain, Ga./Buford"],
+[2,"Xavier Gilliam","DL","Jr.","1st","6-2",305,"Montgomery Village, Md./Quince Orchard/Penn State"],
+[3,"Radarious Jackson","WR","So.","2nd","6-2",208,"Memphis, Tenn./Sheffield"],
+[3,"Tre Poteat III","DB","So.","2nd","6-0",192,"Fitchburg, Wis./Verona Area"],
+[4,"Mike Matthews","WR","Jr.","3rd","6-1",200,"Lilburn, Ga./Parkview"],
+[4,"Ty Redmond","DB","So.","2nd","6-3",200,"Duluth, Ga./Milton"],
+[5,"Daevin Hobbs","DL","Sr.","4th","6-4",290,"Concord, N.C./Jay M. Robinson"],
+[5,"TK Keys","WR","Fr.","1st","6-2",200,"Hattiesburg, Miss./Hattiesburg"],
+[6,"Javin Gordon","RB","So.","1st","5-10",212,"Toccoa, Ga./Stephens County/Tulane"],
+[6,"Qua Moss","DB","Sr.","1st","5-10",190,"West Point, Ga./Troup County/West Georgia/Kansas State"],
+[7,"DaSaahn Brame","TE","So.","2nd","6-5",240,"Derby, Kan./Derby"],
+[7,"Arion Carter","LB","Sr.","4th","6-1",238,"Smyrna, Tenn./Smyrna"],
+[8,"Jadais Richard","DB","Sr.","1st","6-1",202,"West Monroe, La./West Monroe/Vanderbilt/Miami"],
+[8,"Ryan Staub","QB","Sr.","1st","6-1",205,"Stevenson Ranch, Calif./West Ranch/Colorado"],
+[9,"Joakim Dodson","WR","So.","2nd","6-0",197,"Memphis, Tenn./Baylor School"],
+[9,"Mariyon Dye","DL","So.","2nd","6-5",270,"Elkhart, Ind./Elkhart"],
+[10,"Dejuan Lane","DB","Jr.","1st","6-2",215,"Jessup, Md./Gillman School/Penn State"],
+[11,"Faizon Brandon","QB","Fr.","1st","6-4",225,"Greensboro, N.C./Grimsley"],
+[11,"Jordan Burns","LB","Jr.","3rd","6-1",227,"Conyers, Ga./Pace Academy"],
+[12,"Jaedon Harmon","LB","So.","2nd","6-0",225,"Rome, Ga./Rome"],
+[12,"George MacIntyre","QB","So.","2nd","6-6",208,"Franklin, Tenn./Brentwood Academy"],
+[13,"Mason Phillips","QB","So.","2nd","6-1",190,"Kodak, Tenn./Northview Academy"],
+[13,"Edwin Spillman","LB","Jr.","3rd","6-1",226,"Nashville, Tenn./Lipscomb Academy"],
+[14,"Kayin Lee","DB","Sr.","1st","5-11",191,"Ellenwood, Ga./Cedar Grove/Auburn"],
+[14,"Braylon Staley","WR","Jr.","3rd","6-0",192,"Aiken, S.C./Strom Thurmond"],
+[15,"Edrees Farooq","DB","Jr.","3rd","6-0",202,"Columbia, Md./Saint Frances Academy"],
+[17,"Daune Morris","RB","So.","2nd","5-10",200,"Chattanooga, Tenn./Oakland"],
+[17,"Ethan Utley","DL","So.","2nd","6-4",288,"Nashville, Tenn./Ensworth"],
+[18,"DeSean Bishop","RB","Sr.","4th","5-10",215,"Knoxville, Tenn./Karns"],
+[18,"Tyree Weathersby","DL","Sr.","4th","6-5",268,"Douglasville, Ga./New Manchester"],
+[19,"Tyreek King","WR","Fr.","1st","5-11",178,"Knoxville, Tenn./Knoxville Catholic"],
+[19,"Nathan Robinson","DL","Sr.","4th","6-7",295,"Greenbrier, Tenn./Greenbrier"],
+[20,"Tevis Metcalf","DB","Jr.","1st","5-10",202,"Birmingham, Ala./Clay-Chalkville/Arkansas/Michigan"],
+[21,"Jamyan Theodore","DB","Fr.","1st","6-0",175,"Montreal, Quebec, Canada/Baylor (Tenn.) School"],
+[22,"Jeremiah Telander","LB","Sr.","4th","6-2",235,"Gainesville, Ga./Gainesville"],
+[23,"Sidney Walton","DB","So.","2nd","6-1",197,"Moody, Ala./Moody"],
+[24,"Hunter Barnes","RB","5th","5th","6-0",200,"Memphis, Tenn./Memphis School"],
+[24,"Dylan Lewis","DB","So.","2nd","6-0",198,"Atlanta, Ga./Milton"],
+[25,"Tim Merritt","DB","So.","2nd","6-1",194,"Birmingham, Ala./Parker"],
+[26,"JJ Finch","DL","Fr.","1st","6-3",297,"Indianapolis, Ind./Warren Central"],
+[26,"Doren Sacha","WR","Jr.","1st","6-1",183,"Denver, Colo./Thomas Jefferson/Northern Colorado"],
+[27,"Jadon Perlotte","LB","So.","2nd","6-3",215,"Lawrenceville, Ga./Buford"],
+[28,"Cooper Ranvier","PK","Jr.","1st","6-2",199,"Lexington, Ky./Douglass/Louisville"],
+[28,"Brayden Rouse","LB","Fr.","1st","6-3",225,"Woodstock, Ga./Kell"],
+[29,"Isaiah Hardge","DB","Sr.","1st","5-10",182,"Hollywood, Fla./St. Thomas Aquinas/Colorado"],
+[29,"Jack-Henry Jakobik","WR","Sr.","4th","6-4",200,"Brentwood, Tenn./Ravenwood"],
+[30,"JaColby Cooper","WR","Fr.","1st","6-0",175,"Alcoa, Tenn./Alcoa"],
+[30,"Javonte Smith","DB","Fr.","1st","6-0",185,"Jackson, Tenn./North Side"],
+[31,"Lane Cope","WR","Fr.","1st","5-9",180,"Maryville, Tenn./Eagleton"],
+[31,"Joel Wyatt","DB","Fr.","1st","6-4",210,"Shelbyville, Tenn./Oakland"],
+[33,"Jordan Norman","DL","Sr.","1st","6-4",265,"Birmingham, Ala./Hoover/South Alabama/Tulane"],
+[34,"Zay Anderson","DB","Fr.","1st","6-0",176,"Greeneville, Tenn./Greeneville"],
+[34,"Will Rajecki","RB","Fr.","1st","5-11",210,"Canton, Ga./Sequoyah"],
+[35,"Carson Gentle","DL","Jr.","3rd","6-3",267,"Chattanooga, Tenn./McCallie School"],
+[35,"Ben Petermann","WR","So.","2nd","6-3",208,"Chicago, Ill./Rolling Meadows"],
+[36,"Carter Gooden","DL","Fr.","1st","6-4",270,"Marion, Mass./Tabor Academy"],
+[36,"Nathan Roberts","WR","Sr.","4th","6-4",210,"Morristown, Tenn./Morristown-Hamblen East"],
+[37,"Kedric Golston II","DL","Fr.","1st","6-3",243,"Leesburg, Va./Stone Bridge"],
+[38,"Brayden Carroll","WR","Fr.","1st","6-1",190,"Cleveland, Tenn./Bradley Central"],
+[38,"Jowell Combay","DB","Fr.","1st","6-1",202,"Atlanta, Ga./Kell"],
+[39,"Darryl Rivers","DL","Fr.","1st","6-5",287,"Atlanta, Ga./McEachern"],
+[40,"KJ McClain","DB","Fr.","1st","6-0",188,"Rahway, N.J./Saint Joseph Regional"],
+[42,"DJ Burks","DB","5th","1st","6-0",196,"Maryville, Tenn./Maryville/App State"],
+[43,"Jackson Mathews","DB","Jr.","3rd","6-0",198,"Franklin, Tenn./Christ Presbyterian Academy"],
+[44,"Christian Gass","DL","So.","2nd","6-3",245,"Covington, Ga./Eastside"],
+[44,"Drake Martinez","TE","Sr.","1st","6-3",245,"Houston, Texas/St. Thomas/Houston Christian/UT Martin"],
+[47,"Isaiah Campbell","DL","So.","2nd","6-4",295,"Durham, N.C./Southern Durham"],
+[48,"Bennett Brady","LS","5th","5th","6-1",210,"Memphis, Tenn./Evangelical Christian"],
+[50,"Ryan Scott","LB","Jr.","3rd","6-1",220,"Knoxville, Tenn./West"],
+[51,"Jeremias Heard","OL","Jr.","3rd","6-8",335,"Rome, Ga./Model"],
+[51,"TJ White","LB","Fr.","1st","6-2",235,"Jackson, Miss./Jackson Academy"],
+[53,"Blake Howard","LS","Sr.","1st","6-2",223,"Cincinnati, Ohio/Princeton/ETSU/Eastern Kentucky"],
+[55,"Mike Bethea II","DL","5th","3rd","6-1",222,"Destin, Fla./Maryville/Maryville College"],
+[55,"Antoni Ogumoro","OL","So.","2nd","6-4",320,"Saipan, Northern Mariana Islands/Elgin (Okla.)"],
+[56,"Zach Groves","DL","Fr.","1st","6-4",252,"Cross Plains, Tenn./East Robertson"],
+[56,"Sam Pendleton","OL","Sr.","2nd","6-4",315,"Lawsonville, N.C./Reagan/Notre Dame"],
+[57,"Grier Short","LB","Jr.","3rd","6-1",222,"Franklin, Tenn./Ensworth"],
+[58,"Nic Moore","OL","So.","2nd","6-3",312,"Talbott, Tenn./Jefferson County"],
+[59,"Dereon Albert","DL","Fr.","1st","6-1",305,"Jackson, Miss./Jackson Academy"],
+[59,"Charlie Powell III","OL","So.","2nd","6-3",312,"Cincinnati, Ohio/Archbishop Moeller"],
+[60,"Thomas Storm","OL","Fr.","1st","6-4",285,"Brighton, Mich./Brighton"],
+[63,"Jeremy George-El","OL","Fr.","1st","6-4",310,"Montreal, Quebec, Canada/Knoxville Catholic"],
+[65,"Michael Kostantonov","OL","Jr.","2nd","6-4",322,"Northbrook, Ill./Loyola Academy/Central Michigan"],
+[66,"Kamari Blair","OL","Fr.","1st","6-6",293,"Clarksville, Tenn./Kirkwood"],
+[69,"Donovan Haslam","OL","5th","1st","6-3",350,"Perry, Ga./Perry/Austin Peay/West Virginia"],
+[70,"David Sanders Jr.","OL","So.","2nd","6-6",310,"Charlotte, N.C./Providence Day"],
+[71,"Ed Baker","OL","Fr.","1st","6-4",322,"Baltimore, Md./St. Frances Academy"],
+[72,"Jesse Perry","OL","Jr.","3rd","6-6",320,"Murfreesboro, Tenn./Middle Tennessee Christian"],
+[74,"Shamurad Umarov","OL","Sr.","4th","6-7",321,"Alpharetta, Ga./Denmark"],
+[75,"Wendell Moe Jr.","OL","5th","2nd","6-2",330,"Long Beach, Calif./Long Beach Poly/Arizona"],
+[77,"Ory Williams","OL","Jr.","1st","6-8",330,"San Marcos, Texas/San Marcos/LSU"],
+[78,"Gage Ginther","OL","Jr.","3rd","6-5",310,"Fort Collins, Colo./Fossil Ridge"],
+[79,"Gabriel Osenda","OL","Fr.","1st","6-8",332,"Airdrie, Alberta, Canada/Baylor School"],
+[80,"Cole Harrison","TE","Jr.","3rd","6-5",241,"San Mateo, Calif./Junipero Serra"],
+[81,"Ian Duarte","WR","Sr.","1st","5-10",181,"Santa Clarita, Calif./Eagle/Idaho State"],
+[82,"Trent Thomas","TE","Sr.","1st","6-5",254,"Mobile, Ala./Cottage Hill/South Alabama"],
+[85,"CJ Edwards","DL","Fr.","1st","6-3",232,"Edison, N.J./Saint Joseph"],
+[85,"Luke Thompson","WR","Fr.","1st","6-1",193,"Franklin, Tenn./Franklin"],
+[87,"Nuk Simmons","DL","Fr.","1st","6-3",300,"Lumpkin, Ga./Carver"],
+[87,"Luca Wolf","TE","Fr.","1st","6-5",256,"Vienna, Austria/NFL (UK) Academy"],
+[88,"Deon Hardin","WR","Sr.","2nd","6-0",190,"Knoxville, Tenn./Biloxi/East Central (Miss.) CC"],
+[93,"Grady Dangerfield","PK","So.","2nd","6-0",215,"Charleston, S.C./James Island Charter"],
+[94,"Josh Turbyville","P/PK","5th","5th","6-2",195,"Knoxville, Tenn./Knoxville Catholic"],
+[95,"Breeze Carter","DL","Fr.","1st","6-3",255,"Atlanta, Ga./Douglas County"],
+[97,"Hezekiah Harris","DL","Fr.","1st","6-6",250,"Anniston, Ala./Mae Jemison"],
+[98,"Jackson Ross","P","5th","5th","6-4",204,"Melbourne, Australia/Haileybury College"],
+[99,"Logan Foley","P","Fr.","1st","6-6",237,"Perth, Australia/Univ. Southern Queensland"],
+[99,"Charles House III","DL","So.","2nd","6-3",290,"Charlotte, N.C./North Mecklenburg"]
+];
+
+const SAY = {
+"Amare Campbell":"uh-MAR-ee","Xavier Gilliam":"GIHL-yuhm","Radarious Jackson":"RUH-dair-ee-us",
+"Tre Poteat III":"poh-TEET","Daevin Hobbs":"DAY-vin","Javin Gordon":"JAY-vin","Qua Moss":"KWAY",
+"DaSaahn Brame":"duh-SAHN BRAIM","Arion Carter":"air-EE-on","Jadais Richard":"JAY-diss",
+"Ryan Staub":"STAAB (rhymes with job)","Joakim Dodson":"JOE-kim","Mariyon Dye":"MAR-ee-yahn",
+"Dejuan Lane":"DAY-zhaan","Faizon Brandon":"FAY-zahn","Jaedon Harmon":"JAY-din",
+"George MacIntyre":"MAC-en-ty-er","Kayin Lee":"KAY-enn","Edrees Farooq":"EE-dreez fuh-RUKE",
+"Daune Morris":"duh-WAN","Jamyan Theodore":"JAY-mee-uhn","Jeremiah Telander":"TEE-lan-dur",
+"Jadon Perlotte":"PUR-lah-tee","Cooper Ranvier":"RAN-vee-ay","Jack-Henry Jakobik":"juh-KOE-bick",
+"Javonte Smith":"ja-VON-tay","Joel Wyatt":"joe-ELL","Kedric Golston II":"KEH-drick GOAL-stun",
+"Christian Gass":"GAS","Mike Bethea II":"buh-THAY","Antoni Ogumoro":"AN-tuh-nee OH-goo-mo-row",
+"Michael Kostantonov":"KOZZ-tan-toe-nov","Kamari Blair":"kuh-MAR-ee",
+"Shamurad Umarov":"oo-MAH-rawf (goes by Sham)","Wendell Moe Jr.":"MOY (rhymes with boy)",
+"Gabriel Osenda":"oh-SEN-duh","Ian Duarte":"DWAR-tay","Hezekiah Harris":"hez-uh-KAI-uh"
+};
+
+const SHORT_ROLE = {
+  "QB":"Quarterback","RB":"Running back","WR":"Wide receiver","TE":"Tight end",
+  "OL":"Offensive line","DL":"Defensive line","LB":"Linebacker","DB":"Defensive back",
+  "PK":"Kicker","P":"Punter","P/PK":"Punter / kicker","LS":"Long snapper"
+};
+// Specific roles from the Ourlads preseason two-deep, updated Aug. 24, 2026.
+// Order within each list is depth-chart order.
+const DEPTH_ROWS = [
+["Quarterback","Quarterback",["Faizon Brandon","George MacIntyre","Ryan Staub","Mason Phillips"]],
+["Running back","Running back",["DeSean Bishop","Daune Morris","Javin Gordon","Justin Baker"]],
+["X receiver","Receiver, X (wide side)",["Mike Matthews","Travis Smith Jr.","Tyreek King"]],
+["Z receiver","Receiver, Z (boundary)",["Radarious Jackson","TK Keys"]],
+["Slot receiver","Receiver, slot",["Braylon Staley","Joakim Dodson","Ian Duarte"]],
+["Tight end","Tight end",["Ethan Davis","DaSaahn Brame","Trent Thomas","Cole Harrison"]],
+["Left tackle","Left tackle",["David Sanders Jr.","Gabriel Osenda"]],
+["Left guard","Left guard",["Wendell Moe Jr.","Shamurad Umarov","Antoni Ogumoro"]],
+["Center","Center",["Sam Pendleton","Nic Moore"]],
+["Right guard","Right guard",["Jesse Perry","Donovan Haslam"]],
+["Right tackle","Right tackle",["Ory Williams","Jeremias Heard"]],
+["Defensive end","Defensive end",["Tyree Weathersby","Mariyon Dye","Carson Gentle","Carter Gooden"]],
+["Nose tackle","Nose tackle",["Xavier Gilliam","Nathan Robinson","Ethan Utley","JJ Finch"]],
+["Defensive tackle","Defensive tackle",["Daevin Hobbs","Isaiah Campbell","Darryl Rivers","Charles House III"]],
+["Edge rusher","Edge rusher (Leo)",["Jordan Norman","Christian Gass","Kedric Golston II"]],
+["Weakside LB","Weakside linebacker",["Arion Carter","Jadon Perlotte","Brayden Rouse"]],
+["Middle LB","Middle linebacker",["Amare Campbell","Edwin Spillman","Jeremiah Telander","TJ White"]],
+["Left corner","Left cornerback",["Kayin Lee","Tre Poteat III","Tim Merritt"]],
+["Right corner","Right cornerback",["Ty Redmond","Zay Anderson"]],
+["Strong safety","Strong safety",["Dejuan Lane","DJ Burks"]],
+["Free safety","Free safety",["TJ Metcalf","Dylan Lewis","Sidney Walton","Joel Wyatt"]],
+["Nickel back","Nickel back",["Qua Moss","Isaiah Hardge","Tevis Metcalf"]],
+["Punter","Punter",["Jackson Ross","Josh Turbyville","Logan Foley"]],
+["Kicker","Place kicker",["Cooper Ranvier","Josh Turbyville","Grady Dangerfield"]],
+["Long snapper","Long snapper",["Bennett Brady","Blake Howard"]],
+["Kickoffs","Kickoffs",["Josh Turbyville","Grady Dangerfield"]],
+["Holder","Holder",["Jackson Ross","Josh Turbyville","Logan Foley"]],
+["Punt returner","Punt returner",["Daune Morris","Ian Duarte"]],
+["Kick returner","Kick returner",["Joakim Dodson","Daune Morris"]]
+];
+const UPDATED = {
+  roster:"2026 roster, utsports.com",
+  depth:"Sept. 1, 2026 \u2014 opening week"
+};
+
+// Players off the two-deep, with the spot they had been holding.
+const STATUS = {
+"Edrees Farooq":  {tag:"Out for season", note:"Torn patellar tendon, right knee (Aug. 14)", spot:"Strong safety"},
+"Jadais Richard": {tag:"Out for season", note:"Upper-body injury", spot:"Cornerback"},
+"Jaedon Harmon":  {tag:"Out for season", note:"Torn ACL", spot:"Weakside LB"},
+"Arion Carter":   {tag:"Out week 1", note:"Suspension \u2014 back for Georgia Tech", spot:null}
+};
+
+const DEPTH = {};
+DEPTH_ROWS.forEach(([short,full,names]) => names.forEach((n,i) => {
+  (DEPTH[n] = DEPTH[n] || []).push({short, full, rank:i+1});
+}));
+const RANK_WORD = ["1st team","2nd team","3rd team","4th team","5th team"];
+
+const CLASS_ORDER = {"Fr.":1,"So.":2,"Jr.":3,"Sr.":4,"5th":5};
+const POS_ORDER = ["QB","RB","WR","TE","OL","DL","LB","DB","PK","P","P/PK","LS"];
+const SPECIAL = ["PK","P","P/PK","LS"];
+const POS_NAMES = {
+  "QB":"Quarterback","RB":"Running back","WR":"Wide receiver","TE":"Tight end",
+  "OL":"Offensive line","DL":"Defensive line","LB":"Linebacker","DB":"Defensive back",
+  "PK":"Place kicker","P":"Punter","P/PK":"Punter and place kicker","LS":"Long snapper"
+};
+
+const players = RAW.map(r => {
+  const parts = r[7].split("/").map(s => s.trim());
+  const [ft, inch] = r[5].split("-").map(Number);
+  const name = r[1];
+  const last = name.replace(/ (Jr\.|II|III)$/,"").split(" ").slice(-1)[0];
+  return {
+    num:r[0], name, pos:r[2], cl:r[3], yr:r[4], ht:r[5], inches:ft*12+inch, wt:r[6],
+    home:parts[0], hs:parts[1] || "", prev:parts.slice(2), last,
+    say:SAY[name] || "",
+    posName:POS_NAMES[r[2]] || r[2],
+    depth:DEPTH[name] || [],
+    status:STATUS[name] || null,
+    hay:(r[0]+" #"+r[0]+" "+name+" "+r[2]+" "+(POS_NAMES[r[2]]||"")+" "+
+         (SPECIAL.includes(r[2]) ? "special teams kicking" : "")+" "+
+         (DEPTH[name] || []).map(d => d.short+" "+d.full).join(" ")+" "+
+         (STATUS[name] ? STATUS[name].tag+" "+STATUS[name].note+" injured "+(STATUS[name].spot||"") : "")+" "+
+         r[3]+" "+r[5]+" "+r[6]+" "+r[7]).toLowerCase()
+  };
+});
+
+const GROUPS = [
+  ["all","All"],["QB","QB"],["RB","RB"],["WR","WR"],["TE","TE"],
+  ["OL","OL"],["DL","DL"],["LB","LB"],["DB","DB"],["ST","Special teams"]
+];
+
+const chipsEl = document.getElementById("chips");
+const listEl  = document.getElementById("list");
+const qEl     = document.getElementById("q");
+const clearEl = document.getElementById("clear");
+const countEl = document.getElementById("count");
+const sortEl  = document.getElementById("sort");
+let filter = "all";
+
+GROUPS.forEach(([val,label]) => {
+  const b = document.createElement("button");
+  b.className = "chip";
+  b.type = "button";
+  b.textContent = label;
+  b.dataset.pos = val;
+  b.setAttribute("aria-pressed", val === "all");
+  b.addEventListener("click", () => {
+    filter = val;
+    [...chipsEl.children].forEach(c => c.setAttribute("aria-pressed", c.dataset.pos === val));
+    render();
+  });
+  chipsEl.appendChild(b);
+});
+
+function matchesPos(p){
+  if (filter === "all") return true;
+  if (filter === "ST") return SPECIAL.includes(p.pos);
+  return p.pos === filter;
+}
+
+function esc(s){ return String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+function render(){
+  const q = qEl.value.trim().toLowerCase();
+  clearEl.classList.toggle("on", q.length > 0);
+
+  // A bare 1- or 2-digit search means a jersey number, not "any 5 anywhere".
+  const jersey = q.match(/^#?(\d{1,2})$/);
+  let rows;
+  if (jersey){
+    const n = Number(jersey[1]);
+    rows = players.filter(p => matchesPos(p) && p.num === n);
+    if (!rows.length) rows = players.filter(p => matchesPos(p) && p.hay.includes(q));
+  } else {
+    rows = players.filter(p => matchesPos(p) && (!q || p.hay.includes(q)));
+  }
+
+  const s = sortEl.value;
+  rows.sort((a,b) => {
+    if (s === "name") return a.last.localeCompare(b.last) || a.name.localeCompare(b.name);
+    if (s === "wt")   return b.wt - a.wt;
+    if (s === "ht")   return b.inches - a.inches || b.wt - a.wt;
+    if (s === "cl")   return CLASS_ORDER[b.cl] - CLASS_ORDER[a.cl] || a.num - b.num;
+    if (s === "pos")  return POS_ORDER.indexOf(a.pos) - POS_ORDER.indexOf(b.pos) || a.num - b.num;
+    return a.num - b.num || a.name.localeCompare(b.name);
   });
 
-  const KNOWN_SERVERS = [
-    "de1.api.radio-browser.info",
-    "de2.api.radio-browser.info",
-    "nl1.api.radio-browser.info",
-    "at1.api.radio-browser.info",
-    "fi1.api.radio-browser.info"
-  ];
-  const DEFAULT_HOST = "de1.api.radio-browser.info";
-  let serverHosts = [];
-  async function initServer(){
-    let fetched = [];
-    try{
-      const servers = await fetch("https://all.api.radio-browser.info/json/servers").then(r=>r.json());
-      fetched = servers.map(s=>s.name).filter(Boolean);
-    }catch(e){ /* offline/blocked — fall back to known mirrors */ }
-    serverHosts = [...new Set([...fetched, ...KNOWN_SERVERS])].sort();
-    API_BASE = "https://" + (serverHosts.includes(DEFAULT_HOST) ? DEFAULT_HOST : serverHosts[0]);
-    populateServers();
-    setServer("on");
-  }
-  function populateServers(){
-    const sel = $("serverSelect");
-    sel.innerHTML = '<option value="auto">Auto (random)</option>' +
-      serverHosts.map(h=>'<option value="'+esc(h)+'">'+esc(h)+'</option>').join("");
-    const host = API_BASE.replace("https://","");
-    sel.value = [...sel.options].some(o=>o.value===host) ? host : "auto";
-  }
-  function setServer(state){
-    $("serverLed").className = "led " + (state||"");
-    const sel = $("serverSelect");
-    const host = API_BASE.replace("https://","");
-    if([...sel.options].some(o=>o.value===host)) sel.value = host;
-  }
-  function onServerChange(){
-    const v = $("serverSelect").value;
-    if(v==="auto" && serverHosts.length){
-      API_BASE = "https://" + serverHosts[Math.floor(Math.random()*serverHosts.length)];
-    }else if(v!=="auto"){
-      API_BASE = "https://" + v;
-    }
-    setServer("on");
-    toast("Server → " + API_BASE.replace("https://",""));
-    loadGenres(); loadCountries();
+  countEl.textContent = rows.length === 1 ? "1 player" : rows.length + " players";
+
+  if (!rows.length){
+    listEl.innerHTML = '<li><div class="empty"><b>No one by that name</b>Try a number, a position, or a hometown like Nashville.</div></li>';
+    return;
   }
 
-  // ---------- State ----------
-  let presets = load("rbx_presets", []);
-  let currentUuid = null;
-  let currentStation = null;
-  let lastResults = [];
-  const $ = (id)=>document.getElementById(id);
+  listEl.innerHTML = rows.map((p,i) => `
+    <li>
+      <button class="row" type="button" aria-expanded="false" aria-controls="d${i}">
+       <span class="rowinner">
+        <span class="jersey">${p.num}</span>
+        <span class="who">
+          <span class="name">${esc(p.name)}${p.status ? ` <span class="flag${p.status.tag === "Out for season" ? " out" : ""}">${esc(p.status.tag)}</span>` : ""}</span>
+          <span class="sub">${esc(p.cl)} &nbsp;&middot;&nbsp; ${esc(p.ht)}, ${p.wt} &nbsp;&middot;&nbsp; ${esc(p.home)}</span>
+        </span>
+        <span class="posbox">
+          <span class="pos">${esc(p.pos)}</span>
+          <span class="role">${esc(p.depth.length ? p.depth[0].short : (p.status && p.status.spot ? p.status.spot : (SHORT_ROLE[p.pos] || p.pos)))}</span>
+        </span>
+       </span>
+      </button>
+      <div class="detail" id="d${i}">
+        ${p.say ? `<div class="say">Say it: ${esc(p.say)}</div>` : ""}
+        <dl>
+          ${p.status ? `<dt>Status</dt><dd>${esc(p.status.tag)} &mdash; ${esc(p.status.note)}</dd>` : ""}
+          <dt>Position</dt><dd>${esc(p.posName)}</dd>
+          <dt>Plays</dt><dd>${p.depth.length
+            ? p.depth.map(d => esc(d.full) + ' <span class="rank">' + RANK_WORD[d.rank-1] + '</span>').join("<br>")
+            : (p.status && p.status.spot
+                ? esc(p.status.spot) + ' <span class="rank">before the injury</span>'
+                : "No specific spot listed on the two-deep")}</dd>
+          <dt>Hometown</dt><dd>${esc(p.home)}</dd>
+          ${p.hs ? `<dt>High school</dt><dd>${esc(p.hs)}</dd>` : ""}
+          ${p.prev.length ? `<dt>Came from</dt><dd>${esc(p.prev.join(", "))}</dd>` : ""}
+          <dt>Year at UT</dt><dd>${esc(p.yr)}</dd>
+        </dl>
+      </div>
+    </li>`).join("");
 
-  function load(k,d){ try{return JSON.parse(localStorage.getItem(k))||d;}catch(e){return d;} }
-  function save(k,v){ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} }
-
-  // ---------- Toast ----------
-  let toastT;
-  function toast(msg){
-    const t=$("toast"); t.textContent=msg; t.classList.add("show");
-    clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),1800);
-  }
-  function copy(text,label){
-    navigator.clipboard.writeText(text).then(()=>toast(label||"Copied")).catch(()=>{
-      // fallback
-      const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta);
-      ta.select(); try{document.execCommand("copy");toast(label||"Copied");}catch(e){toast("Copy failed");}
-      document.body.removeChild(ta);
+  listEl.querySelectorAll(".row").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const li = btn.parentElement;
+      const open = li.classList.toggle("open");
+      btn.setAttribute("aria-expanded", open);
     });
-  }
-
-  // ---------- Dial ticks ----------
-  (function(){
-    const t=$("ticks");
-    for(let i=0;i<60;i++){
-      const d=document.createElement("div");
-      d.className="tick"+(i%5===0?" major":"");
-      t.appendChild(d);
-    }
-  })();
-
-  // ---------- Genres ----------
-  function facetGroup(title, items, buildItem, collapseKey){
-    const group = document.createElement("div");
-    group.className = "facet-group" + (load(collapseKey,false) ? " collapsed" : "");
-    const btn = document.createElement("button");
-    btn.className = "facet-toggle";
-    btn.innerHTML = '<span>'+esc(title)+'<span class="count">'+items.length+'</span></span><span class="chev">\u25BE</span>';
-    btn.onclick = ()=>{ save(collapseKey, group.classList.toggle("collapsed")); };
-    const list = document.createElement("div");
-    list.className = "facet-list";
-    items.forEach(it=>list.appendChild(buildItem(it)));
-    group.appendChild(btn); group.appendChild(list);
-    return group;
-  }
-
-  function tagButton(t){
-    const b=document.createElement("button");
-    b.className="genre"; b.dataset.tag=t.name;
-    b.innerHTML='<span class="n">'+esc(t.name)+'</span><span class="c">'+fmt(t.stationcount)+'</span>';
-    b.onclick=()=>{ $("fTag").value=t.name; markGenre(t.name); runSearch({tag:t.name}); };
-    return b;
-  }
-  function langButton(l){
-    const b=document.createElement("button");
-    b.className="genre"; b.dataset.lang=l.name;
-    b.innerHTML='<span class="n">'+esc(l.name)+'</span><span class="c">'+fmt(l.stationcount)+'</span>';
-    b.onclick=()=>{ $("fLang").value=l.name; runSearch({language:l.name}); };
-    return b;
-  }
-
-  let topGenreTags=[], langCache=[], allGenreTags=null, genreShowAll=false;
-
-  function renderFacets(){
-    const host=$("facetBody"); host.innerHTML="";
-    const showingAll = genreShowAll && allGenreTags;
-    const tags = showingAll ? allGenreTags : topGenreTags;
-    const g = facetGroup(showingAll?"All Genres":"Top Genres", tags, tagButton, "rbx_collapse_genres");
-    const foot=document.createElement("button");
-    foot.className="genre-more";
-    foot.textContent = showingAll ? "\u25B4 Show top 200" : "\u25BE Show all genres…";
-    foot.onclick = toggleAllGenres;
-    g.querySelector(".facet-list").appendChild(foot);
-    host.appendChild(g);
-    host.appendChild(facetGroup("Top Languages", langCache.slice(0,24), langButton, "rbx_collapse_langs"));
-  }
-
-  async function toggleAllGenres(){
-    if(!genreShowAll){
-      if(!allGenreTags){
-        toast("Loading all genres…");
-        try{
-          allGenreTags = await j("/json/tags?order=stationcount&reverse=true&hidebroken=true");
-          $("tagList").innerHTML = allGenreTags.map(t=>'<option value="'+esc(t.name)+'">').join("");
-        }catch(e){ return toast("Couldn't load the full genre list"); }
-      }
-      genreShowAll = true;
-    }else{
-      genreShowAll = false;
-    }
-    renderFacets();
-  }
-
-  async function loadGenres(){
-    try{
-      topGenreTags = await j("/json/tags?order=stationcount&reverse=true&hidebroken=true&limit=200");
-      langCache = await j("/json/languages?order=stationcount&reverse=true&hidebroken=true&limit=40");
-      // preserve show-all view across a server switch if already expanded
-      renderFacets();
-      $("tagList").innerHTML = (genreShowAll&&allGenreTags?allGenreTags:topGenreTags).map(t=>'<option value="'+esc(t.name)+'">').join("");
-      $("langList").innerHTML = langCache.map(l=>'<option value="'+esc(l.name)+'">').join("");
-    }catch(e){
-      $("facetBody").innerHTML='<div class="status err" style="padding:24px">Could not load genres. Check your connection and reload.</div>';
-    }
-  }
-  function markGenre(tag){
-    document.querySelectorAll(".genre").forEach(g=>{
-      g.classList.toggle("active", g.dataset.tag===tag);
-    });
-  }
-
-  // ---------- Countries ----------
-  let countryByName = {}, countryByCode = {};
-  async function loadCountries(){
-    try{
-      const cs = await j("/json/countries?order=stationcount&reverse=true&hidebroken=true");
-      countryByName = {}; countryByCode = {};
-      const opts = [];
-      cs.forEach(c=>{
-        if(!c.name || !c.iso_3166_1) return;
-        countryByName[c.name.toLowerCase()] = c.iso_3166_1;
-        countryByCode[c.iso_3166_1] = c.name;
-        opts.push('<option value="'+esc(c.name)+'">'+esc(c.iso_3166_1)+' · '+fmt(c.stationcount)+'</option>');
-      });
-      $("countryList").innerHTML = opts.join("");
-    }catch(e){ /* leave country field as free-text code entry */ }
-  }
-  function resolveCountry(raw){
-    if(!raw) return "";
-    if(countryByName[raw.toLowerCase()]) return countryByName[raw.toLowerCase()];
-    if(raw.length===2) return raw.toUpperCase();   // fall back to raw ISO code
-    return "";
-  }
-
-  // ---------- Search ----------
-  // Codec-aware quality model. Tiers are MP3-equivalent kbps targets; each codec's
-  // real bitrate is scaled by its efficiency so AAC/AAC+/Opus aren't unfairly filtered.
-  const QUALITY = {
-    low:      {label:"Low",       mp3eq:96},
-    medium:   {label:"Medium",    mp3eq:128},
-    high:     {label:"High",      mp3eq:192},
-    veryhigh: {label:"Very high", mp3eq:256}
-  };
-  function codecMult(codec){
-    const c=(codec||"").toUpperCase();
-    if(c.indexOf("AAC+")>=0 || c.indexOf("HE-AAC")>=0) return 2.0;
-    if(c.indexOf("AAC")>=0) return 1.5;
-    if(c.indexOf("OPUS")>=0) return 1.8;
-    if(c.indexOf("OGG")>=0 || c.indexOf("VORBIS")>=0) return 1.3;
-    return 1.0; // MP3 / unknown
-  }
-  function effectiveKbps(s){
-    const c=(s.codec||"").toUpperCase();
-    if(c.indexOf("FLAC")>=0 || c.indexOf("WAV")>=0 || c.indexOf("ALAC")>=0) return Infinity; // lossless
-    return (s.bitrate||0) * codecMult(s.codec);
-  }
-
-  function resultLimit(){ return $("fLimit").value || "120"; }
-  function currentFilters(){
-    return {
-      name:$("fName").value.trim(),
-      tag:$("fTag").value.trim(),
-      language:$("fLang").value.trim(),
-      countrycode:resolveCountry($("fCountry").value.trim()),
-      codec:$("fCodec").value.trim(),
-      quality:$("fQuality").value,
-      order:$("fSort").value,
-      hidebroken:$("fBroken").checked
-    };
-  }
-
-  async function runSearch(override){
-    const f = Object.assign(currentFilters(), override||{});
-    if(override && override.tag) $("fTag").value=override.tag;
-    const params = new URLSearchParams();
-    if(f.name) params.set("name", f.name);
-    if(f.tag) params.set("tagList", f.tag.toLowerCase());
-    if(f.language) params.set("language", f.language);
-    if(f.countrycode) params.set("countrycode", f.countrycode);
-    if(f.codec) params.set("codec", f.codec);
-    if(f.quality && QUALITY[f.quality]) params.set("bitrateMin", String(Math.floor(QUALITY[f.quality].mp3eq/2)));
-    params.set("order", f.order==="random"?"random":f.order);
-    if(f.order!=="random" && f.order!=="name") params.set("reverse","true");
-    params.set("hidebroken", f.hidebroken?"true":"false");
-    params.set("limit", resultLimit());
-
-    setResultsTitle(describe(f));
-    showLoading();
-    try{
-      const st = await j("/json/stations/search?"+params.toString());
-      renderStations(st);
-    }catch(e){
-      $("results").innerHTML='<div class="status err">Search failed — the radio-browser server may be busy. Try again in a moment.</div>';
-    }
-  }
-
-  async function quick(kind){
-    markGenre(null);
-    if(kind==="random"){ return runSearch({order:"random", tag:"", name:"", language:"", countrycode:"", codec:""}); }
-    setResultsTitle(kind==="topvote"?"Top Voted":"Most Played");
-    showLoading();
-    try{
-      const st = await j("/json/stations/"+(kind==="topvote"?"topvote":"topclick")+"/"+resultLimit());
-      renderStations(st);
-    }catch(e){
-      $("results").innerHTML='<div class="status err">Could not load chart. Try again shortly.</div>';
-    }
-  }
-
-  function describe(f){
-    const bits=[];
-    if(f.tag) bits.push('“'+f.tag+'”');
-    if(f.language) bits.push(cap(f.language));
-    if(f.countrycode) bits.push(countryByCode[f.countrycode]||f.countrycode);
-    if(f.codec) bits.push(f.codec);
-    if(f.quality && QUALITY[f.quality]) bits.push(QUALITY[f.quality].label+" quality");
-    if(f.name) bits.push('name~'+f.name);
-    return bits.length?bits.join(" · "):"All stations";
-  }
-  function setResultsTitle(t){ $("resultsTitle").textContent=t; }
-  function showLoading(){
-    $("results").innerHTML='<div class="status"><div class="spinner"></div>tuning…</div>';
-    $("resultsCount").textContent="";
-  }
-
-  function renderStations(list){
-    // de-dupe by uuid, drop entries with no playable url
-    const seen=new Set();
-    let clean=list.filter(s=>{
-      const u=s.url_resolved||s.url;
-      if(!u||seen.has(s.stationuuid)) return false;
-      seen.add(s.stationuuid); return true;
-    });
-    const tier=QUALITY[$("fQuality").value];
-    if(tier){ clean=clean.filter(s=>effectiveKbps(s) >= tier.mp3eq); }
-    $("resultsCount").textContent = clean.length;
-    lastResults = clean;
-    $("playToggle").disabled = clean.length===0;
-    if(!clean.length){
-      $("results").innerHTML='<div class="status">No stations matched. Loosen a filter — genre + language + country together can get narrow fast.</div>';
-      return;
-    }
-    const box=$("results"); box.innerHTML="";
-    clean.forEach(s=>box.appendChild(stationRow(s)));
-  }
-
-  function stationRow(s){
-    const url=s.url_resolved||s.url;
-    const row=document.createElement("div"); row.className="station";
-
-    const ico=document.createElement("img");
-    ico.className="fav-ico"; ico.loading="lazy"; ico.alt="";
-    ico.src=s.favicon||"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
-    ico.onerror=()=>{ico.style.visibility="hidden";};
-
-    const main=document.createElement("div"); main.className="st-main";
-    const nameBtn=document.createElement("button"); nameBtn.className="st-name";
-    nameBtn.textContent=s.name||"(unnamed)";
-    nameBtn.onclick=()=>play(s);
-
-    const meta=document.createElement("div"); meta.className="st-meta";
-    const parts=[];
-    if(s.country) parts.push('<span>'+esc(s.country)+'</span>');
-    else if(s.countrycode) parts.push('<span>'+esc(s.countrycode)+'</span>');
-    if(s.language) parts.push('<span>'+esc(cap(s.language.split(",")[0]))+'</span>');
-    if(s.codec) parts.push('<span>'+esc(s.codec)+(s.bitrate?" "+s.bitrate+"k":"")+'</span>');
-    parts.push('<span class="up">▲'+fmt(s.votes||0)+'</span>');
-    if(s.clickcount) parts.push('<span>♪'+fmt(s.clickcount)+'</span>');
-    meta.innerHTML=parts.join("");
-
-    const tags=document.createElement("div"); tags.className="st-tags";
-    (s.tags||"").split(",").map(x=>x.trim()).filter(Boolean).slice(0,6).forEach(tg=>{
-      const b=document.createElement("button"); b.className="tag"; b.textContent=tg;
-      b.onclick=()=>{ $("fTag").value=tg; markGenre(tg); runSearch({tag:tg}); window.scrollTo({top:0,behavior:"smooth"}); };
-      tags.appendChild(b);
-    });
-
-    main.appendChild(nameBtn); main.appendChild(meta);
-    if(tags.children.length) main.appendChild(tags);
-
-    const act=document.createElement("div"); act.className="st-actions";
-    const playBtn=document.createElement("button"); playBtn.className="mini playbtn";
-    playBtn.innerHTML="▶ Play"; playBtn.dataset.uuid=s.stationuuid; playBtn.onclick=()=>play(s);
-    const favBtn=document.createElement("button"); favBtn.dataset.uuid=s.stationuuid;
-    favBtn.className="mini favbtn"+(isSaved(s.stationuuid)?" on":"");
-    favBtn.innerHTML=isSaved(s.stationuuid)?"★ Saved":"☆ Save";
-    favBtn.onclick=()=>{ togglePreset(s); syncFavButtons(); };
-    const copyBtn=document.createElement("button"); copyBtn.className="mini"; copyBtn.innerHTML="⧉ Copy URL";
-    copyBtn.onclick=()=>copy(url,"Stream URL copied — paste into foobar");
-    act.appendChild(playBtn); act.appendChild(favBtn); act.appendChild(copyBtn);
-    if(s.homepage){
-      const site=document.createElement("a"); site.className="mini"; site.href=s.homepage;
-      site.target="_blank"; site.rel="noopener"; site.innerHTML="↗ Site"; act.appendChild(site);
-    }
-    const rmv=document.createElement("button"); rmv.className="mini rmv"; rmv.innerHTML="✕ Remove";
-    rmv.title="Drop from this results list (won't affect saved presets)";
-    rmv.onclick=()=>{
-      lastResults = lastResults.filter(x=>x.stationuuid!==s.stationuuid);
-      row.remove();
-      $("resultsCount").textContent = lastResults.length;
-      if(!lastResults.length){
-        $("results").innerHTML='<div class="status">List emptied. Re-run the search to bring stations back.</div>';
-      }
-    };
-    act.appendChild(rmv);
-
-    row.appendChild(ico); row.appendChild(main); row.appendChild(act);
-    return row;
-  }
-
-  // ---------- Playback ----------
-  const audio=$("audio");
-  $("vol").oninput=e=>{audio.volume=parseFloat(e.target.value);};
-  audio.volume=0.9;
-
-  const ICON_PLAY  = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
-  const ICON_PAUSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
-  function setNowPlaying(t){ $("npName").textContent=t; $("fpNow").textContent=t; }
-  function showFloatPlayer(){ $("floatPlayer").classList.add("show"); document.body.classList.add("has-float"); }
-  function updateFpStar(){
-    const b=$("fpStar");
-    const on = currentStation && currentStation.uuid && presets.some(p=>p.uuid===currentStation.uuid);
-    b.textContent = on ? "★" : "☆";
-    b.classList.toggle("on", !!on);
-  }
-  function updatePlayToggle(){
-    const playing = !audio.paused && audio.src;
-    [$("playToggle"), $("fpPlay")].forEach(b=>{
-      if(!b) return;
-      b.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
-      b.title = playing ? "Pause" : "Play";
-      b.setAttribute("aria-label", playing ? "Pause" : "Play");
-    });
-  }
-
-  function play(s){
-    currentUuid=s.stationuuid;
-    currentStation=rec(s);
-    setNowPlaying(s.name||"(unnamed)");
-    updateStationInfo();
-    $("playToggle").disabled=false;
-    showFloatPlayer(); updateFpStar();
-    audio.src=currentStation.url; audio.play().catch(()=>{});
-    armGrace();
-    document.querySelectorAll(".playbtn.playing").forEach(b=>{b.classList.remove("playing");b.innerHTML="▶ Play";});
-    document.querySelectorAll('.playbtn[data-uuid="'+s.stationuuid+'"]').forEach(b=>{b.classList.add("playing");b.innerHTML="♪ Playing";});
-    // community click stat (best-effort)
-    fetch(API_BASE+"/json/url/"+s.stationuuid).catch(()=>{});
-  }
-  function stop(){
-    clearGrace();
-    audio.pause(); audio.removeAttribute("src"); audio.load();
-    document.body.classList.remove("playing");
-    setNowPlaying("— stopped —");
-    currentUuid=null; currentStation=null;
-    updateStationInfo(); updatePlayToggle();
-    document.querySelectorAll(".playbtn.playing").forEach(b=>{b.classList.remove("playing");b.innerHTML="▶ Play";});
-  }
-  function togglePlay(){
-    if(!audio.paused && audio.src){ clearGrace(); audio.pause(); return; }        // pause
-    if(audio.src && currentUuid){                                                 // resume
-      audio.play().then(()=>armGrace()).catch(()=>toast("Couldn't resume — try next"));
-      return;
-    }
-    if(lastResults.length){ play(lastResults[0]); }                              // start list
-    else toast("Run a search first, then press play");
-  }
-  audio.onplay    = ()=>{ document.body.classList.add("playing"); updatePlayToggle(); if('mediaSession' in navigator) navigator.mediaSession.playbackState="playing"; };
-  audio.onpause   = ()=>{ document.body.classList.remove("playing"); updatePlayToggle(); if('mediaSession' in navigator) navigator.mediaSession.playbackState="paused"; };
-  audio.onplaying = ()=>{ clearGrace(); autoSkips=0; };   // real playback started → this one is good
-  if('mediaSession' in navigator){
-    const setMS=(a,h)=>{ try{ navigator.mediaSession.setActionHandler(a,h); }catch(e){} };
-    setMS('play',          ()=>{ if(audio.paused) togglePlay(); });
-    setMS('pause',         ()=>{ if(!audio.paused) audio.pause(); });
-    setMS('previoustrack', ()=>playByOffset(-1));
-    setMS('nexttrack',     ()=>playByOffset(1));
-    setMS('stop',          ()=>stop());
-    // iOS often insists on showing seek buttons for live audio; make them skip stations too,
-    // so whichever control the phone/car sends, it moves through the station list.
-    setMS('seekbackward',  ()=>playByOffset(-1));
-    setMS('seekforward',   ()=>playByOffset(1));
-    setMS('seekto',        null);
-  }
-  $("playToggle").onclick=togglePlay;
-  $("fpPlay").onclick=togglePlay;
-  $("fpPrev").onclick=()=>playByOffset(-1);
-  $("fpNext").onclick=()=>playByOffset(1);
-  $("fpStar").onclick=()=>{ if(currentStation){ saveMapItem(currentStation); updateFpStar(); } };
-  function playByOffset(delta){
-    if(!lastResults.length) return toast("No results to step through — run a search first");
-    let idx = lastResults.findIndex(s=>s.stationuuid===currentUuid);
-    let ni;
-    if(idx<0){ ni = delta>0 ? 0 : lastResults.length-1; }
-    else { ni = (idx + delta + lastResults.length) % lastResults.length; }
-    play(lastResults[ni]);
-  }
-  $("prevBtn").onclick=()=>playByOffset(-1);
-  $("nextBtn").onclick=()=>playByOffset(1);
-
-  // Auto-skip with an 8-second connect grace period (manual skips stay instant).
-  let autoAdvance = load("rbx_auto", false), autoSkips = 0, graceTimer = null;
-  const GRACE_MS = 8000;
-  function clearGrace(){ if(graceTimer){ clearTimeout(graceTimer); graceTimer=null; } }
-  function armGrace(){
-    clearGrace();
-    graceTimer = setTimeout(()=>{
-      graceTimer=null;
-      if(audio.readyState>=3 && !audio.paused) return;   // it's actually playing; leave it
-      autoStep("didn't connect");
-    }, GRACE_MS);
-  }
-  function autoStep(){
-    clearGrace();
-    if(autoAdvance && lastResults.length){
-      if(autoSkips < Math.min(lastResults.length, 20)){ autoSkips++; playByOffset(1); }
-      else { autoSkips=0; toast("No working stream found nearby"); }
-    }else{
-      toast("Stream won't play here — the URL still works in foobar");
-    }
-  }
-  $("autoBtn").onclick=()=>{
-    autoAdvance=!autoAdvance; save("rbx_auto", autoAdvance);
-    $("autoBtn").classList.toggle("active", autoAdvance);
-    toast(autoAdvance ? "Auto-skip on — dead streams advance after ~8s" : "Auto-skip off");
-  };
-  $("autoBtn").classList.toggle("active", autoAdvance);
-
-  audio.onerror=()=>{
-    if(!audio.src) return;
-    if(audio.error && audio.error.code===1) return;   // MEDIA_ERR_ABORTED (from switching stations) — ignore
-    autoStep();
-  };
-
-  // ---------- Presets ----------
-  function num(v){ const n=parseFloat(v); return isFinite(n)?n:null; }
-  function hasGeo(p){ return p.lat!=null && p.lon!=null && !(p.lat===0 && p.lon===0); }
-  // Normalize a raw radio-browser station (or an existing record) into one shape.
-  function rec(s){
-    return {
-      uuid: s.stationuuid || s.uuid,
-      name: s.name,
-      url: s.url_resolved || s.url,
-      homepage: s.homepage || "",
-      favicon: s.favicon || "",
-      countrycode: (s.countrycode || "").toUpperCase(),
-      country: s.country || "",
-      state: s.state || "",
-      tags: s.tags || "",
-      codec: s.codec || "",
-      bitrate: s.bitrate || 0,
-      votes: s.votes || 0,
-      lat: (s.lat!=null ? num(s.lat) : num(s.geo_lat)),
-      lon: (s.lon!=null ? num(s.lon) : num(s.geo_long))
-    };
-  }
-  function updateStationInfo(){
-    const logo=$("npLogo"), site=$("npSite"), stats=$("npStats");
-    const fav = currentStation && currentStation.favicon;
-    if(fav){ logo.src=fav; logo.hidden=false; } else { logo.hidden=true; logo.removeAttribute("src"); }
-    logo.onerror=()=>{ logo.hidden=true; };
-    const hp = currentStation && currentStation.homepage;
-    if(hp){ site.href=hp; site.hidden=false; } else { site.hidden=true; site.removeAttribute("href"); }
-    if(currentStation && currentStation.uuid){
-      const bits=[];
-      const loc=[currentStation.country || (countryByCode[currentStation.countrycode]||currentStation.countrycode||""), currentStation.state].filter(Boolean);
-      if(loc.length) bits.push(esc(loc.join(" · ")));
-      const tags=(currentStation.tags||"").split(",").map(x=>x.trim()).filter(Boolean).slice(0,5);
-      if(tags.length) bits.push(esc(tags.join(", ")));
-      if(currentStation.codec) bits.push(esc(currentStation.codec)+(currentStation.bitrate?" "+currentStation.bitrate+"k":""));
-      if(currentStation.votes) bits.push('<span class="up">▲'+fmt(currentStation.votes)+'</span>');
-      stats.innerHTML = bits.join(" · ");
-      stats.hidden = bits.length===0;
-    }else{
-      stats.hidden = true; stats.innerHTML="";
-    }
-    updateMediaSession();
-  }
-  function updateMediaSession(){
-    if(!('mediaSession' in navigator)) return;
-    try{
-      if(currentStation && currentStation.uuid){
-        const loc=[currentStation.country||(countryByCode[currentStation.countrycode]||currentStation.countrycode||""), currentStation.state].filter(Boolean).join(" · ");
-        const art = currentStation.favicon ? [{src:currentStation.favicon, sizes:"256x256"}] : [];
-        navigator.mediaSession.metadata = new MediaMetadata({
-          title: currentStation.name || "Radio",
-          artist: loc || "RBX Radio",
-          album: (currentStation.tags||"").split(",").map(x=>x.trim()).filter(Boolean).slice(0,3).join(", "),
-          artwork: art
-        });
-      }else{
-        navigator.mediaSession.metadata = null;
-      }
-    }catch(e){}
-  }
-  function isSaved(uuid){ return presets.some(p=>p.uuid===uuid); }
-  function togglePreset(s){
-    if(isSaved(s.stationuuid)){
-      presets=presets.filter(p=>p.uuid!==s.stationuuid);
-    }else{
-      presets.push(rec(s));
-    }
-    save("rbx_presets",presets); renderPresets();
-  }
-  function movePreset(i,dir){
-    const jj=i+dir; if(jj<0||jj>=presets.length) return;
-    const t=presets[i]; presets[i]=presets[jj]; presets[jj]=t;
-    save("rbx_presets",presets); renderPresets();
-  }
-  function renderPresets(){
-    $("presetCount").textContent="("+presets.length+")";
-    const body=$("presetBody");
-    if(!presets.length){ body.innerHTML='<div class="status">No presets yet. Tap the ★ on any station to save it here.</div>'; return; }
-    body.innerHTML="";
-    presets.forEach((p,i)=>{
-      const row=document.createElement("div"); row.className="preset";
-      const ord=document.createElement("div"); ord.className="preset-ord";
-      const up=document.createElement("button"); up.className="ord-btn"; up.innerHTML="\u25B2"; up.title="Move up";
-      up.disabled=(i===0); up.onclick=()=>movePreset(i,-1);
-      const dn=document.createElement("button"); dn.className="ord-btn"; dn.innerHTML="\u25BC"; dn.title="Move down";
-      dn.disabled=(i===presets.length-1); dn.onclick=()=>movePreset(i,1);
-      ord.appendChild(up); ord.appendChild(dn);
-      const play=document.createElement("button"); play.className="mini"; play.innerHTML="\u25B6";
-      play.onclick=()=>{ play_stub(p); };
-      const nm=document.createElement("div"); nm.className="pn"; nm.textContent=p.name||"(unnamed)";
-      if(hasGeo(p)) nm.title="\uD83D\uDCCD has location";
-      const cp=document.createElement("button"); cp.className="mini"; cp.innerHTML="\u29C9";
-      cp.title="Copy URL"; cp.onclick=()=>copy(p.url,"URL copied");
-      const rm=document.createElement("button"); rm.className="mini"; rm.innerHTML="\u2715";
-      rm.title="Delete"; rm.onclick=()=>{ presets.splice(i,1); save("rbx_presets",presets); renderPresets(); syncFavButtons(); };
-      row.appendChild(ord); row.appendChild(play); row.appendChild(nm); row.appendChild(cp); row.appendChild(rm);
-      body.appendChild(row);
-    });
-  }
-  function play_stub(p){
-    currentUuid=p.uuid; currentStation=rec(p);
-    setNowPlaying(p.name||"(unnamed)");
-    updateStationInfo();
-    $("playToggle").disabled=false;
-    showFloatPlayer(); updateFpStar();
-    audio.src=currentStation.url; audio.play().catch(()=>{});
-    armGrace();
-  }
-
-  // ---------- Geo fallback (approx placement when a station has no coordinates) ----------
-  const COUNTRY_CENTROIDS = {
-    US:[39.8,-98.6],CA:[56.1,-106.3],MX:[23.6,-102.5],GB:[54.0,-2.9],IE:[53.4,-8.2],FR:[46.6,2.2],
-    DE:[51.2,10.4],ES:[40.2,-3.7],PT:[39.6,-8.0],IT:[41.9,12.6],NL:[52.1,5.3],BE:[50.5,4.6],LU:[49.8,6.1],
-    CH:[46.8,8.2],AT:[47.6,14.1],DK:[56.0,10.0],NO:[60.5,8.5],SE:[60.1,18.6],FI:[61.9,25.7],IS:[64.9,-19.0],
-    PL:[51.9,19.1],CZ:[49.8,15.5],SK:[48.7,19.7],HU:[47.2,19.5],RO:[45.9,24.9],BG:[42.7,25.5],GR:[39.1,22.0],
-    HR:[45.1,15.2],SI:[46.1,14.8],RS:[44.0,20.9],BA:[43.9,17.7],MK:[41.6,21.7],AL:[41.1,20.0],ME:[42.7,19.4],
-    UA:[48.4,31.2],BY:[53.7,28.0],RU:[61.5,105.3],EE:[58.6,25.0],LV:[56.9,24.6],LT:[55.2,23.9],MD:[47.4,28.4],
-    TR:[39.0,35.2],CY:[35.1,33.4],MT:[35.9,14.4],
-    CN:[35.9,104.2],JP:[36.2,138.3],KR:[36.5,127.9],IN:[22.4,78.7],PK:[30.4,69.3],BD:[23.7,90.4],LK:[7.9,80.8],
-    NP:[28.4,84.1],TH:[15.9,100.9],VN:[16.0,107.9],PH:[12.9,121.8],ID:[-0.8,113.9],MY:[4.2,109.7],SG:[1.35,103.8],
-    MM:[21.9,95.9],KH:[12.6,104.9],LA:[19.9,102.5],TW:[23.7,120.9],HK:[22.3,114.2],
-    AU:[-25.7,134.5],NZ:[-41.8,171.8],PG:[-6.5,145.0],FJ:[-17.7,178.0],
-    SA:[24.0,45.1],AE:[24.0,54.0],QA:[25.3,51.2],KW:[29.3,47.5],BH:[26.0,50.5],OM:[21.5,55.9],YE:[15.6,48.5],
-    JO:[31.3,36.2],LB:[33.9,35.9],SY:[35.0,38.5],IQ:[33.0,43.7],IR:[32.4,53.7],IL:[31.4,35.0],PS:[31.9,35.2],
-    AF:[33.9,67.7],AZ:[40.3,47.7],AM:[40.3,45.0],GE:[42.3,43.4],KZ:[48.0,66.9],UZ:[41.4,63.6],TM:[39.1,59.4],
-    KG:[41.2,74.8],TJ:[38.9,71.3],MN:[46.8,103.1],
-    EG:[26.8,30.8],MA:[31.8,-7.1],DZ:[28.0,2.6],TN:[34.0,9.6],LY:[26.3,17.2],SD:[12.9,30.2],ET:[8.6,39.6],
-    KE:[0.2,37.9],TZ:[-6.4,34.9],UG:[1.3,32.4],RW:[-1.9,29.9],NG:[9.1,8.7],GH:[7.9,-1.0],CI:[7.5,-5.5],
-    SN:[14.5,-14.5],ML:[17.6,-4.0],ZA:[-30.6,22.9],ZW:[-19.0,29.9],ZM:[-13.1,27.8],MZ:[-18.7,35.5],AO:[-11.2,17.9],
-    CM:[5.7,12.7],CD:[-4.0,21.8],CG:[-0.7,14.5],GA:[-0.6,11.6],BW:[-22.3,24.7],NA:[-22.1,17.2],MG:[-18.8,46.9],
-    MW:[-13.3,34.3],MU:[-20.2,57.5],
-    BR:[-14.2,-51.9],AR:[-38.4,-63.6],CL:[-35.7,-71.5],CO:[4.6,-74.3],PE:[-9.2,-75.0],VE:[6.4,-66.6],
-    EC:[-1.8,-78.2],BO:[-16.3,-63.6],PY:[-23.4,-58.4],UY:[-32.5,-55.8],GY:[4.9,-58.9],SR:[4.0,-56.0],
-    PA:[8.5,-80.1],CR:[9.7,-83.8],NI:[12.9,-85.2],HN:[15.2,-86.2],SV:[13.8,-88.9],GT:[15.8,-90.2],BZ:[17.2,-88.5],
-    CU:[21.5,-77.8],DO:[18.7,-70.2],HT:[19.1,-72.3],JM:[18.1,-77.3],PR:[18.2,-66.5],TT:[10.7,-61.2],BS:[24.9,-76.8]
-  };
-  const US_STATES = {
-    "alabama":[32.8,-86.8],"alaska":[64.1,-152.3],"arizona":[34.2,-111.7],"arkansas":[34.9,-92.4],
-    "california":[37.2,-119.3],"colorado":[39.0,-105.5],"connecticut":[41.6,-72.7],"delaware":[39.0,-75.5],
-    "florida":[28.6,-82.4],"georgia":[32.6,-83.4],"hawaii":[20.3,-156.4],"idaho":[44.3,-114.5],
-    "illinois":[40.0,-89.2],"indiana":[39.9,-86.3],"iowa":[42.0,-93.5],"kansas":[38.5,-98.4],
-    "kentucky":[37.5,-85.3],"louisiana":[31.0,-92.0],"maine":[45.4,-69.2],"maryland":[39.0,-76.8],
-    "massachusetts":[42.3,-71.8],"michigan":[44.3,-85.4],"minnesota":[46.3,-94.3],"mississippi":[32.7,-89.7],
-    "missouri":[38.4,-92.5],"montana":[47.0,-109.6],"nebraska":[41.5,-99.8],"nevada":[39.3,-116.6],
-    "new hampshire":[43.7,-71.6],"new jersey":[40.2,-74.7],"new mexico":[34.4,-106.1],"new york":[42.9,-75.5],
-    "north carolina":[35.6,-79.4],"north dakota":[47.4,-100.5],"ohio":[40.3,-82.8],"oklahoma":[35.6,-97.5],
-    "oregon":[44.0,-120.5],"pennsylvania":[40.9,-77.8],"rhode island":[41.7,-71.5],"south carolina":[33.9,-80.9],
-    "south dakota":[44.4,-100.2],"tennessee":[35.9,-86.4],"texas":[31.5,-99.3],"utah":[39.3,-111.7],
-    "vermont":[44.1,-72.7],"virginia":[37.5,-78.9],"washington":[47.4,-120.5],"west virginia":[38.6,-80.6],
-    "wisconsin":[44.6,-89.9],"wyoming":[43.0,-107.6],"district of columbia":[38.9,-77.0]
-  };
-  const US_ABBR = {AL:"alabama",AK:"alaska",AZ:"arizona",AR:"arkansas",CA:"california",CO:"colorado",CT:"connecticut",
-    DE:"delaware",FL:"florida",GA:"georgia",HI:"hawaii",ID:"idaho",IL:"illinois",IN:"indiana",IA:"iowa",KS:"kansas",
-    KY:"kentucky",LA:"louisiana",ME:"maine",MD:"maryland",MA:"massachusetts",MI:"michigan",MN:"minnesota",
-    MS:"mississippi",MO:"missouri",MT:"montana",NE:"nebraska",NV:"nevada",NH:"new hampshire",NJ:"new jersey",
-    NM:"new mexico",NY:"new york",NC:"north carolina",ND:"north dakota",OH:"ohio",OK:"oklahoma",OR:"oregon",
-    PA:"pennsylvania",RI:"rhode island",SC:"south carolina",SD:"south dakota",TN:"tennessee",TX:"texas",UT:"utah",
-    VT:"vermont",VA:"virginia",WA:"washington",WV:"west virginia",WI:"wisconsin",WY:"wyoming",DC:"district of columbia"};
-  function usStateKey(st){
-    const s=(st||"").trim().toLowerCase(); if(!s) return null;
-    if(s.length===2 && US_ABBR[s.toUpperCase()]) return US_ABBR[s.toUpperCase()];
-    if(US_STATES[s]) return s;
-    return null;
-  }
-  function coordsFor(it){
-    if(hasGeo(it)) return {lat:it.lat, lon:it.lon, approx:null};
-    const cc=(it.countrycode||"").toUpperCase();
-    if(cc==="US" || cc===""){
-      const k=usStateKey(it.state);
-      if(k) return {lat:US_STATES[k][0], lon:US_STATES[k][1], approx:"state"};
-    }
-    if(cc && COUNTRY_CENTROIDS[cc]) return {lat:COUNTRY_CENTROIDS[cc][0], lon:COUNTRY_CENTROIDS[cc][1], approx:"country"};
-    return null;
-  }
-  function jitterCoord(it, base){
-    let h=2166136261; const s=it.uuid||it.name||"";
-    for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); }
-    h=h>>>0;
-    const dLat=((h&1023)/1023-0.5)*0.8;
-    const dLon=(((h>>>10)&1023)/1023-0.5)*0.8;
-    return [base[0]+dLat, base[1]+dLon];
-  }
-
-  // ---------- Map ----------
-  let map=null, markerLayer=null;
-  function showMap(items, label){
-    if(typeof L==="undefined") return toast("Map library didn't load — needs internet");
-    const placed=[]; let exact=0, approxN=0;
-    items.forEach(it=>{
-      const c=coordsFor(it); if(!c) return;
-      let pos=[c.lat,c.lon];
-      if(c.approx){ pos=jitterCoord(it,pos); approxN++; } else { exact++; }
-      placed.push({item:it, pos, approx:c.approx});
-    });
-    if(!placed.length) return toast("None of these "+label+" have a location to map");
-    $("mapTitle").textContent = "◱ " + (label==="results" ? "Results Map" : "Preset Map");
-    $("mapModal").classList.add("open");
-    if(!map){
-      map = L.map("map",{zoomControl:true,attributionControl:true}).setView([20,0],2);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
-        maxZoom:19, attribution:"&copy; OpenStreetMap"
-      }).addTo(map);
-      markerLayer = L.layerGroup().addTo(map);
-    }
-    markerLayer.clearLayers();
-    const pts=[];
-    placed.forEach(pl=>{
-      const it=pl.item;
-      const style = pl.approx
-        ? {radius:9,color:"#e0464b",fillColor:"#e0464b",fillOpacity:.4,weight:2,dashArray:"2,3"}
-        : {radius:12,color:"#f5a623",fillColor:"#f5a623",fillOpacity:.7,weight:3};
-      const m=L.circleMarker(pl.pos, style);
-      const where = pl.approx==="state" ? esc(it.state)
-                  : pl.approx==="country" ? esc(countryByCode[it.countrycode]||it.countrycode) : "";
-
-      const pop=document.createElement("div"); pop.className="map-pop";
-      const title=document.createElement("b"); title.textContent=it.name||"Station"; pop.appendChild(title);
-      if(pl.approx){
-        const note=document.createElement("div"); note.className="map-approx";
-        note.textContent="≈ approximate · "+(pl.approx==="state"?it.state:(countryByCode[it.countrycode]||it.countrycode||""));
-        pop.appendChild(note);
-      }
-      const acts=document.createElement("div"); acts.className="map-actions";
-      const pB=document.createElement("button"); pB.className="map-play"; pB.textContent="▶ Play"; pB.onclick=()=>play_stub(it);
-      const sB=document.createElement("button"); sB.className="map-stop"; sB.textContent="■ Stop"; sB.onclick=stop;
-      const vB=document.createElement("button"); vB.className="map-save";
-      const lbl=()=>{ const on=it.uuid&&presets.some(x=>x.uuid===it.uuid); vB.textContent=on?"★ Saved":"☆ Save"; vB.classList.toggle("on",!!on); };
-      lbl(); vB.onclick=()=>{ saveMapItem(it); lbl(); };
-      acts.appendChild(pB); acts.appendChild(sB); acts.appendChild(vB);
-      pop.appendChild(acts);
-      m.bindPopup(pop);
-
-      m.addTo(markerLayer); pts.push(pl.pos);
-    });
-    $("mapNote").textContent = placed.length+" of "+items.length+" "+label+" mapped · "+exact+" exact, "+approxN+" approx"+
-      (placed.length<items.length?" · "+(items.length-placed.length)+" unplaceable":"");
-    setTimeout(()=>{ map.invalidateSize(); if(pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.25)); },60);
-  }
-  function mapResults(){
-    if(!lastResults.length) return toast("No results to map — run a search first");
-    showMap(lastResults.map(rec), "results");
-  }
-  function mapPresets(){
-    if(!presets.length) return toast("No presets to map yet");
-    showMap(presets.map(rec), "presets");
-  }
-  function saveMapItem(p){
-    if(!p.uuid) return toast("Can't save — station has no id");
-    if(presets.some(x=>x.uuid===p.uuid)){
-      presets = presets.filter(x=>x.uuid!==p.uuid);
-      toast("Removed from presets");
-    }else{
-      presets.push(rec(p));
-      toast("Saved to presets");
-    }
-    save("rbx_presets", presets); renderPresets(); syncFavButtons();
-  }
-  function closeMap(){ $("mapModal").classList.remove("open"); }
-  function syncFavButtons(){
-    document.querySelectorAll(".favbtn").forEach(b=>{
-      const on = isSaved(b.dataset.uuid);
-      b.className = "mini favbtn" + (on?" on":"");
-      b.innerHTML = on ? "★ Saved" : "☆ Save";
-    });
-    if(typeof updateFpStar==="function") updateFpStar();
-  }
-
-  $("presetsBtn").onclick=()=>{ $("drawer").classList.add("open"); $("overlay").classList.add("open"); };
-  $("closeDrawer").onclick=closeDrawer;
-  $("mapBtn").onclick=mapPresets;
-  $("mapResults").onclick=mapResults;
-  $("closeMap").onclick=closeMap;
-  $("overlay").onclick=closeDrawer;
-  function closeDrawer(){ $("drawer").classList.remove("open"); $("overlay").classList.remove("open"); }
-
-  function stationUrl(s){ return s.url_resolved || s.url || ""; }
-  function toM3u(list){
-    let s="#EXTM3U\n";
-    list.forEach(x=>{ s += "#EXTINF:-1,"+String(x.name||"Station").replace(/[\r\n]+/g," ")+"\n"+stationUrl(x)+"\n"; });
-    return s;
-  }
-  function download(name, text, mime){
-    const blob=new Blob([text],{type:mime});
-    const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
-    a.download=name; a.click(); URL.revokeObjectURL(a.href);
-  }
-
-  $("expCopy").onclick=()=>{
-    if(!lastResults.length) return toast("No results to copy");
-    copy(lastResults.map(stationUrl).join("\n"), lastResults.length+" URLs copied");
-  };
-  $("expM3u").onclick=()=>{
-    if(!lastResults.length) return toast("No results to export");
-    download("radio-results.m3u", toM3u(lastResults), "audio/x-mpegurl");
-    toast("radio-results.m3u exported ("+lastResults.length+")");
-  };
-
-  $("copyAll").onclick=()=>{
-    if(!presets.length) return toast("No presets to copy");
-    copy(presets.map(p=>p.url).join("\n"), presets.length+" URLs copied");
-  };
-  $("exportM3u").onclick=()=>{
-    if(!presets.length) return toast("No presets to export");
-    download("radio-presets.m3u", toM3u(presets), "audio/x-mpegurl");
-    toast("radio-presets.m3u exported");
-  };
-  $("backupBtn").onclick=()=>{
-    if(!presets.length) return toast("No presets to back up");
-    const blob=new Blob([JSON.stringify(presets,null,2)],{type:"application/json"});
-    const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
-    a.download="rbx-presets.json"; a.click(); URL.revokeObjectURL(a.href);
-    toast("Backed up "+presets.length+" presets");
-  };
-  $("restoreBtn").onclick=()=>$("restoreFile").click();
-  $("restoreFile").onchange=e=>{
-    const file=e.target.files[0]; if(!file) return;
-    const reader=new FileReader();
-    reader.onload=()=>{
-      try{
-        const data=JSON.parse(reader.result);
-        if(!Array.isArray(data)) throw new Error("not a preset backup");
-        let added=0;
-        data.forEach(p=>{
-          if(p&&p.uuid&&p.url&&!presets.some(x=>x.uuid===p.uuid)){
-            presets.push(rec(p));
-            added++;
-          }
-        });
-        save("rbx_presets",presets); renderPresets(); syncFavButtons();
-        toast(added+" preset"+(added===1?"":"s")+" restored"+(added<data.length?" ("+(data.length-added)+" already saved)":""));
-      }catch(err){ toast("Couldn't read that backup file"); }
-      $("restoreFile").value="";
-    };
-    reader.readAsText(file);
-  };
-  $("clearPresets").onclick=()=>{
-    if(!presets.length) return;
-    if(confirm("Remove all "+presets.length+" presets?")){ presets=[]; save("rbx_presets",presets); renderPresets(); syncFavButtons(); }
-  };
-
-  // ---------- Wire controls ----------
-  $("searchBtn").onclick=()=>{ markGenre($("fTag").value.trim()); runSearch(); };
-  $("clearBtn").onclick=()=>{
-    ["fName","fTag","fLang","fCountry"].forEach(id=>$(id).value="");
-    $("fCodec").value=""; $("fQuality").value=""; $("fSort").value="votes"; markGenre(null);
-  };
-  document.querySelectorAll("[data-quick]").forEach(b=>b.onclick=()=>quick(b.dataset.quick));
-  $("serverSelect").onchange=onServerChange;
-  $("fLimit").value = load("rbx_limit", "120");
-  $("fLimit").onchange = ()=>save("rbx_limit", $("fLimit").value);
-  ["fName","fTag","fLang","fCountry"].forEach(id=>{
-    $(id).addEventListener("keydown",e=>{ if(e.key==="Enter") runSearch(); });
   });
+}
 
-  // ---------- Helpers ----------
-  function esc(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-  function fmt(n){ n=+n||0; return n>=1000?(n/1000).toFixed(n>=10000?0:1)+"k":n; }
-  function cap(s){ return String(s).replace(/\b\w/g,c=>c.toUpperCase()); }
+qEl.addEventListener("input", render);
+sortEl.addEventListener("change", render);
+clearEl.addEventListener("click", () => { qEl.value = ""; qEl.focus(); render(); });
+render();
 
-  // ---------- Filter presets (saved search setups) ----------
-  let filterSlots = load("rbx_filterslots", [null,null,null,null,null,null]);
-  if(!Array.isArray(filterSlots)) filterSlots=[];
-  while(filterSlots.length<6) filterSlots.push(null);
-  filterSlots = filterSlots.slice(0,6);
 
-  function saveFilterSlots(){ save("rbx_filterslots", filterSlots); }
-  function captureFilters(){
-    return {
-      name:$("fName").value.trim(), tag:$("fTag").value.trim(), lang:$("fLang").value.trim(),
-      country:$("fCountry").value.trim(), codec:$("fCodec").value, quality:$("fQuality").value,
-      sort:$("fSort").value, limit:$("fLimit").value, broken:$("fBroken").checked
-    };
-  }
-  function filterLabel(f){
-    const bits=[];
-    if(f.country) bits.push(f.country.length<=3 ? f.country.toUpperCase() : cap(f.country));
-    if(f.tag) bits.push(f.tag);
-    if(f.lang) bits.push(cap(f.lang));
-    if(f.codec) bits.push(f.codec);
-    if(f.quality && QUALITY[f.quality]) bits.push(QUALITY[f.quality].label);
-    if(f.name) bits.push('"'+f.name+'"');
-    return bits.length ? bits.join(" · ") : "All / default";
-  }
-  function saveFilterSlot(i){ filterSlots[i]=captureFilters(); saveFilterSlots(); renderFilterSlots(); toast("Saved to slot "+(i+1)); }
-  function loadFilterSlot(i){
-    const f=filterSlots[i]; if(!f) return;
-    $("fName").value=f.name||""; $("fTag").value=f.tag||""; $("fLang").value=f.lang||"";
-    $("fCountry").value=f.country||""; $("fCodec").value=f.codec||""; $("fQuality").value=f.quality||"";
-    $("fSort").value=f.sort||"votes"; $("fLimit").value=f.limit||"120"; $("fBroken").checked=(f.broken!==false);
-    markGenre(f.tag||null);
-    runSearch();
-    toast("Loaded: "+filterLabel(f));
-  }
-  function renderFilterSlots(){
-    const host=$("fpSlots"); host.innerHTML="";
-    filterSlots.forEach((f,i)=>{
-      const chip=document.createElement("div");
-      if(f){
-        chip.className="fp-slot";
-        const nm=document.createElement("span"); nm.className="fp-name"; nm.textContent=filterLabel(f);
-        nm.title="Load: "+filterLabel(f); nm.onclick=()=>loadFilterSlot(i);
-        const x=document.createElement("span"); x.className="fp-x"; x.textContent="\u2715"; x.title="Clear slot";
-        x.onclick=(e)=>{ e.stopPropagation(); filterSlots[i]=null; saveFilterSlots(); renderFilterSlots(); };
-        chip.appendChild(nm); chip.appendChild(x);
-      }else{
-        chip.className="fp-slot empty"; chip.textContent="\uFF0B Slot "+(i+1);
-        chip.title="Save current filters to this slot"; chip.onclick=()=>saveFilterSlot(i);
-      }
-      host.appendChild(chip);
-    });
-  }
-  $("fpBackup").onclick=()=>{
-    download("rbx-filter-presets.json", JSON.stringify(filterSlots,null,2), "application/json");
-    toast("Filter presets backed up");
-  };
-  $("fpRestore").onclick=()=>$("fpRestoreFile").click();
-  $("fpRestoreFile").onchange=e=>{
-    const file=e.target.files[0]; if(!file) return;
-    const r=new FileReader();
-    r.onload=()=>{
-      try{
-        const d=JSON.parse(r.result);
-        if(!Array.isArray(d)) throw new Error("bad");
-        filterSlots = d.slice(0,6);
-        while(filterSlots.length<6) filterSlots.push(null);
-        saveFilterSlots(); renderFilterSlots(); toast("Filter presets restored");
-      }catch(err){ toast("Couldn't read that file"); }
-      $("fpRestoreFile").value="";
-    };
-    r.readAsText(file);
-  };
+/* ---------- Depth chart view ---------- */
+const BY_NAME = {};
+players.forEach(p => { BY_NAME[p.name] = p; });
 
-  // ---------- Boot ----------
-  const APP_VERSION = "26.08.31g";   // bump on each deploy (yy.mm.dd)
-  $("appVer").textContent = "v" + APP_VERSION;
-  renderPresets();
-  renderFilterSlots();
-  initServer().then(()=>{ loadGenres(); loadCountries(); });
+const UNITS = [
+  ["Offense", ["Quarterback","Running back","X receiver","Z receiver","Slot receiver","Tight end",
+               "Left tackle","Left guard","Center","Right guard","Right tackle"]],
+  ["Defense", ["Defensive end","Nose tackle","Defensive tackle","Edge rusher","Weakside LB","Middle LB",
+               "Left corner","Right corner","Strong safety","Free safety","Nickel back"]],
+  ["Special teams", ["Kicker","Punter","Kickoffs","Long snapper","Holder","Punt returner","Kick returner"]]
+];
 
-})();
+function depthHTML(){
+  const rowFor = short => (DEPTH_ROWS.find(r => r[0] === short) || [null,null,[]]);
+  const out = UNITS.map(([unit, spots]) => {
+    const blocks = spots.map(short => {
+      const [, full, names] = rowFor(short);
+      if (!names.length) return "";
+      const men = names.map((n,i) => {
+        const p = BY_NAME[n];
+        const flag = p && p.status
+          ? ` <span class="flag${p.status.tag === "Out for season" ? " out" : ""}">${esc(p.status.tag)}</span>` : "";
+        return `<li${i === 0 ? ' class="starter"' : ""}>
+            <span class="dnum">${p ? p.num : ""}</span>
+            <span class="dname">${esc(n)}${flag}</span>
+            <span class="drank">${i === 0 ? "Starter" : RANK_WORD[i]}</span>
+          </li>`;
+      }).join("");
+      return `<div class="spot"><h3>${esc(full || short)}</h3><ol>${men}</ol></div>`;
+    }).join("");
+    return `<section class="unit"><h2>${esc(unit)}</h2>${blocks}</section>`;
+  }).join("");
+  return out + `<p class="asof">Depth chart as of ${esc(UPDATED.depth)}. Players out for the season have been
+    removed from their spot; everyone below them moves up.</p>`;
+}
+
+const depthEl = document.getElementById("depth");
+depthEl.innerHTML = depthHTML();
+
+const tabs = [].slice.call(document.querySelectorAll(".tab"));
+tabs.forEach(t => t.addEventListener("click", () => {
+  const view = t.dataset.view;
+  tabs.forEach(x => x.setAttribute("aria-selected", x === t));
+  document.body.classList.toggle("show-depth", view === "depth");
+  window.scrollTo(0,0);
+}));
 </script>
 </body>
 </html>
