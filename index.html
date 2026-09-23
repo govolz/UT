@@ -127,12 +127,13 @@
 <div id="depth"></div>
 
 <footer>
-<p><b>Roster updated:</b> Aug. 2026 &middot; <b>Depth chart updated:</b> Sept. 14, 2026 (after Georgia Tech)</p>
+<p><b>Roster updated:</b> Aug. 2026 &middot; <b>Depth chart updated:</b> Sept. 23, 2026 (Texas week)</p>
 <p>Tap a player for hometown, high school, previous schools and where he lines up.
 Class: Fr. first year &middot; So. second &middot; Jr. third &middot; Sr. fourth &middot; 5th fifth.</p>
-<p>Players, numbers and hometowns come from the 2026 UT roster on utsports.com. Specific spots &mdash; corner vs. safety,
-guard vs. tackle &mdash; are not on that roster; they start from the Ourlads two-deep of Aug. 24, 2026, adjusted for
-season-ending injuries to Edrees Farooq, Jadais Richard, Jaedon Harmon, Joakim Dodson and Ethan Davis. Arion Carter served his
+<p>Players, numbers and hometowns come from the 2026 UT roster on utsports.com. Specific spots (corner vs. safety,
+guard vs. tackle) are not on that roster; they start from the Ourlads two-deep of Aug. 24, 2026, adjusted for
+season-ending injuries to Edrees Farooq, Jadais Richard, Jaedon Harmon, Joakim Dodson and Ethan Davis.
+"Day to day" tags come from news reports, not the official SEC availability report. Arion Carter served his
 one-game suspension against Furman and is back.
 The chart lists only the top few at each spot, so anyone deeper down shows just his position group.</p>
 </footer>
@@ -311,7 +312,7 @@ const DEPTH_ROWS = [
 ];
 const UPDATED = {
   roster:"2026 roster, utsports.com",
-  depth:"Sept. 14, 2026 \u2014 after Georgia Tech"
+  depth:"Sept. 23, 2026, Texas week"
 };
 
 // Players off the two-deep, with the spot they had been holding.
@@ -320,7 +321,13 @@ const STATUS = {
 "Jadais Richard": {tag:"Out for season", note:"Upper-body injury", spot:"Cornerback"},
 "Jaedon Harmon":  {tag:"Out for season", note:"Torn ACL", spot:"Weakside LB"},
 "Joakim Dodson":  {tag:"Out for season", note:"Knee injury on a kick return vs. Furman (Sept. 5)", spot:"Slot receiver"},
-"Ethan Davis":    {tag:"Out for season", note:"Torn ACL at Georgia Tech (Sept. 12)", spot:"Tight end"}
+"Ethan Davis":    {tag:"Out for season", note:"Torn ACL at Georgia Tech (Sept. 12)", spot:"Tight end"},
+"DeSean Bishop":  {tag:"Day to day", note:"Hip, left Kennesaw State early. Expected to play vs. Texas", spot:null},
+"Javin Gordon":   {tag:"Day to day", note:"Leg, hurt at Georgia Tech and missed Kennesaw State. Expected to play vs. Texas", spot:null},
+"Justin Baker":   {tag:"Day to day", note:"Hand, in a cast after a punt block at Georgia Tech. Likely special teams only", spot:null},
+"Daevin Hobbs":   {tag:"Day to day", note:"Lingering injury, missed Kennesaw State", spot:null},
+"Nathan Robinson":{tag:"Day to day", note:"Minor injury at Georgia Tech, missed Kennesaw State", spot:null},
+"JJ Finch":       {tag:"Day to day", note:"Missed Georgia Tech with an injury", spot:null}
 };
 
 const DEPTH = {};
@@ -444,7 +451,7 @@ function render(){
       <div class="detail" id="d${i}">
         ${p.say ? `<div class="say">Say it: ${esc(p.say)}</div>` : ""}
         <dl>
-          ${p.status ? `<dt>Status</dt><dd>${esc(p.status.tag)} &mdash; ${esc(p.status.note)}</dd>` : ""}
+          ${p.status ? `<dt>Status</dt><dd>${esc(p.status.tag)}: ${esc(p.status.note)}</dd>` : ""}
           <dt>Position</dt><dd>${esc(p.posName)}</dd>
           <dt>Plays</dt><dd>${p.depth.length
             ? p.depth.map(d => esc(d.full) + ' <span class="rank">' + RANK_WORD[d.rank-1] + '</span>').join("<br>")
