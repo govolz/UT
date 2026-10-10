@@ -127,14 +127,14 @@
 <div id="depth"></div>
 
 <footer>
-<p><b>Roster updated:</b> Aug. 2026 &middot; <b>Depth chart updated:</b> Sept. 23, 2026 (Texas week)</p>
+<p><b>Roster updated:</b> Aug. 2026 &middot; <b>Depth chart updated:</b> Oct. 7, 2026 (Arkansas week)</p>
 <p>Tap a player for hometown, high school, previous schools and where he lines up.
 Class: Fr. first year &middot; So. second &middot; Jr. third &middot; Sr. fourth &middot; 5th fifth.</p>
 <p>Players, numbers and hometowns come from the 2026 UT roster on utsports.com. Specific spots (corner vs. safety,
 guard vs. tackle) are not on that roster; they start from the Ourlads two-deep of Aug. 24, 2026, adjusted for
-season-ending injuries to Edrees Farooq, Jadais Richard, Jaedon Harmon, Joakim Dodson and Ethan Davis.
-"Day to day" tags come from news reports, not the official SEC availability report. Arion Carter served his
-one-game suspension against Furman and is back.
+season-ending injuries to Edrees Farooq, Jadais Richard, Jaedon Harmon, Joakim Dodson, Ethan Davis, Dylan Lewis
+and Wendell Moe Jr. "Day to day" tags reflect the Auburn availability report and news through Oct. 7; the
+Arkansas report comes out Wednesday night.
 The chart lists only the top few at each spot, so anyone deeper down shows just his position group.</p>
 </footer>
 
@@ -287,7 +287,7 @@ const DEPTH_ROWS = [
 ["Slot receiver","Receiver, slot",["Braylon Staley","Ian Duarte"]],
 ["Tight end","Tight end",["DaSaahn Brame","Trent Thomas","Cole Harrison"]],
 ["Left tackle","Left tackle",["David Sanders Jr.","Gabriel Osenda"]],
-["Left guard","Left guard",["Wendell Moe Jr.","Shamurad Umarov","Antoni Ogumoro"]],
+["Left guard","Left guard",["Shamurad Umarov","Antoni Ogumoro"]],
 ["Center","Center",["Sam Pendleton","Nic Moore"]],
 ["Right guard","Right guard",["Jesse Perry","Donovan Haslam"]],
 ["Right tackle","Right tackle",["Ory Williams","Jeremias Heard"]],
@@ -300,19 +300,19 @@ const DEPTH_ROWS = [
 ["Left corner","Left cornerback",["Kayin Lee","Tre Poteat III","Tim Merritt"]],
 ["Right corner","Right cornerback",["Ty Redmond","Zay Anderson"]],
 ["Strong safety","Strong safety",["Dejuan Lane","DJ Burks"]],
-["Free safety","Free safety",["TJ Metcalf","Dylan Lewis","Sidney Walton","Joel Wyatt"]],
-["Nickel back","Nickel back",["Qua Moss","Isaiah Hardge","Tevis Metcalf"]],
+["Free safety","Free safety",["TJ Metcalf","Sidney Walton","Joel Wyatt"]],
+["Nickel back","Nickel back",["Qua Moss","Tevis Metcalf","Jamyan Theodore","Isaiah Hardge"]],
 ["Punter","Punter",["Jackson Ross","Josh Turbyville","Logan Foley"]],
 ["Kicker","Place kicker",["Cooper Ranvier","Josh Turbyville","Grady Dangerfield"]],
 ["Long snapper","Long snapper",["Bennett Brady","Blake Howard"]],
 ["Kickoffs","Kickoffs",["Josh Turbyville","Grady Dangerfield"]],
 ["Holder","Holder",["Jackson Ross","Josh Turbyville","Logan Foley"]],
-["Punt returner","Punt returner",["Daune Morris","Ian Duarte"]],
+["Punt returner","Punt returner",["Qua Moss","Daune Morris","Ian Duarte"]],
 ["Kick returner","Kick returner",["Daune Morris"]]
 ];
 const UPDATED = {
   roster:"2026 roster, utsports.com",
-  depth:"Sept. 23, 2026, Texas week"
+  depth:"Oct. 7, 2026, Arkansas week"
 };
 
 // Players off the two-deep, with the spot they had been holding.
@@ -322,12 +322,14 @@ const STATUS = {
 "Jaedon Harmon":  {tag:"Out for season", note:"Torn ACL", spot:"Weakside LB"},
 "Joakim Dodson":  {tag:"Out for season", note:"Knee injury on a kick return vs. Furman (Sept. 5)", spot:"Slot receiver"},
 "Ethan Davis":    {tag:"Out for season", note:"Torn ACL at Georgia Tech (Sept. 12)", spot:"Tight end"},
-"DeSean Bishop":  {tag:"Day to day", note:"Hip, left Kennesaw State early. Expected to play vs. Texas", spot:null},
-"Javin Gordon":   {tag:"Day to day", note:"Leg, hurt at Georgia Tech and missed Kennesaw State. Expected to play vs. Texas", spot:null},
-"Justin Baker":   {tag:"Day to day", note:"Hand, in a cast after a punt block at Georgia Tech. Likely special teams only", spot:null},
-"Daevin Hobbs":   {tag:"Day to day", note:"Lingering injury, missed Kennesaw State", spot:null},
-"Nathan Robinson":{tag:"Day to day", note:"Minor injury at Georgia Tech, missed Kennesaw State", spot:null},
-"JJ Finch":       {tag:"Day to day", note:"Missed Georgia Tech with an injury", spot:null}
+"Dylan Lewis":    {tag:"Out for season", note:"Injury reported before Texas; listed out for the season by Oct. 3", spot:"Free safety"},
+"Wendell Moe Jr.":{tag:"Out for season", note:"Lower-body injury, expected to miss the rest of the year", spot:"Left guard"},
+"Faizon Brandon": {tag:"Day to day", note:"Throwing shoulder, hurt vs. Texas and limited vs. Auburn. MacIntyre reportedly starting at Arkansas", spot:null},
+"Javin Gordon":   {tag:"Day to day", note:"Leg, hurt at Georgia Tech. Out vs. Kennesaw State, Texas and Auburn", spot:null},
+"Shamurad Umarov":{tag:"Day to day", note:"Undisclosed injury late vs. Texas. Out vs. Auburn", spot:null},
+"Qua Moss":       {tag:"Day to day", note:"Concussion protocol after the Texas game. Out vs. Auburn", spot:null},
+"Kedric Golston II":{tag:"Day to day", note:"Out vs. Auburn", spot:null},
+"Nathan Robinson":{tag:"Day to day", note:"Listed probable vs. Auburn", spot:null}
 };
 
 const DEPTH = {};
