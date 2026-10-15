@@ -25,7 +25,7 @@
   header{position:sticky;top:0;z-index:20;background:var(--paper);padding:14px 16px 0;padding-top:calc(14px + env(safe-area-inset-top));border-bottom:1px solid var(--rule);}
   .masthead{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;}
   h1{font-family:var(--num);font-weight:700;font-size:29px;letter-spacing:.005em;margin:0;line-height:1;}
-  .season{font-family:var(--num);font-size:29px;font-weight:600;color:var(--orange);line-height:1;}
+  .season{font-family:var(--num);font-size:29px;font-weight:600;color:var(--orange);line-height:1;white-space:nowrap;}
   .checker{height:10px;background-color:#fff;
     background-image:linear-gradient(45deg,var(--orange) 25%,transparent 25%,transparent 75%,var(--orange) 75%),
                      linear-gradient(45deg,var(--orange) 25%,transparent 25%,transparent 75%,var(--orange) 75%);
@@ -76,6 +76,12 @@
   body.show-depth .search,body.show-depth .chips,body.show-depth .statusbar,body.show-depth #list{display:none;}
   #depth{display:none;padding:0 0 40px;}
   body.show-depth #depth{display:block;}
+  #bball,#bfoot{display:none;}
+  body.show-bball #bball,body.show-bball #bfoot{display:block;}
+  body.show-bball .chips,body.show-bball .statusbar,body.show-bball #list,body.show-bball #ffoot{display:none;}
+  body.show-bball #bball .statusbar{display:flex;}
+  .bchips{display:flex;gap:7px;overflow-x:auto;padding:11px 16px;border-bottom:1px solid var(--rule);scrollbar-width:none;}
+  .bchips::-webkit-scrollbar{display:none;}
   .unit{padding:0 0 6px;}
   .unit h2{font-family:var(--num);font-size:22px;font-weight:700;margin:0;padding:12px 16px 8px;
            background:var(--wash);border-bottom:1px solid var(--rule);letter-spacing:.02em;}
@@ -94,7 +100,7 @@
 <body>
 
 <header>
-  <div class="masthead"><h1>Tennessee Football</h1><span class="season">2026</span></div>
+  <div class="masthead"><h1 id="sport">Tennessee Football</h1><span class="season" id="season">2026</span></div>
   <div class="search">
     <input id="q" type="search" inputmode="search" autocomplete="off" autocapitalize="off"
            placeholder="Search name, number, position, hometown" aria-label="Search the roster">
@@ -107,6 +113,7 @@
 <div class="tabs" role="tablist">
   <button class="tab" type="button" role="tab" data-view="roster" aria-selected="true">Roster</button>
   <button class="tab" type="button" role="tab" data-view="depth" aria-selected="false">Depth chart</button>
+  <button class="tab" type="button" role="tab" data-view="bball" aria-selected="false">Basketball</button>
 </div>
 
 <div class="statusbar">
@@ -125,17 +132,27 @@
 
 <ul id="list"></ul>
 <div id="depth"></div>
+<div id="bball">
+  <div class="bchips" id="bchips" role="group" aria-label="Filter basketball by position"></div>
+  <div class="statusbar"><span id="bcount">17 players</span><span>Head coach Rick Barnes, 12th season</span></div>
+  <ul id="blist"></ul>
+</div>
 
-<footer>
-<p><b>Roster updated:</b> Aug. 2026 &middot; <b>Depth chart updated:</b> Oct. 7, 2026 (Arkansas week)</p>
+<footer id="ffoot">
+<p><b>Roster updated:</b> Aug. 2026 &middot; <b>Depth chart updated:</b> Oct. 15, 2026 (Alabama week)</p>
 <p>Tap a player for hometown, high school, previous schools and where he lines up.
 Class: Fr. first year &middot; So. second &middot; Jr. third &middot; Sr. fourth &middot; 5th fifth.</p>
 <p>Players, numbers and hometowns come from the 2026 UT roster on utsports.com. Specific spots (corner vs. safety,
 guard vs. tackle) are not on that roster; they start from the Ourlads two-deep of Aug. 24, 2026, adjusted for
 season-ending injuries to Edrees Farooq, Jadais Richard, Jaedon Harmon, Joakim Dodson, Ethan Davis, Dylan Lewis
-and Wendell Moe Jr. "Day to day" tags reflect the Auburn availability report and news through Oct. 7; the
-Arkansas report comes out Wednesday night.
+and Wendell Moe Jr. George MacIntyre is listed first at quarterback after starting the 24-17 win at Arkansas.
+Injury tags follow the SEC availability report for Alabama released Oct. 14.
 The chart lists only the top few at each spot, so anyone deeper down shows just his position group.</p>
+</footer>
+<footer id="bfoot">
+<p><b>Basketball roster updated:</b> Oct. 15, 2026</p>
+<p>Tap a player for hometown, high school, previous schools and years at UT. Season opener is in November.</p>
+<p>Roster from utsports.com. Assistant coaches: Earl Grant, Bryan Lentz, Steve McClain, Amorrow Morgan and Gregg Polinsky.</p>
 </footer>
 
 <script>
@@ -280,7 +297,7 @@ const SHORT_ROLE = {
 // Specific roles from the Ourlads preseason two-deep, updated Aug. 24, 2026.
 // Order within each list is depth-chart order.
 const DEPTH_ROWS = [
-["Quarterback","Quarterback",["Faizon Brandon","George MacIntyre","Ryan Staub","Mason Phillips"]],
+["Quarterback","Quarterback",["George MacIntyre","Faizon Brandon","Ryan Staub","Mason Phillips"]],
 ["Running back","Running back",["DeSean Bishop","Daune Morris","Javin Gordon","Justin Baker"]],
 ["X receiver","Receiver, X (wide side)",["Mike Matthews","Travis Smith Jr.","Tyreek King"]],
 ["Z receiver","Receiver, Z (boundary)",["Radarious Jackson","TK Keys"]],
@@ -312,7 +329,7 @@ const DEPTH_ROWS = [
 ];
 const UPDATED = {
   roster:"2026 roster, utsports.com",
-  depth:"Oct. 7, 2026, Arkansas week"
+  depth:"Oct. 15, 2026, Alabama week"
 };
 
 // Players off the two-deep, with the spot they had been holding.
@@ -322,14 +339,9 @@ const STATUS = {
 "Jaedon Harmon":  {tag:"Out for season", note:"Torn ACL", spot:"Weakside LB"},
 "Joakim Dodson":  {tag:"Out for season", note:"Knee injury on a kick return vs. Furman (Sept. 5)", spot:"Slot receiver"},
 "Ethan Davis":    {tag:"Out for season", note:"Torn ACL at Georgia Tech (Sept. 12)", spot:"Tight end"},
-"Dylan Lewis":    {tag:"Out for season", note:"Injury reported before Texas; listed out for the season by Oct. 3", spot:"Free safety"},
-"Wendell Moe Jr.":{tag:"Out for season", note:"Lower-body injury, expected to miss the rest of the year", spot:"Left guard"},
-"Faizon Brandon": {tag:"Day to day", note:"Throwing shoulder, hurt vs. Texas and limited vs. Auburn. MacIntyre reportedly starting at Arkansas", spot:null},
-"Javin Gordon":   {tag:"Day to day", note:"Leg, hurt at Georgia Tech. Out vs. Kennesaw State, Texas and Auburn", spot:null},
-"Shamurad Umarov":{tag:"Day to day", note:"Undisclosed injury late vs. Texas. Out vs. Auburn", spot:null},
-"Qua Moss":       {tag:"Day to day", note:"Concussion protocol after the Texas game. Out vs. Auburn", spot:null},
-"Kedric Golston II":{tag:"Day to day", note:"Out vs. Auburn", spot:null},
-"Nathan Robinson":{tag:"Day to day", note:"Listed probable vs. Auburn", spot:null}
+"Dylan Lewis":    {tag:"Out for season", note:"Foot injury vs. Kennesaw State", spot:"Free safety"},
+"Wendell Moe Jr.":{tag:"Out for season", note:"Lower-leg injury vs. Texas", spot:"Left guard"},
+"Faizon Brandon": {tag:"Questionable", note:"Throwing shoulder, hurt vs. Texas. Did not play at Arkansas; questionable vs. Alabama", spot:null}
 };
 
 const DEPTH = {};
@@ -528,6 +540,102 @@ tabs.forEach(t => t.addEventListener("click", () => {
   tabs.forEach(x => x.setAttribute("aria-selected", x === t));
   document.body.classList.toggle("show-depth", view === "depth");
   window.scrollTo(0,0);
+}));
+
+/* ---------- Basketball ---------- */
+// num, name, pos, class, years at UT, height, weight, hometown, high school, previous schools
+const BB = [
+[0,"Braedan Lue","F","Jr.","1st","6-8",243,"Douglasville, Ga.","Robert S. Alexander","Kennesaw State"],
+[1,"Manny Green","G","Fr.","1st","6-6",212,"Decatur, Ga.","Cedar Grove",""],
+[2,"Juke Harris","G","Jr.","1st","6-7",205,"Salisbury, N.C.","Salisbury","Wake Forest"],
+[3,"Terrence Hill Jr.","G","Jr.","1st","6-2",186,"Portland, Ore.","Roosevelt","VCU"],
+[4,"Dai Dai Ames","G","Sr.","1st","6-2",199,"Chicago, Ill.","Kenwood Academy","Cal, Virginia, Kansas State"],
+[6,"DeWayne Brown II","F","So.","2nd","6-8",248,"Hoover, Ala.","Hoover",""],
+[7,"Tyler Lundblade","G","6th","1st","6-6",216,"Dallas, Texas","Greensboro Day School (N.C.)","Belmont, TCU, SMU"],
+[8,"Marquis Clark","G","Fr.","1st","6-2",211,"Chicago, Ill.","Whitney M. Young",""],
+[9,"Jalen Washington","F","5th","1st","6-10",244,"Gary, Ind.","West Side Leadership Academy","Vanderbilt, North Carolina"],
+[10,"Jalen Haralson","G","So.","1st","6-7",222,"Anderson, Ind.","La Lumiere School","Notre Dame"],
+[11,"Gavin Paull","G","Jr.","3rd","5-11",166,"Austin, Texas","Westlake",""],
+[12,"Christian Fermin","F","5th","1st","6-10",234,"Tobyhanna, Pa.","Pocono Mountain West","VCU"],
+[13,"Ralph Scott","F","Fr.","1st","6-8",211,"Warwick, Bermuda","IMG Academy (Fla.)",""],
+[21,"Campbell Duncan","G","Jr.","3rd","6-6",208,"Austin, Texas","Anderson",""],
+[24,"Troy Henderson","G","So.","2nd","6-1",188,"Richmond, Va.","John Marshall",""],
+[25,"Miles Rubin","C","Sr.","1st","6-10",224,"Chicago, Ill.","Simeon Career Academy","Loyola Chicago"],
+[33,"Chris Washington Jr.","F","Fr.","1st","6-9",214,"Gainesville, Fla.","Providence Christian Academy (Tenn.)",""]
+];
+const BB_POS = {"G":"Guard","F":"Forward","C":"Center"};
+const bplayers = BB.map(r => ({
+  num:r[0], name:r[1], pos:r[2], cl:r[3], yr:r[4], ht:r[5], wt:r[6], home:r[7], hs:r[8], prev:r[9],
+  hay:(r[0]+" #"+r[0]+" "+r[1]+" "+r[2]+" "+BB_POS[r[2]]+" "+r[3]+" "+r[5]+" "+r[6]+" "+r[7]+" "+r[8]+" "+r[9]).toLowerCase()
+}));
+let bfilter = "all";
+const bchipsEl = document.getElementById("bchips");
+[["all","All"],["G","Guards"],["F","Forwards"],["C","Centers"]].forEach(([v,l]) => {
+  const b = document.createElement("button");
+  b.className = "chip"; b.type = "button"; b.textContent = l; b.dataset.pos = v;
+  b.setAttribute("aria-pressed", v === "all");
+  b.addEventListener("click", () => {
+    bfilter = v;
+    [...bchipsEl.children].forEach(c => c.setAttribute("aria-pressed", c.dataset.pos === v));
+    renderBB();
+  });
+  bchipsEl.appendChild(b);
+});
+
+function renderBB(){
+  const q = qEl.value.trim().toLowerCase();
+  const jersey = q.match(/^#?(\d{1,2})$/);
+  let rows = bplayers.filter(p => (bfilter === "all" || p.pos === bfilter) &&
+    (!q || (jersey ? p.num === Number(jersey[1]) : p.hay.includes(q))));
+  if (jersey && !rows.length) rows = bplayers.filter(p => (bfilter === "all" || p.pos === bfilter) && p.hay.includes(q));
+  document.getElementById("bcount").textContent = rows.length === 1 ? "1 player" : rows.length + " players";
+  const bl = document.getElementById("blist");
+  if (!rows.length){
+    bl.innerHTML = '<li><div class="empty"><b>No one by that name</b>Try a number, a position, or a hometown like Chicago.</div></li>';
+    return;
+  }
+  bl.innerHTML = rows.map((p,i) => `
+    <li>
+      <button class="row" type="button" aria-expanded="false" aria-controls="b${i}">
+       <span class="rowinner">
+        <span class="jersey">${p.num}</span>
+        <span class="who">
+          <span class="name">${esc(p.name)}</span>
+          <span class="sub">${esc(p.cl)} &nbsp;&middot;&nbsp; ${esc(p.ht)}, ${p.wt} &nbsp;&middot;&nbsp; ${esc(p.home)}</span>
+        </span>
+        <span class="posbox">
+          <span class="pos">${esc(p.pos)}</span>
+          <span class="role">${esc(BB_POS[p.pos])}</span>
+        </span>
+       </span>
+      </button>
+      <div class="detail" id="b${i}">
+        <dl>
+          <dt>Position</dt><dd>${esc(BB_POS[p.pos])}</dd>
+          <dt>Hometown</dt><dd>${esc(p.home)}</dd>
+          <dt>High school</dt><dd>${esc(p.hs)}</dd>
+          ${p.prev ? `<dt>Came from</dt><dd>${esc(p.prev)}</dd>` : ""}
+          <dt>Year at UT</dt><dd>${esc(p.yr)}</dd>
+        </dl>
+      </div>
+    </li>`).join("");
+  bl.querySelectorAll(".row").forEach(btn => btn.addEventListener("click", () => {
+    const open = btn.parentElement.classList.toggle("open");
+    btn.setAttribute("aria-expanded", open);
+  }));
+}
+renderBB();
+qEl.addEventListener("input", renderBB);
+clearEl.addEventListener("click", renderBB);
+
+const SPORT = {
+  roster:["Tennessee Football","2026"], depth:["Tennessee Football","2026"], bball:["Tennessee Basketball","2026-27"]
+};
+tabs.forEach(t => t.addEventListener("click", () => {
+  const v = t.dataset.view;
+  document.body.classList.toggle("show-bball", v === "bball");
+  document.getElementById("sport").textContent = SPORT[v][0];
+  document.getElementById("season").textContent = SPORT[v][1];
 }));
 </script>
 </body>
