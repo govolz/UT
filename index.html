@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ff8200">
-<title>2026 Tennessee Football Roster</title>
+<title>Tennessee Rosters</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet">
@@ -22,14 +22,17 @@
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%;}
-  header{position:sticky;top:0;z-index:20;background:var(--paper);padding:14px 16px 0;padding-top:calc(14px + env(safe-area-inset-top));border-bottom:1px solid var(--rule);}
-  .masthead{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;}
-  h1{font-family:var(--num);font-weight:700;font-size:29px;letter-spacing:.005em;margin:0;line-height:1;}
+
+  header{position:sticky;top:0;z-index:20;background:var(--paper);padding:12px 16px 0;padding-top:calc(12px + env(safe-area-inset-top));border-bottom:1px solid var(--rule);}
+  .masthead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px;}
+  h1{font-family:var(--num);font-weight:700;font-size:29px;margin:0;line-height:1;}
   .season{font-family:var(--num);font-size:29px;font-weight:600;color:var(--orange);line-height:1;white-space:nowrap;}
-  .checker{height:10px;background-color:#fff;
-    background-image:linear-gradient(45deg,var(--orange) 25%,transparent 25%,transparent 75%,var(--orange) 75%),
-                     linear-gradient(45deg,var(--orange) 25%,transparent 25%,transparent 75%,var(--orange) 75%);
-    background-size:20px 20px;background-position:0 0,10px 10px;}
+
+  .sports{display:flex;background:var(--wash);border-radius:9px;padding:3px;margin-bottom:10px;}
+  .sport{flex:1;font-family:var(--num);font-size:17px;font-weight:600;letter-spacing:.02em;white-space:nowrap;
+         padding:7px 4px;border:0;border-radius:7px;background:transparent;color:var(--smokey);cursor:pointer;}
+  .sport[aria-selected="true"]{background:#fff;color:var(--ink);box-shadow:0 0 0 1.5px var(--orange) inset;}
+
   .search{position:relative;margin-bottom:10px;}
   #q{width:100%;font-family:var(--body);font-size:16px;padding:11px 40px 11px 13px;border:1.5px solid var(--rule);border-radius:8px;background:var(--wash);color:var(--ink);}
   #q:focus{outline:none;border-color:var(--orange);background:#fff;}
@@ -39,9 +42,24 @@
   .chips::-webkit-scrollbar{display:none;}
   .chip{flex:0 0 auto;font-family:var(--num);font-size:16px;font-weight:600;letter-spacing:.02em;padding:5px 12px;border-radius:999px;border:1.5px solid var(--rule);background:#fff;color:var(--smokey);cursor:pointer;}
   .chip[aria-pressed="true"]{background:var(--orange);border-color:var(--orange);color:#fff;}
-  .chip:focus-visible,#q:focus-visible,.row:focus-visible,select:focus-visible,#clear:focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
+  .chip:focus-visible,.sport:focus-visible,.tab:focus-visible,#q:focus-visible,.row:focus-visible,select:focus-visible,#clear:focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
+
+  .checker{height:10px;background-color:#fff;
+    background-image:linear-gradient(45deg,var(--orange) 25%,transparent 25%,transparent 75%,var(--orange) 75%),
+                     linear-gradient(45deg,var(--orange) 25%,transparent 25%,transparent 75%,var(--orange) 75%);
+    background-size:20px 20px;background-position:0 0,10px 10px;}
+  .tabs{display:flex;border-bottom:1px solid var(--rule);background:#fff;}
+  .tab{flex:1;font-family:var(--num);font-size:18px;font-weight:600;letter-spacing:.02em;padding:10px 8px;background:#fff;border:0;border-bottom:3px solid transparent;color:var(--smokey);cursor:pointer;}
+  .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--orange);}
+
   .statusbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 16px;background:var(--wash);border-bottom:1px solid var(--rule);font-size:13.5px;color:var(--smokey);}
   .statusbar select{font-family:var(--body);font-size:13.5px;color:var(--ink);border:1px solid var(--rule);border-radius:6px;background:#fff;padding:4px 6px;}
+
+  /* view switching */
+  body.view-depth .search,body.view-depth .chips,body.view-depth .statusbar,body.view-depth #list{display:none;}
+  #depth{display:none;padding:0 0 40px;}
+  body.view-depth #depth{display:block;}
+
   ul{list-style:none;margin:0;padding:0 0 40px;}
   li{border-bottom:1px solid var(--rule);}
   .row{display:block;width:100%;padding:11px 16px;background:#fff;border:0;text-align:left;cursor:pointer;font-family:var(--body);color:inherit;}
@@ -61,46 +79,39 @@
   .detail dt{color:var(--smokey);font-size:13px;}
   .detail dd{margin:0;}
   .rank{color:var(--smokey);font-size:12.5px;}
-  .say{display:inline-block;margin-bottom:8px;font-size:14px;color:var(--ink);border-left:3px solid var(--orange);padding-left:9px;}
+  .say{display:inline-block;margin-bottom:8px;font-size:14px;border-left:3px solid var(--orange);padding-left:9px;}
+  .flag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;vertical-align:2px;
+        padding:1px 6px;border-radius:4px;background:var(--wash);color:var(--smokey);border:1px solid var(--rule);}
+  .flag.out{background:#fdece0;border-color:#f6c9a3;color:#a64b00;}
   .empty{padding:44px 24px;text-align:center;color:var(--smokey);}
   .empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:5px;font-weight:600;}
-  footer p{margin:0 0 9px;}
-  footer{padding:18px 16px calc(28px + env(safe-area-inset-bottom));font-size:12.5px;color:var(--smokey);border-top:1px solid var(--rule);}
-  .flag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;
-        vertical-align:2px;padding:1px 6px;border-radius:4px;background:var(--wash);color:var(--smokey);border:1px solid var(--rule);}
-  .flag.out{background:#fdece0;border-color:#f6c9a3;color:#a64b00;}
-  .tabs{display:flex;border-bottom:1px solid var(--rule);background:#fff;}
-  .tab{flex:1;font-family:var(--num);font-size:18px;font-weight:600;letter-spacing:.02em;
-       padding:10px 8px;background:#fff;border:0;border-bottom:3px solid transparent;color:var(--smokey);cursor:pointer;}
-  .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--orange);}
-  body.show-depth .search,body.show-depth .chips,body.show-depth .statusbar,body.show-depth #list{display:none;}
-  #depth{display:none;padding:0 0 40px;}
-  body.show-depth #depth{display:block;}
-  #bball,#bfoot{display:none;}
-  body.show-bball #bball,body.show-bball #bfoot{display:block;}
-  body.show-bball .chips,body.show-bball .statusbar,body.show-bball #list,body.show-bball #ffoot{display:none;}
-  body.show-bball #bball .statusbar{display:flex;}
-  .bchips{display:flex;gap:7px;overflow-x:auto;padding:11px 16px;border-bottom:1px solid var(--rule);scrollbar-width:none;}
-  .bchips::-webkit-scrollbar{display:none;}
-  .unit{padding:0 0 6px;}
-  .unit h2{font-family:var(--num);font-size:22px;font-weight:700;margin:0;padding:12px 16px 8px;
-           background:var(--wash);border-bottom:1px solid var(--rule);letter-spacing:.02em;}
+
+  .unit h2{font-family:var(--num);font-size:22px;font-weight:700;margin:0;padding:12px 16px 8px;background:var(--wash);border-bottom:1px solid var(--rule);letter-spacing:.02em;}
+  .unit .lede{margin:0;padding:10px 16px;font-size:13px;color:var(--smokey);border-bottom:1px solid var(--rule);}
   .spot{padding:11px 16px;border-bottom:1px solid var(--rule);}
   .spot h3{font-size:13px;font-weight:600;color:var(--smokey);margin:0 0 5px;letter-spacing:.02em;}
   .spot ol{list-style:none;margin:0;padding:0;}
-  .spot li{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:10px;align-items:baseline;
-           border:0;padding:2px 0;font-size:15px;}
+  .spot li{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:10px;align-items:baseline;border:0;padding:2px 0;font-size:15px;}
   .spot li.starter{font-weight:600;}
   .dnum{font-family:var(--num);font-weight:700;font-size:19px;color:var(--orange);text-align:right;font-variant-numeric:tabular-nums;}
+  .dnote{display:block;font-size:12.5px;font-weight:400;color:var(--smokey);line-height:1.3;}
   .drank{font-size:12px;color:var(--smokey);white-space:nowrap;}
   .asof{padding:14px 16px 0;margin:0;font-size:12.5px;color:var(--smokey);}
-  @media (prefers-reduced-motion:no-preference){ .row{transition:background .12s ease;} }
+
+  footer{padding:18px 16px calc(28px + env(safe-area-inset-bottom));font-size:12.5px;color:var(--smokey);border-top:1px solid var(--rule);}
+  footer p{margin:0 0 9px;}
+  @media (prefers-reduced-motion:no-preference){ .row,.sport{transition:background .12s ease;} }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="masthead"><h1 id="sport">Tennessee Football</h1><span class="season" id="season">2026</span></div>
+  <div class="masthead"><h1 id="title">Vols Football</h1><span class="season" id="season">2026</span></div>
+  <div class="sports" role="tablist" aria-label="Choose a team">
+    <button class="sport" type="button" role="tab" data-sport="football" aria-selected="true">Football</button>
+    <button class="sport" type="button" role="tab" data-sport="mens" aria-selected="false">Men's hoops</button>
+    <button class="sport" type="button" role="tab" data-sport="womens" aria-selected="false">Lady Vols</button>
+  </div>
   <div class="search">
     <input id="q" type="search" inputmode="search" autocomplete="off" autocapitalize="off"
            placeholder="Search name, number, position, hometown" aria-label="Search the roster">
@@ -113,52 +124,27 @@
 <div class="tabs" role="tablist">
   <button class="tab" type="button" role="tab" data-view="roster" aria-selected="true">Roster</button>
   <button class="tab" type="button" role="tab" data-view="depth" aria-selected="false">Depth chart</button>
-  <button class="tab" type="button" role="tab" data-view="bball" aria-selected="false">Basketball</button>
 </div>
 
 <div class="statusbar">
-  <span id="count">112 players</span>
+  <span id="count"></span>
   <label>Sort
-    <select id="sort" aria-label="Sort roster">
-      <option value="num">Number</option>
-      <option value="name">Last name</option>
-      <option value="pos">Position</option>
-      <option value="wt">Heaviest</option>
-      <option value="ht">Tallest</option>
-      <option value="cl">Class</option>
-    </select>
+    <select id="sort" aria-label="Sort roster"></select>
   </label>
 </div>
 
 <ul id="list"></ul>
 <div id="depth"></div>
-<div id="bball">
-  <div class="bchips" id="bchips" role="group" aria-label="Filter basketball by position"></div>
-  <div class="statusbar"><span id="bcount">17 players</span><span>Head coach Rick Barnes, 12th season</span></div>
-  <ul id="blist"></ul>
-</div>
-
-<footer id="ffoot">
-<p><b>Roster updated:</b> Aug. 2026 &middot; <b>Depth chart updated:</b> Oct. 15, 2026 (Alabama week)</p>
-<p>Tap a player for hometown, high school, previous schools and where he lines up.
-Class: Fr. first year &middot; So. second &middot; Jr. third &middot; Sr. fourth &middot; 5th fifth.</p>
-<p>Players, numbers and hometowns come from the 2026 UT roster on utsports.com. Specific spots (corner vs. safety,
-guard vs. tackle) are not on that roster; they start from the Ourlads two-deep of Aug. 24, 2026, adjusted for
-season-ending injuries to Edrees Farooq, Jadais Richard, Jaedon Harmon, Joakim Dodson, Ethan Davis, Dylan Lewis
-and Wendell Moe Jr. George MacIntyre is listed first at quarterback after starting the 24-17 win at Arkansas.
-Injury tags follow the SEC availability report for Alabama released Oct. 14.
-The chart lists only the top few at each spot, so anyone deeper down shows just his position group.</p>
-</footer>
-<footer id="bfoot">
-<p><b>Basketball roster updated:</b> Oct. 15, 2026</p>
-<p>Tap a player for hometown, high school, previous schools and years at UT. Season opener is in November.</p>
-<p>Roster from utsports.com. Assistant coaches: Earl Grant, Bryan Lentz, Steve McClain, Amorrow Morgan and Gregg Polinsky.</p>
-</footer>
+<footer id="foot"></footer>
 
 <script>
+/* =====================================================================
+   DATA. Weekly updates happen in this section only.
+   ===================================================================== */
 
-// num, name, pos, class, yr at UT, height, weight, hometown/high school/previous schools
-const RAW = [
+/* ---------- FOOTBALL ---------- */
+// num, name, pos, class, year at UT, height, weight, hometown/high school/previous schools
+const FB_RAW = [
 [0,"Amare Campbell","LB","Sr.","1st","6-0",230,"Manassas, Va./Unity Reed/North Carolina/Penn State"],
 [0,"Ethan Davis","TE","Sr.","4th","6-5",247,"Atlanta, Ga./Collins Hill"],
 [1,"TJ Metcalf","DB","Sr.","1st","6-1",205,"Birmingham, Ala./Pinson Valley/Arkansas/Michigan"],
@@ -273,7 +259,7 @@ const RAW = [
 [99,"Charles House III","DL","So.","2nd","6-3",290,"Charlotte, N.C./North Mecklenburg"]
 ];
 
-const SAY = {
+const FB_SAY = {
 "Amare Campbell":"uh-MAR-ee","Xavier Gilliam":"GIHL-yuhm","Radarious Jackson":"RUH-dair-ee-us",
 "Tre Poteat III":"poh-TEET","Daevin Hobbs":"DAY-vin","Javin Gordon":"JAY-vin","Qua Moss":"KWAY",
 "DaSaahn Brame":"duh-SAHN BRAIM","Arion Carter":"air-EE-on","Jadais Richard":"JAY-diss",
@@ -289,14 +275,8 @@ const SAY = {
 "Gabriel Osenda":"oh-SEN-duh","Ian Duarte":"DWAR-tay","Hezekiah Harris":"hez-uh-KAI-uh"
 };
 
-const SHORT_ROLE = {
-  "QB":"Quarterback","RB":"Running back","WR":"Wide receiver","TE":"Tight end",
-  "OL":"Offensive line","DL":"Defensive line","LB":"Linebacker","DB":"Defensive back",
-  "PK":"Kicker","P":"Punter","P/PK":"Punter / kicker","LS":"Long snapper"
-};
-// Specific roles from the Ourlads preseason two-deep, updated Aug. 24, 2026.
-// Order within each list is depth-chart order.
-const DEPTH_ROWS = [
+// Spots start from the Ourlads two-deep of Aug. 24, 2026, adjusted weekly. Order = depth order.
+const FB_DEPTH = [
 ["Quarterback","Quarterback",["George MacIntyre","Faizon Brandon","Ryan Staub","Mason Phillips"]],
 ["Running back","Running back",["DeSean Bishop","Daune Morris","Javin Gordon","Justin Baker"]],
 ["X receiver","Receiver, X (wide side)",["Mike Matthews","Travis Smith Jr.","Tyreek King"]],
@@ -327,13 +307,9 @@ const DEPTH_ROWS = [
 ["Punt returner","Punt returner",["Qua Moss","Daune Morris","Ian Duarte"]],
 ["Kick returner","Kick returner",["Daune Morris"]]
 ];
-const UPDATED = {
-  roster:"2026 roster, utsports.com",
-  depth:"Oct. 15, 2026, Alabama week"
-};
 
-// Players off the two-deep, with the spot they had been holding.
-const STATUS = {
+// Injury/availability tags. spot = where an out-for-season player had been listed.
+const FB_STATUS = {
 "Edrees Farooq":  {tag:"Out for season", note:"Torn patellar tendon, right knee (Aug. 14)", spot:"Strong safety"},
 "Jadais Richard": {tag:"Out for season", note:"Upper-body injury", spot:"Cornerback"},
 "Jaedon Harmon":  {tag:"Out for season", note:"Torn ACL", spot:"Weakside LB"},
@@ -344,216 +320,20 @@ const STATUS = {
 "Faizon Brandon": {tag:"Questionable", note:"Throwing shoulder, hurt vs. Texas. Did not play at Arkansas; questionable vs. Alabama", spot:null}
 };
 
-const DEPTH = {};
-DEPTH_ROWS.forEach(([short,full,names]) => names.forEach((n,i) => {
-  (DEPTH[n] = DEPTH[n] || []).push({short, full, rank:i+1});
-}));
-const RANK_WORD = ["1st team","2nd team","3rd team","4th team","5th team"];
+const FB_UPDATED = {roster:"Aug. 2026", depth:"Oct. 15, 2026 (Alabama week)"};
 
-const CLASS_ORDER = {"Fr.":1,"So.":2,"Jr.":3,"Sr.":4,"5th":5};
-const POS_ORDER = ["QB","RB","WR","TE","OL","DL","LB","DB","PK","P","P/PK","LS"];
-const SPECIAL = ["PK","P","P/PK","LS"];
-const POS_NAMES = {
-  "QB":"Quarterback","RB":"Running back","WR":"Wide receiver","TE":"Tight end",
-  "OL":"Offensive line","DL":"Defensive line","LB":"Linebacker","DB":"Defensive back",
-  "PK":"Place kicker","P":"Punter","P/PK":"Punter and place kicker","LS":"Long snapper"
-};
-
-const players = RAW.map(r => {
-  const parts = r[7].split("/").map(s => s.trim());
-  const [ft, inch] = r[5].split("-").map(Number);
-  const name = r[1];
-  const last = name.replace(/ (Jr\.|II|III)$/,"").split(" ").slice(-1)[0];
-  return {
-    num:r[0], name, pos:r[2], cl:r[3], yr:r[4], ht:r[5], inches:ft*12+inch, wt:r[6],
-    home:parts[0], hs:parts[1] || "", prev:parts.slice(2), last,
-    say:SAY[name] || "",
-    posName:POS_NAMES[r[2]] || r[2],
-    depth:DEPTH[name] || [],
-    status:STATUS[name] || null,
-    hay:(r[0]+" #"+r[0]+" "+name+" "+r[2]+" "+(POS_NAMES[r[2]]||"")+" "+
-         (SPECIAL.includes(r[2]) ? "special teams kicking" : "")+" "+
-         (DEPTH[name] || []).map(d => d.short+" "+d.full).join(" ")+" "+
-         (STATUS[name] ? STATUS[name].tag+" "+STATUS[name].note+" injured "+(STATUS[name].spot||"") : "")+" "+
-         r[3]+" "+r[5]+" "+r[6]+" "+r[7]).toLowerCase()
-  };
-});
-
-const GROUPS = [
-  ["all","All"],["QB","QB"],["RB","RB"],["WR","WR"],["TE","TE"],
-  ["OL","OL"],["DL","DL"],["LB","LB"],["DB","DB"],["ST","Special teams"]
-];
-
-const chipsEl = document.getElementById("chips");
-const listEl  = document.getElementById("list");
-const qEl     = document.getElementById("q");
-const clearEl = document.getElementById("clear");
-const countEl = document.getElementById("count");
-const sortEl  = document.getElementById("sort");
-let filter = "all";
-
-GROUPS.forEach(([val,label]) => {
-  const b = document.createElement("button");
-  b.className = "chip";
-  b.type = "button";
-  b.textContent = label;
-  b.dataset.pos = val;
-  b.setAttribute("aria-pressed", val === "all");
-  b.addEventListener("click", () => {
-    filter = val;
-    [...chipsEl.children].forEach(c => c.setAttribute("aria-pressed", c.dataset.pos === val));
-    render();
-  });
-  chipsEl.appendChild(b);
-});
-
-function matchesPos(p){
-  if (filter === "all") return true;
-  if (filter === "ST") return SPECIAL.includes(p.pos);
-  return p.pos === filter;
-}
-
-function esc(s){ return String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
-
-function render(){
-  const q = qEl.value.trim().toLowerCase();
-  clearEl.classList.toggle("on", q.length > 0);
-
-  // A bare 1- or 2-digit search means a jersey number, not "any 5 anywhere".
-  const jersey = q.match(/^#?(\d{1,2})$/);
-  let rows;
-  if (jersey){
-    const n = Number(jersey[1]);
-    rows = players.filter(p => matchesPos(p) && p.num === n);
-    if (!rows.length) rows = players.filter(p => matchesPos(p) && p.hay.includes(q));
-  } else {
-    rows = players.filter(p => matchesPos(p) && (!q || p.hay.includes(q)));
-  }
-
-  const s = sortEl.value;
-  rows.sort((a,b) => {
-    if (s === "name") return a.last.localeCompare(b.last) || a.name.localeCompare(b.name);
-    if (s === "wt")   return b.wt - a.wt;
-    if (s === "ht")   return b.inches - a.inches || b.wt - a.wt;
-    if (s === "cl")   return CLASS_ORDER[b.cl] - CLASS_ORDER[a.cl] || a.num - b.num;
-    if (s === "pos")  return POS_ORDER.indexOf(a.pos) - POS_ORDER.indexOf(b.pos) || a.num - b.num;
-    return a.num - b.num || a.name.localeCompare(b.name);
-  });
-
-  countEl.textContent = rows.length === 1 ? "1 player" : rows.length + " players";
-
-  if (!rows.length){
-    listEl.innerHTML = '<li><div class="empty"><b>No one by that name</b>Try a number, a position, or a hometown like Nashville.</div></li>';
-    return;
-  }
-
-  listEl.innerHTML = rows.map((p,i) => `
-    <li>
-      <button class="row" type="button" aria-expanded="false" aria-controls="d${i}">
-       <span class="rowinner">
-        <span class="jersey">${p.num}</span>
-        <span class="who">
-          <span class="name">${esc(p.name)}${p.status ? ` <span class="flag${p.status.tag === "Out for season" ? " out" : ""}">${esc(p.status.tag)}</span>` : ""}</span>
-          <span class="sub">${esc(p.cl)} &nbsp;&middot;&nbsp; ${esc(p.ht)}, ${p.wt} &nbsp;&middot;&nbsp; ${esc(p.home)}</span>
-        </span>
-        <span class="posbox">
-          <span class="pos">${esc(p.pos)}</span>
-          <span class="role">${esc(p.depth.length ? p.depth[0].short : (p.status && p.status.spot ? p.status.spot : (SHORT_ROLE[p.pos] || p.pos)))}</span>
-        </span>
-       </span>
-      </button>
-      <div class="detail" id="d${i}">
-        ${p.say ? `<div class="say">Say it: ${esc(p.say)}</div>` : ""}
-        <dl>
-          ${p.status ? `<dt>Status</dt><dd>${esc(p.status.tag)}: ${esc(p.status.note)}</dd>` : ""}
-          <dt>Position</dt><dd>${esc(p.posName)}</dd>
-          <dt>Plays</dt><dd>${p.depth.length
-            ? p.depth.map(d => esc(d.full) + ' <span class="rank">' + RANK_WORD[d.rank-1] + '</span>').join("<br>")
-            : (p.status && p.status.spot
-                ? esc(p.status.spot) + ' <span class="rank">before the injury</span>'
-                : "No specific spot listed on the two-deep")}</dd>
-          <dt>Hometown</dt><dd>${esc(p.home)}</dd>
-          ${p.hs ? `<dt>High school</dt><dd>${esc(p.hs)}</dd>` : ""}
-          ${p.prev.length ? `<dt>Came from</dt><dd>${esc(p.prev.join(", "))}</dd>` : ""}
-          <dt>Year at UT</dt><dd>${esc(p.yr)}</dd>
-        </dl>
-      </div>
-    </li>`).join("");
-
-  listEl.querySelectorAll(".row").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const li = btn.parentElement;
-      const open = li.classList.toggle("open");
-      btn.setAttribute("aria-expanded", open);
-    });
-  });
-}
-
-qEl.addEventListener("input", render);
-sortEl.addEventListener("change", render);
-clearEl.addEventListener("click", () => { qEl.value = ""; qEl.focus(); render(); });
-render();
-
-
-/* ---------- Depth chart view ---------- */
-const BY_NAME = {};
-players.forEach(p => { BY_NAME[p.name] = p; });
-
-const UNITS = [
-  ["Offense", ["Quarterback","Running back","X receiver","Z receiver","Slot receiver","Tight end",
-               "Left tackle","Left guard","Center","Right guard","Right tackle"]],
-  ["Defense", ["Defensive end","Nose tackle","Defensive tackle","Edge rusher","Weakside LB","Middle LB",
-               "Left corner","Right corner","Strong safety","Free safety","Nickel back"]],
-  ["Special teams", ["Kicker","Punter","Kickoffs","Long snapper","Holder","Punt returner","Kick returner"]]
-];
-
-function depthHTML(){
-  const rowFor = short => (DEPTH_ROWS.find(r => r[0] === short) || [null,null,[]]);
-  const out = UNITS.map(([unit, spots]) => {
-    const blocks = spots.map(short => {
-      const [, full, names] = rowFor(short);
-      if (!names.length) return "";
-      const men = names.map((n,i) => {
-        const p = BY_NAME[n];
-        const flag = p && p.status
-          ? ` <span class="flag${p.status.tag === "Out for season" ? " out" : ""}">${esc(p.status.tag)}</span>` : "";
-        return `<li${i === 0 ? ' class="starter"' : ""}>
-            <span class="dnum">${p ? p.num : ""}</span>
-            <span class="dname">${esc(n)}${flag}</span>
-            <span class="drank">${i === 0 ? "Starter" : RANK_WORD[i]}</span>
-          </li>`;
-      }).join("");
-      return `<div class="spot"><h3>${esc(full || short)}</h3><ol>${men}</ol></div>`;
-    }).join("");
-    return `<section class="unit"><h2>${esc(unit)}</h2>${blocks}</section>`;
-  }).join("");
-  return out + `<p class="asof">Depth chart as of ${esc(UPDATED.depth)}. Players out for the season have been
-    removed from their spot; everyone below them moves up.</p>`;
-}
-
-const depthEl = document.getElementById("depth");
-depthEl.innerHTML = depthHTML();
-
-const tabs = [].slice.call(document.querySelectorAll(".tab"));
-tabs.forEach(t => t.addEventListener("click", () => {
-  const view = t.dataset.view;
-  tabs.forEach(x => x.setAttribute("aria-selected", x === t));
-  document.body.classList.toggle("show-depth", view === "depth");
-  window.scrollTo(0,0);
-}));
-
-/* ---------- Basketball ---------- */
-// num, name, pos, class, years at UT, height, weight, hometown, high school, previous schools
-const BB = [
+/* ---------- MEN'S BASKETBALL ---------- */
+// num, name, pos, class, year at UT, height, weight, hometown, high school, previous schools
+const MBB_RAW = [
 [0,"Braedan Lue","F","Jr.","1st","6-8",243,"Douglasville, Ga.","Robert S. Alexander","Kennesaw State"],
 [1,"Manny Green","G","Fr.","1st","6-6",212,"Decatur, Ga.","Cedar Grove",""],
 [2,"Juke Harris","G","Jr.","1st","6-7",205,"Salisbury, N.C.","Salisbury","Wake Forest"],
 [3,"Terrence Hill Jr.","G","Jr.","1st","6-2",186,"Portland, Ore.","Roosevelt","VCU"],
-[4,"Dai Dai Ames","G","Sr.","1st","6-2",199,"Chicago, Ill.","Kenwood Academy","Cal, Virginia, Kansas State"],
+[4,"Dai Dai Ames","G","Sr.","1st","6-2",199,"Chicago, Ill.","Kenwood Academy","Cal/Virginia/Kansas State"],
 [6,"DeWayne Brown II","F","So.","2nd","6-8",248,"Hoover, Ala.","Hoover",""],
-[7,"Tyler Lundblade","G","6th","1st","6-6",216,"Dallas, Texas","Greensboro Day School (N.C.)","Belmont, TCU, SMU"],
+[7,"Tyler Lundblade","G","6th","1st","6-6",216,"Dallas, Texas","Greensboro Day School (N.C.)","Belmont/TCU/SMU"],
 [8,"Marquis Clark","G","Fr.","1st","6-2",211,"Chicago, Ill.","Whitney M. Young",""],
-[9,"Jalen Washington","F","5th","1st","6-10",244,"Gary, Ind.","West Side Leadership Academy","Vanderbilt, North Carolina"],
+[9,"Jalen Washington","F","5th","1st","6-10",244,"Gary, Ind.","West Side Leadership Academy","Vanderbilt/North Carolina"],
 [10,"Jalen Haralson","G","So.","1st","6-7",222,"Anderson, Ind.","La Lumiere School","Notre Dame"],
 [11,"Gavin Paull","G","Jr.","3rd","5-11",166,"Austin, Texas","Westlake",""],
 [12,"Christian Fermin","F","5th","1st","6-10",234,"Tobyhanna, Pa.","Pocono Mountain West","VCU"],
@@ -563,80 +343,366 @@ const BB = [
 [25,"Miles Rubin","C","Sr.","1st","6-10",224,"Chicago, Ill.","Simeon Career Academy","Loyola Chicago"],
 [33,"Chris Washington Jr.","F","Fr.","1st","6-9",214,"Gainesville, Fla.","Providence Christian Academy (Tenn.)",""]
 ];
-const BB_POS = {"G":"Guard","F":"Forward","C":"Center"};
-const bplayers = BB.map(r => ({
-  num:r[0], name:r[1], pos:r[2], cl:r[3], yr:r[4], ht:r[5], wt:r[6], home:r[7], hs:r[8], prev:r[9],
-  hay:(r[0]+" #"+r[0]+" "+r[1]+" "+r[2]+" "+BB_POS[r[2]]+" "+r[3]+" "+r[5]+" "+r[6]+" "+r[7]+" "+r[8]+" "+r[9]).toLowerCase()
-}));
-let bfilter = "all";
-const bchipsEl = document.getElementById("bchips");
-[["all","All"],["G","Guards"],["F","Forwards"],["C","Centers"]].forEach(([v,l]) => {
-  const b = document.createElement("button");
-  b.className = "chip"; b.type = "button"; b.textContent = l; b.dataset.pos = v;
-  b.setAttribute("aria-pressed", v === "all");
-  b.addEventListener("click", () => {
-    bfilter = v;
-    [...bchipsEl.children].forEach(c => c.setAttribute("aria-pressed", c.dataset.pos === v));
-    renderBB();
-  });
-  bchipsEl.appendChild(b);
-});
+// Projected lineup. First name = projected starter (Xavier exhibition, Oct. 15). Order after that is a projection.
+const MBB_DEPTH = [
+["Point guard","Point guard",["Terrence Hill Jr.","Troy Henderson","Marquis Clark","Gavin Paull"]],
+["Shooting guard","Shooting guard",["Dai Dai Ames","Tyler Lundblade","Campbell Duncan"]],
+["Small forward","Small forward",["Juke Harris","Manny Green","Ralph Scott"]],
+["Power forward","Power forward",["Jalen Haralson","Braedan Lue","Chris Washington Jr."]],
+["Center","Center",["DeWayne Brown II","Miles Rubin","Jalen Washington","Christian Fermin"]]
+];
+const MBB_NOTE = {
+"Juke Harris":"21.4 ppg, 6.5 rpg at Wake Forest",
+"Dai Dai Ames":"16.9 ppg at Cal",
+"Terrence Hill Jr.":"15.0 ppg at VCU, 81 threes",
+"Jalen Haralson":"16.2 ppg at Notre Dame",
+"DeWayne Brown II":"Started as a freshman last season",
+"Miles Rubin":"237 career blocks at Loyola Chicago",
+"Tyler Lundblade":"Catch-and-shoot specialist from Belmont",
+"Braedan Lue":"Transfer from Kennesaw State",
+"Chris Washington Jr.":"Four-star freshman",
+"Manny Green":"Four-star freshman",
+"Ralph Scott":"Four-star freshman",
+"Marquis Clark":"Freshman"
+};
+const MBB_STATUS = {
+"Jalen Washington":{tag:"Eligibility pending", note:"Waiting on eligibility ruling", spot:null}
+};
+const MBB_UPDATED = {roster:"Oct. 15, 2026", depth:"Oct. 15, 2026 (Xavier exhibition)"};
 
-function renderBB(){
+/* ---------- WOMEN'S BASKETBALL ---------- */
+// num, name, pos, class, height, hometown, high school, previous schools  (UT lists no weights)
+const WBB_RAW = [
+[0,"Kaylene Smikle","G","5th","6-0","Bay Shore, N.Y.","Westtown H.S. (Pa.)","Rutgers/Maryland"],
+[1,"Avery Mills","G","Jr.","5-9","Lynchburg, Va.","Liberty Christian School","Liberty"],
+[2,"Harissoum Coulibaly","G","So.","5-10","Paris, France","S3 Academy","Auburn"],
+[4,"Gabby Minus","G/F","Fr.","6-1","Dacula, Ga.","Hebron Christian Academy",""],
+[8,"Zhen Craft","F","So.","6-2","Waldorf, Md.","Bishop McNamara H.S.","Georgia"],
+[9,"Shaelyn Steele","G","Jr.","5-6","Ashland, Ky.","Russell H.S.","Penn State"],
+[10,"Jada Eads","G","Jr.","5-7","Orlando, Fla.","Lake Highland Prep","Seton Hall"],
+[11,"Irene Oboavwoduo","G","Fr.","5-10","Manchester, England","Trinity Church of England H.S.",""],
+[14,"Rylie Theuerkauf","G","Sr.","5-9","Tenafly, N.J.","Tenafly H.S.","Wake Forest/Georgia"],
+[15,"Harper Peterson","F","Jr.","6-3","Rocklin, Calif.","Whitney H.S.","Stanford"],
+[21,"Riley Makalusky","F","Sr.","6-2","Fishers, Ind.","Hamilton Southeastern H.S.","Butler/West Virginia"],
+[25,"Naomi White","G","Jr.","5-9","Omaha, Neb.","Bellevue West H.S.","Grand Canyon/Northern Arizona"],
+[31,"Aaliyah Moore","F","6th","6-3","Moore, Okla.","Moore H.S.","Texas"],
+[35,"Kennedy Fauntleroy","G","5th","5-7","Upper Marlboro, Md.","New Hope Academy","Georgetown/Oklahoma St./Arizona St./East Carolina"],
+[44,"Fatmata Janneh","F","Sr.","6-2","London, England","Barking Abbey Sixth Form","St. Peter's/Texas A&M"]
+];
+// No starters announced. Groups by role, ordered by expected minutes (projection).
+const WBB_DEPTH = [
+["Point guard","Point guard",["Jada Eads","Kennedy Fauntleroy","Shaelyn Steele"]],
+["Guard","Guard / wing",["Kaylene Smikle","Naomi White","Harissoum Coulibaly","Rylie Theuerkauf","Irene Oboavwoduo"]],
+["Forward","Forward / post",["Fatmata Janneh","Aaliyah Moore","Zhen Craft","Riley Makalusky","Harper Peterson","Gabby Minus"]]
+];
+const WBB_NOTE = {
+"Kaylene Smikle":"17.9 ppg as a junior at Maryland",
+"Naomi White":"20.8 ppg, led all D-I freshmen at Northern Arizona",
+"Fatmata Janneh":"11.4 ppg, 9.7 rpg at Texas A&M",
+"Harissoum Coulibaly":"Led Auburn at 10.4 ppg",
+"Rylie Theuerkauf":"40.6% from three at Georgia",
+"Jada Eads":"All-Big East first team as a freshman; back from ACL",
+"Kennedy Fauntleroy":"3.4 apg, 2.2 spg over 89 career games",
+"Shaelyn Steele":"Ran point this summer",
+"Aaliyah Moore":"Five seasons at Texas; back from knee injuries",
+"Zhen Craft":"5.7 ppg, 4.2 rpg at Georgia",
+"Riley Makalusky":"39.4% career from three",
+"Harper Peterson":"38.5% career from three",
+"Gabby Minus":"Four-star freshman",
+"Irene Oboavwoduo":"Great Britain senior national team call-up",
+"Avery Mills":"42.7% from three at Liberty"
+};
+const WBB_STATUS = {
+"Avery Mills":{tag:"Likely out for season", note:"ACL and meniscus surgery in July; unlikely to be cleared this season", spot:"Guard"}
+};
+const WBB_UPDATED = {roster:"Oct. 15, 2026", depth:"Oct. 15, 2026 (preseason)"};
+
+/* =====================================================================
+   SPORT SETUP
+   ===================================================================== */
+const CLASS_ORDER = {"Fr.":1,"So.":2,"Jr.":3,"Sr.":4,"5th":5,"6th":6};
+function inchesOf(ht){ const [f,i] = ht.split("-").map(Number); return f*12+(i||0); }
+function lastName(n){ return n.replace(/ (Jr\.|II|III)$/,"").split(" ").slice(-1)[0]; }
+function buildDepth(rows){
+  const d = {};
+  rows.forEach(([short,full,names]) => names.forEach((n,i) => (d[n] = d[n] || []).push({short, full, rank:i+1})));
+  return d;
+}
+function statusText(st){ return st ? st.tag+" "+st.note+" injured "+(st.spot||"") : ""; }
+
+const FB_POS = {
+  "QB":"Quarterback","RB":"Running back","WR":"Wide receiver","TE":"Tight end",
+  "OL":"Offensive line","DL":"Defensive line","LB":"Linebacker","DB":"Defensive back",
+  "PK":"Place kicker","P":"Punter","P/PK":"Punter and place kicker","LS":"Long snapper"
+};
+const FB_SHORT = {
+  "QB":"Quarterback","RB":"Running back","WR":"Wide receiver","TE":"Tight end",
+  "OL":"Offensive line","DL":"Defensive line","LB":"Linebacker","DB":"Defensive back",
+  "PK":"Kicker","P":"Punter","P/PK":"Punter / kicker","LS":"Long snapper"
+};
+const FB_SPECIAL = ["PK","P","P/PK","LS"];
+const FB_ORDER = ["QB","RB","WR","TE","OL","DL","LB","DB","PK","P","P/PK","LS"];
+const BB_POS = {"G":"Guard","F":"Forward","C":"Center","G/F":"Guard / forward"};
+const BB_ORDER = ["G","G/F","F","C"];
+
+const fbDepth = buildDepth(FB_DEPTH);
+const mbbDepth = buildDepth(MBB_DEPTH);
+const wbbDepth = buildDepth(WBB_DEPTH);
+
+const SPORTS = {
+  football:{
+    title:"Vols Football", season:"2026",
+    players: FB_RAW.map(r => {
+      const parts = r[7].split("/").map(s => s.trim());
+      const name = r[1], st = FB_STATUS[name] || null, dp = fbDepth[name] || [];
+      return {num:r[0], name, pos:r[2], cl:r[3], yr:r[4], ht:r[5], inches:inchesOf(r[5]), wt:r[6],
+        home:parts[0], hs:parts[1]||"", prev:parts.slice(2), last:lastName(name),
+        say:FB_SAY[name]||"", note:"", posName:FB_POS[r[2]]||r[2], depth:dp, status:st,
+        short: dp.length ? dp[0].short : (st && st.spot) || FB_SHORT[r[2]] || r[2],
+        hay:(r[0]+" #"+r[0]+" "+name+" "+r[2]+" "+(FB_POS[r[2]]||"")+" "+
+             (FB_SPECIAL.includes(r[2]) ? "special teams kicking " : "")+
+             dp.map(d => d.short+" "+d.full).join(" ")+" "+statusText(st)+" "+
+             r[3]+" "+r[5]+" "+r[6]+" "+r[7]).toLowerCase()};
+    }),
+    chips:[["all","All"],["QB","QB"],["RB","RB"],["WR","WR"],["TE","TE"],["OL","OL"],["DL","DL"],["LB","LB"],["DB","DB"],["ST","Special teams"]],
+    match:(p,f) => f === "all" || (f === "ST" ? FB_SPECIAL.includes(p.pos) : p.pos === f),
+    posOrder:FB_ORDER, hasWeight:true,
+    depthRows:FB_DEPTH,
+    units:[
+      ["Offense", ["Quarterback","Running back","X receiver","Z receiver","Slot receiver","Tight end",
+                   "Left tackle","Left guard","Center","Right guard","Right tackle"]],
+      ["Defense", ["Defensive end","Nose tackle","Defensive tackle","Edge rusher","Weakside LB","Middle LB",
+                   "Left corner","Right corner","Strong safety","Free safety","Nickel back"]],
+      ["Special teams", ["Kicker","Punter","Kickoffs","Long snapper","Holder","Punt returner","Kick returner"]]
+    ],
+    rankDetail:["1st team","2nd team","3rd team","4th team","5th team"],
+    rankDepth:["Starter","2nd team","3rd team","4th team","5th team"],
+    noSpot:"No specific spot listed on the two-deep",
+    depthNote:"Players out for the season have been removed from their spot; everyone below them moves up.",
+    updated:FB_UPDATED,
+    footer:`<p><b>Roster updated:</b> ${FB_UPDATED.roster} &middot; <b>Depth chart updated:</b> ${FB_UPDATED.depth}</p>
+      <p>Tap a player for hometown, high school, previous schools and where he lines up.
+      Class: Fr. first year &middot; So. second &middot; Jr. third &middot; Sr. fourth &middot; 5th fifth.</p>
+      <p>Players, numbers and hometowns come from the 2026 UT roster on utsports.com. Specific spots (corner vs. safety,
+      guard vs. tackle) start from the Ourlads two-deep of Aug. 24, 2026, adjusted for season-ending injuries and
+      lineup changes. George MacIntyre is listed first at quarterback after starting the 24-17 win at Arkansas.
+      Injury tags follow the SEC availability report for Alabama released Oct. 14.
+      The chart lists only the top few at each spot, so anyone deeper down shows just his position group.</p>`
+  },
+  mens:{
+    title:"Vols Basketball", season:"2026-27",
+    players: MBB_RAW.map(r => {
+      const name = r[1], st = MBB_STATUS[name] || null, dp = mbbDepth[name] || [];
+      return {num:r[0], name, pos:r[2], cl:r[3], yr:r[4], ht:r[5], inches:inchesOf(r[5]), wt:r[6],
+        home:r[7], hs:r[8], prev:r[9] ? r[9].split("/") : [], last:lastName(name),
+        say:"", note:MBB_NOTE[name]||"", posName:BB_POS[r[2]], depth:dp, status:st,
+        short: dp.length ? dp[0].short : BB_POS[r[2]],
+        hay:(r[0]+" #"+r[0]+" "+name+" "+r[2]+" "+BB_POS[r[2]]+" "+dp.map(d => d.full).join(" ")+" "+
+             statusText(st)+" "+r[3]+" "+r[5]+" "+r[6]+" "+r[7]+" "+r[8]+" "+r[9]).toLowerCase()};
+    }),
+    chips:[["all","All"],["G","Guards"],["F","Forwards"],["C","Centers"]],
+    match:(p,f) => f === "all" || p.pos === f,
+    posOrder:BB_ORDER, hasWeight:true,
+    depthRows:MBB_DEPTH,
+    units:[["Projected lineup", ["Point guard","Shooting guard","Small forward","Power forward","Center"]]],
+    unitLede:"Expected starters for the Xavier exhibition on Oct. 15. Rick Barnes says about 10 players are close and the lineup could change every game. Order behind each starter is a projection.",
+    rankDetail:["Projected starter","Backup","3rd","4th"],
+    rankDepth:["Starter","Backup","3rd","4th"],
+    noSpot:"Not in the projected rotation",
+    depthNote:"",
+    updated:MBB_UPDATED,
+    footer:`<p><b>Roster updated:</b> ${MBB_UPDATED.roster} &middot; <b>Depth chart updated:</b> ${MBB_UPDATED.depth}</p>
+      <p>Tap a player for hometown, high school, previous schools and years at UT. Class: 5th and 6th are extra years of eligibility.</p>
+      <p>Roster from utsports.com. Head coach Rick Barnes, 12th season. Assistants: Earl Grant, Bryan Lentz, Steve McClain,
+      Amorrow Morgan and Gregg Polinsky. Basketball has no official depth chart; starters come from preseason reporting.</p>`
+  },
+  womens:{
+    title:"Lady Vols", season:"2026-27",
+    players: WBB_RAW.map(r => {
+      const name = r[1], st = WBB_STATUS[name] || null, dp = wbbDepth[name] || [];
+      return {num:r[0], name, pos:r[2], cl:r[3], yr:"", ht:r[4], inches:inchesOf(r[4]), wt:null,
+        home:r[5], hs:r[6], prev:r[7] ? r[7].split("/") : [], last:lastName(name),
+        say:"", note:WBB_NOTE[name]||"", posName:BB_POS[r[2]], depth:dp, status:st,
+        short: dp.length ? dp[0].short : (st && st.spot) || BB_POS[r[2]],
+        hay:(r[0]+" #"+r[0]+" "+name+" "+r[2]+" "+BB_POS[r[2]]+" "+dp.map(d => d.full).join(" ")+" "+
+             statusText(st)+" "+r[3]+" "+r[4]+" "+r[5]+" "+r[6]+" "+r[7]).toLowerCase()};
+    }),
+    chips:[["all","All"],["G","Guards"],["F","Forwards"]],
+    match:(p,f) => f === "all" || p.pos === f || p.pos === "G/F",
+    posOrder:BB_ORDER, hasWeight:false,
+    depthRows:WBB_DEPTH,
+    units:[["Projected rotation", ["Point guard","Guard","Forward"]]],
+    unitLede:"Kim Caldwell has 15 new players and hasn't named starters. Groups are by role, roughly ordered by expected minutes. Her up-tempo system usually plays 10 or more.",
+    rankDetail:["","","","","",""],
+    rankDepth:["","","","","",""],
+    noSpot:"Not in the projected rotation",
+    depthNote:"",
+    updated:WBB_UPDATED,
+    footer:`<p><b>Roster updated:</b> ${WBB_UPDATED.roster} &middot; <b>Depth chart updated:</b> ${WBB_UPDATED.depth}</p>
+      <p>Tap a player for hometown, high school, previous schools and a quick note on her game. UT doesn't list weights for the Lady Vols.</p>
+      <p>Roster from utsports.com. Head coach Kim Caldwell, 3rd season. Assistants: Bill Ferrara, Isoken Uzamere, Jenna Burdette,
+      Angel Rizor and Lexie Barrier. Player notes come from Knox News' Oct. 8 preview of all 15 newcomers.</p>`
+  }
+};
+
+/* =====================================================================
+   APP
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const qEl = $("q"), clearEl = $("clear"), listEl = $("list"), countEl = $("count"),
+      sortEl = $("sort"), chipsEl = $("chips"), depthEl = $("depth");
+let sport = "football", view = "roster", filter = "all";
+
+function esc(s){ return String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function isOut(tag){ return /^(Out|Likely out)/.test(tag); }
+function flag(st){ return st ? ` <span class="flag${isOut(st.tag) ? " out" : ""}">${esc(st.tag)}</span>` : ""; }
+
+function buildChips(){
+  const S = SPORTS[sport];
+  chipsEl.innerHTML = "";
+  S.chips.forEach(([v,l]) => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.type = "button"; b.textContent = l; b.dataset.pos = v;
+    b.setAttribute("aria-pressed", v === filter);
+    b.addEventListener("click", () => {
+      filter = v;
+      [...chipsEl.children].forEach(c => c.setAttribute("aria-pressed", c.dataset.pos === v));
+      render();
+    });
+    chipsEl.appendChild(b);
+  });
+}
+
+function buildSort(){
+  const S = SPORTS[sport], keep = sortEl.value;
+  const opts = [["num","Number"],["name","Last name"],["pos","Position"]]
+    .concat(S.hasWeight ? [["wt","Heaviest"]] : [], [["ht","Tallest"],["cl","Class"]]);
+  sortEl.innerHTML = opts.map(([v,l]) => `<option value="${v}">${l}</option>`).join("");
+  sortEl.value = opts.some(o => o[0] === keep) ? keep : "num";
+}
+
+function render(){
+  const S = SPORTS[sport];
   const q = qEl.value.trim().toLowerCase();
+  clearEl.classList.toggle("on", q.length > 0);
   const jersey = q.match(/^#?(\d{1,2})$/);
-  let rows = bplayers.filter(p => (bfilter === "all" || p.pos === bfilter) &&
-    (!q || (jersey ? p.num === Number(jersey[1]) : p.hay.includes(q))));
-  if (jersey && !rows.length) rows = bplayers.filter(p => (bfilter === "all" || p.pos === bfilter) && p.hay.includes(q));
-  document.getElementById("bcount").textContent = rows.length === 1 ? "1 player" : rows.length + " players";
-  const bl = document.getElementById("blist");
+  let rows;
+  if (jersey){
+    rows = S.players.filter(p => S.match(p, filter) && p.num === Number(jersey[1]));
+    if (!rows.length) rows = S.players.filter(p => S.match(p, filter) && p.hay.includes(q));
+  } else {
+    rows = S.players.filter(p => S.match(p, filter) && (!q || p.hay.includes(q)));
+  }
+  const s = sortEl.value;
+  rows.sort((a,b) => {
+    if (s === "name") return a.last.localeCompare(b.last) || a.name.localeCompare(b.name);
+    if (s === "wt")   return (b.wt||0) - (a.wt||0);
+    if (s === "ht")   return b.inches - a.inches || (b.wt||0) - (a.wt||0);
+    if (s === "cl")   return (CLASS_ORDER[b.cl]||0) - (CLASS_ORDER[a.cl]||0) || a.num - b.num;
+    if (s === "pos")  return S.posOrder.indexOf(a.pos) - S.posOrder.indexOf(b.pos) || a.num - b.num;
+    return a.num - b.num || a.name.localeCompare(b.name);
+  });
+  countEl.textContent = rows.length === 1 ? "1 player" : rows.length + " players";
+
   if (!rows.length){
-    bl.innerHTML = '<li><div class="empty"><b>No one by that name</b>Try a number, a position, or a hometown like Chicago.</div></li>';
+    listEl.innerHTML = '<li><div class="empty"><b>No one by that name</b>Try a jersey number, a position, or a hometown.</div></li>';
     return;
   }
-  bl.innerHTML = rows.map((p,i) => `
+  listEl.innerHTML = rows.map((p,i) => {
+    const plays = p.depth.length
+      ? p.depth.map(d => esc(d.full) + (S.rankDetail[d.rank-1] ? ' <span class="rank">' + S.rankDetail[d.rank-1] + '</span>' : "")).join("<br>")
+      : (p.status && p.status.spot ? esc(p.status.spot) + ' <span class="rank">before the injury</span>' : S.noSpot);
+    return `
     <li>
-      <button class="row" type="button" aria-expanded="false" aria-controls="b${i}">
+      <button class="row" type="button" aria-expanded="false" aria-controls="d${i}">
        <span class="rowinner">
         <span class="jersey">${p.num}</span>
         <span class="who">
-          <span class="name">${esc(p.name)}</span>
-          <span class="sub">${esc(p.cl)} &nbsp;&middot;&nbsp; ${esc(p.ht)}, ${p.wt} &nbsp;&middot;&nbsp; ${esc(p.home)}</span>
+          <span class="name">${esc(p.name)}${flag(p.status)}</span>
+          <span class="sub">${esc(p.cl)} &nbsp;&middot;&nbsp; ${esc(p.ht)}${p.wt ? ", " + p.wt : ""} &nbsp;&middot;&nbsp; ${esc(p.home)}</span>
         </span>
         <span class="posbox">
           <span class="pos">${esc(p.pos)}</span>
-          <span class="role">${esc(BB_POS[p.pos])}</span>
+          <span class="role">${esc(p.short)}</span>
         </span>
        </span>
       </button>
-      <div class="detail" id="b${i}">
+      <div class="detail" id="d${i}">
+        ${p.say ? `<div class="say">Say it: ${esc(p.say)}</div>` : ""}
         <dl>
-          <dt>Position</dt><dd>${esc(BB_POS[p.pos])}</dd>
+          ${p.status ? `<dt>Status</dt><dd>${esc(p.status.tag)}: ${esc(p.status.note)}</dd>` : ""}
+          <dt>Position</dt><dd>${esc(p.posName)}</dd>
+          <dt>Plays</dt><dd>${plays}</dd>
+          ${p.note ? `<dt>Note</dt><dd>${esc(p.note)}</dd>` : ""}
           <dt>Hometown</dt><dd>${esc(p.home)}</dd>
-          <dt>High school</dt><dd>${esc(p.hs)}</dd>
-          ${p.prev ? `<dt>Came from</dt><dd>${esc(p.prev)}</dd>` : ""}
-          <dt>Year at UT</dt><dd>${esc(p.yr)}</dd>
+          ${p.hs ? `<dt>High school</dt><dd>${esc(p.hs)}</dd>` : ""}
+          ${p.prev.length ? `<dt>Came from</dt><dd>${esc(p.prev.join(", "))}</dd>` : ""}
+          ${p.yr ? `<dt>Year at UT</dt><dd>${esc(p.yr)}</dd>` : ""}
         </dl>
       </div>
-    </li>`).join("");
-  bl.querySelectorAll(".row").forEach(btn => btn.addEventListener("click", () => {
+    </li>`;
+  }).join("");
+  listEl.querySelectorAll(".row").forEach(btn => btn.addEventListener("click", () => {
     const open = btn.parentElement.classList.toggle("open");
     btn.setAttribute("aria-expanded", open);
   }));
 }
-renderBB();
-qEl.addEventListener("input", renderBB);
-clearEl.addEventListener("click", renderBB);
 
-const SPORT = {
-  roster:["Tennessee Football","2026"], depth:["Tennessee Football","2026"], bball:["Tennessee Basketball","2026-27"]
-};
-tabs.forEach(t => t.addEventListener("click", () => {
-  const v = t.dataset.view;
-  document.body.classList.toggle("show-bball", v === "bball");
-  document.getElementById("sport").textContent = SPORT[v][0];
-  document.getElementById("season").textContent = SPORT[v][1];
-}));
+function renderDepth(){
+  const S = SPORTS[sport];
+  const byName = {}; S.players.forEach(p => byName[p.name] = p);
+  const rowFor = short => S.depthRows.find(r => r[0] === short) || [null,null,[]];
+  depthEl.innerHTML = S.units.map(([unit, spots]) => {
+    const blocks = spots.map(short => {
+      const [, full, names] = rowFor(short);
+      if (!names.length) return "";
+      const men = names.map((n,i) => {
+        const p = byName[n];
+        const note = p && p.note && sport !== "football" ? `<span class="dnote">${esc(p.note)}</span>` : "";
+        const showStarter = S.rankDepth[0] !== "" && i === 0;
+        return `<li${showStarter ? ' class="starter"' : ""}>
+            <span class="dnum">${p ? p.num : ""}</span>
+            <span class="dname">${esc(n)}${p ? flag(p.status) : ""}${note}</span>
+            <span class="drank">${S.rankDepth[i] || ""}</span>
+          </li>`;
+      }).join("");
+      return `<div class="spot"><h3>${esc(full || short)}</h3><ol>${men}</ol></div>`;
+    }).join("");
+    return `<section class="unit"><h2>${esc(unit)}</h2>${S.unitLede ? `<p class="lede">${esc(S.unitLede)}</p>` : ""}${blocks}</section>`;
+  }).join("") + `<p class="asof">Depth chart as of ${esc(S.updated.depth)}. ${esc(S.depthNote)}</p>`;
+}
+
+function show(newSport, newView, push){
+  const changedSport = newSport !== sport;
+  sport = newSport; view = newView;
+  const S = SPORTS[sport];
+  if (changedSport){ filter = "all"; qEl.value = ""; }
+  $("title").textContent = S.title;
+  $("season").textContent = S.season;
+  document.querySelectorAll(".sport").forEach(b => b.setAttribute("aria-selected", b.dataset.sport === sport));
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.view === view));
+  document.body.classList.toggle("view-depth", view === "depth");
+  $("foot").innerHTML = S.footer;
+  buildChips(); buildSort(); render(); renderDepth();
+  if (push){
+    try { history.replaceState(null, "", "#" + sport + (view === "depth" ? "/depth" : "")); } catch(e){}
+    try { localStorage.setItem("utRosterSport", sport); } catch(e){}
+    window.scrollTo(0,0);
+  }
+}
+
+document.querySelectorAll(".sport").forEach(b => b.addEventListener("click", () => show(b.dataset.sport, view, true)));
+document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => show(sport, b.dataset.view, true)));
+qEl.addEventListener("input", render);
+sortEl.addEventListener("change", render);
+clearEl.addEventListener("click", () => { qEl.value = ""; qEl.focus(); render(); });
+
+(function start(){
+  const h = (location.hash || "").replace("#","").split("/");
+  let s = SPORTS[h[0]] ? h[0] : null;
+  if (!s){ try { const saved = localStorage.getItem("utRosterSport"); if (SPORTS[saved]) s = saved; } catch(e){} }
+  show(s || "football", h[1] === "depth" ? "depth" : "roster", false);
+})();
 </script>
 </body>
 </html>
