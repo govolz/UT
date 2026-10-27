@@ -59,6 +59,29 @@
   body.view-depth .search,body.view-depth .chips,body.view-depth .statusbar,body.view-depth #list{display:none;}
   #depth{display:none;padding:0 0 40px;}
   body.view-depth #depth{display:block;}
+  body.view-schedule .search,body.view-schedule .chips,body.view-schedule .statusbar,body.view-schedule #list{display:none;}
+  #sched{display:none;padding:0 0 40px;}
+  body.view-schedule #sched{display:block;}
+  .record{display:flex;align-items:baseline;gap:14px;padding:14px 16px;border-bottom:1px solid var(--rule);background:var(--wash);}
+  .record b{font-family:var(--num);font-size:30px;font-weight:700;line-height:1;}
+  .record span{font-size:13.5px;color:var(--smokey);}
+  .month{font-family:var(--num);font-size:19px;font-weight:700;margin:0;padding:14px 16px 6px;letter-spacing:.02em;}
+  .games{padding:0;}
+  .game{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--rule);}
+  .gdate{text-align:center;line-height:1.05;}
+  .gday{display:block;font-family:var(--num);font-size:24px;font-weight:700;}
+  .gdow{display:block;font-size:11.5px;color:var(--smokey);}
+  .gopp{display:block;font-size:16px;font-weight:600;line-height:1.25;}
+  .ha{font-weight:400;color:var(--smokey);margin-right:3px;}
+  .gmeta{display:block;font-size:13px;color:var(--smokey);}
+  .gtag{display:inline-block;font-size:10.5px;font-weight:600;padding:0 5px;border-radius:4px;border:1px solid var(--rule);color:var(--smokey);vertical-align:2px;margin-left:4px;white-space:nowrap;}
+  .gtag.conf{border-color:#f6c9a3;color:#a64b00;}
+  .gres{font-family:var(--num);font-size:19px;font-weight:700;white-space:nowrap;text-align:right;}
+  .gres.w{color:var(--ink);} .gres.w i{color:var(--orange);font-style:normal;}
+  .gres.l{color:var(--smokey);font-weight:600;}
+  .game.next{background:#fff6ec;box-shadow:inset 4px 0 0 var(--orange);}
+  .nextlbl{font-family:var(--num);font-size:15px;font-weight:700;color:var(--orange);}
+  .game.bye .gopp{color:var(--smokey);font-weight:500;}
 
   ul{list-style:none;margin:0;padding:0 0 40px;}
   li{border-bottom:1px solid var(--rule);}
@@ -124,6 +147,7 @@
 <div class="tabs" role="tablist">
   <button class="tab" type="button" role="tab" data-view="roster" aria-selected="true">Roster</button>
   <button class="tab" type="button" role="tab" data-view="depth" aria-selected="false">Depth chart</button>
+  <button class="tab" type="button" role="tab" data-view="schedule" aria-selected="false">Schedule</button>
 </div>
 
 <div class="statusbar">
@@ -135,6 +159,7 @@
 
 <ul id="list"></ul>
 <div id="depth"></div>
+<div id="sched"></div>
 <footer id="foot"></footer>
 
 <script>
@@ -317,10 +342,27 @@ const FB_STATUS = {
 "Ethan Davis":    {tag:"Out for season", note:"Torn ACL at Georgia Tech (Sept. 12)", spot:"Tight end"},
 "Dylan Lewis":    {tag:"Out for season", note:"Foot injury vs. Kennesaw State", spot:"Free safety"},
 "Wendell Moe Jr.":{tag:"Out for season", note:"Lower-leg injury vs. Texas", spot:"Left guard"},
-"Faizon Brandon": {tag:"Questionable", note:"Throwing shoulder, hurt vs. Texas. Did not play at Arkansas; questionable vs. Alabama", spot:null}
+"DeSean Bishop":  {tag:"Day to day", note:"Hurt on a hard hit late at South Carolina and did not return. Being monitored over the bye week", spot:null}
 };
 
-const FB_UPDATED = {roster:"Aug. 2026", depth:"Oct. 15, 2026 (Alabama week)"};
+const FB_UPDATED = {roster:"Aug. 2026", depth:"Oct. 27, 2026 (bye week)"};
+
+// Schedule: ISO date, opponent, H/A/N, site, time (ET), TV, result, tag
+const FB_SCHED = [
+["2026-09-05","Furman","H","Neyland Stadium","","","W 56-9",""],
+["2026-09-12","Georgia Tech","A","Atlanta, Ga.","","","W 45-24",""],
+["2026-09-19","Kennesaw State","H","Neyland Stadium","","","W 42-9",""],
+["2026-09-26","No. 1 Texas","H","Neyland Stadium","","","L 17-20","SEC"],
+["2026-10-03","Auburn","H","Neyland Stadium","","","W 24-14","SEC"],
+["2026-10-10","Arkansas","A","Fayetteville, Ark.","","","W 24-17","SEC"],
+["2026-10-17","No. 6 Alabama","H","Neyland Stadium","","","W 26-10","SEC"],
+["2026-10-24","South Carolina","A","Columbia, S.C.","","","L 24-27","SEC"],
+["2026-10-31","Open date","","","","","",""],
+["2026-11-07","Kentucky","H","Neyland Stadium","6-8 p.m. window","","","SEC"],
+["2026-11-14","Texas A&M","A","College Station, Texas","TBA","","","SEC"],
+["2026-11-21","LSU","H","Neyland Stadium","TBA","","","SEC"],
+["2026-11-28","Vanderbilt","A","Nashville, Tenn.","6-8 p.m. window","","","SEC"]
+];
 
 /* ---------- MEN'S BASKETBALL ---------- */
 // num, name, pos, class, year at UT, height, weight, hometown, high school, previous schools
@@ -366,9 +408,48 @@ const MBB_NOTE = {
 "Marquis Clark":"Freshman"
 };
 const MBB_STATUS = {
-"Jalen Washington":{tag:"Eligibility pending", note:"Waiting on eligibility ruling", spot:null}
+"Jalen Washington":{tag:"Eligibility pending", note:"Still waiting on an eligibility ruling", spot:null},
+"Terrence Hill Jr.":{tag:"Day to day", note:"Ankle sprain at Duke (Oct. 20). Could be back for the Nov. 3 opener or miss a couple of games, per reporting; not considered long-term", spot:null},
+"Tyler Lundblade":{tag:"Day to day", note:"Back from minor back surgery; cleared for basketball activities", spot:null}
 };
-const MBB_UPDATED = {roster:"Oct. 15, 2026", depth:"Oct. 15, 2026 (Xavier exhibition)"};
+const MBB_UPDATED = {roster:"Oct. 27, 2026", depth:"Oct. 27, 2026 (opener Nov. 3)"};
+
+const MBB_SCHED = [
+["2026-10-15","Xavier","H","Food City Center","7 p.m.","SECN+","L 70-86","Exhibition"],
+["2026-10-20","No. 2 Duke","A","Durham, N.C.","7 p.m.","ACCN","L 64-103","Exhibition"],
+["2026-11-03","Wofford","H","Food City Center","6 p.m.","SECN","",""],
+["2026-11-09","Radford","H","Food City Center","7 p.m.","SECN+","",""],
+["2026-11-13","Tennessee State","H","Food City Center","7 p.m.","SECN+","",""],
+["2026-11-17","Michigan State","H","Food City Center","9 p.m.","ESPN2","",""],
+["2026-11-20","Coastal Carolina","H","Food City Center","7 p.m.","SECN+","",""],
+["2026-11-24","Maryland","N","Las Vegas","3 p.m.","ESPN","","Players Era"],
+["2026-11-26","Iowa State or San Diego State","N","Las Vegas","TBA","ESPN","","Players Era"],
+["2026-11-27","Opponent TBA","N","Las Vegas","TBA","ESPN","","Players Era"],
+["2026-12-01","Florida State","H","Food City Center","7 p.m.","ESPN2","","SEC/ACC Challenge"],
+["2026-12-06","NC State","N","Bridgestone Arena, Nashville","7 p.m.","ESPN","",""],
+["2026-12-11","Purdue","A","West Lafayette, Ind.","8 p.m.","FOX","",""],
+["2026-12-16","Morehead State","H","Food City Center","8 p.m.","SECN","",""],
+["2026-12-20","Marist","H","Food City Center","4 p.m.","SECN","",""],
+["2026-12-29","Norfolk State","H","Food City Center","7 p.m.","SECN+","",""],
+["2027-01-02","Vanderbilt","H","Food City Center","2 p.m.","ESPN/2","","SEC"],
+["2027-01-06","Auburn","A","Auburn, Ala.","7 p.m.","ESPN2/U","","SEC"],
+["2027-01-09","LSU","A","Baton Rouge, La.","8:30 p.m.","SECN","","SEC"],
+["2027-01-13","Missouri","H","Food City Center","7 p.m.","ESPN2/U","","SEC"],
+["2027-01-16","Arkansas","H","Food City Center","Noon","ESPN/2","","SEC"],
+["2027-01-23","Kentucky","A","Lexington, Ky.","2 p.m.","ESPN/2/U","","SEC"],
+["2027-01-26","Texas A&M","A","College Station, Texas","7 p.m.","ESPN/2","","SEC"],
+["2027-01-30","Florida","H","Food City Center","8 or 8:30 p.m.","ESPN/2","","SEC"],
+["2027-02-03","Georgia","H","Food City Center","7 p.m.","ESPN2","","SEC"],
+["2027-02-06","Missouri","A","Columbia, Mo.","1 p.m.","SECN","","SEC"],
+["2027-02-10","Oklahoma","A","Norman, Okla.","7 p.m.","ESPN2/U","","SEC"],
+["2027-02-13","Kentucky","H","Food City Center","4 p.m.","ESPN","","SEC"],
+["2027-02-17","Ole Miss","A","Oxford, Miss.","7 p.m.","ESPN2/U","","SEC"],
+["2027-02-20","Alabama","H","Food City Center","2 p.m.","ESPN/2","","SEC"],
+["2027-02-23","South Carolina","H","Food City Center","7 p.m.","SECN","","SEC"],
+["2027-02-27","Texas","A","Austin, Texas","6 or 6:30 p.m.","ESPN/2","","SEC"],
+["2027-03-02","Mississippi State","H","Food City Center","6 p.m.","SECN","","SEC"],
+["2027-03-06","Vanderbilt","A","Nashville, Tenn.","2 p.m.","ESPN/U","","SEC"]
+];
 
 /* ---------- WOMEN'S BASKETBALL ---------- */
 // num, name, pos, class, height, hometown, high school, previous schools  (UT lists no weights)
@@ -389,14 +470,15 @@ const WBB_RAW = [
 [35,"Kennedy Fauntleroy","G","5th","5-7","Upper Marlboro, Md.","New Hope Academy","Georgetown/Oklahoma St./Arizona St./East Carolina"],
 [44,"Fatmata Janneh","F","Sr.","6-2","London, England","Barking Abbey Sixth Form","St. Peter's/Texas A&M"]
 ];
-// No starters announced. Groups by role, ordered by expected minutes (projection).
+// Groups by role. WBB_STARTERS = the five who started the Oct. 17 open scrimmage; the rest ordered by expected minutes (projection).
 const WBB_DEPTH = [
 ["Point guard","Point guard",["Jada Eads","Kennedy Fauntleroy","Shaelyn Steele"]],
-["Guard","Guard / wing",["Kaylene Smikle","Naomi White","Harissoum Coulibaly","Rylie Theuerkauf","Irene Oboavwoduo"]],
-["Forward","Forward / post",["Fatmata Janneh","Aaliyah Moore","Zhen Craft","Riley Makalusky","Harper Peterson","Gabby Minus"]]
+["Guard","Guard / wing",["Kaylene Smikle","Naomi White","Rylie Theuerkauf","Harissoum Coulibaly","Irene Oboavwoduo"]],
+["Forward","Forward / post",["Zhen Craft","Fatmata Janneh","Aaliyah Moore","Riley Makalusky","Harper Peterson","Gabby Minus"]]
 ];
+const WBB_STARTERS = ["Jada Eads","Kaylene Smikle","Naomi White","Rylie Theuerkauf","Zhen Craft"];
 const WBB_NOTE = {
-"Kaylene Smikle":"17.9 ppg as a junior at Maryland",
+"Kaylene Smikle":"17.9 ppg as a junior at Maryland; 30 points in the Oct. 17 scrimmage",
 "Naomi White":"20.8 ppg, led all D-I freshmen at Northern Arizona",
 "Fatmata Janneh":"11.4 ppg, 9.7 rpg at Texas A&M",
 "Harissoum Coulibaly":"Led Auburn at 10.4 ppg",
@@ -413,9 +495,46 @@ const WBB_NOTE = {
 "Avery Mills":"42.7% from three at Liberty"
 };
 const WBB_STATUS = {
-"Avery Mills":{tag:"Likely out for season", note:"ACL and meniscus surgery in July; unlikely to be cleared this season", spot:"Guard"}
+"Avery Mills":{tag:"Likely out for season", note:"ACL and meniscus surgery in July; unlikely to be cleared this season", spot:"Guard"},
+"Fatmata Janneh":{tag:"Day to day", note:"Tweaked left ankle in practice Oct. 16 and wore a walking boot; not considered long-term", spot:null}
 };
-const WBB_UPDATED = {roster:"Oct. 15, 2026", depth:"Oct. 15, 2026 (preseason)"};
+const WBB_UPDATED = {roster:"Oct. 27, 2026", depth:"Oct. 27, 2026 (after Oct. 17 scrimmage)"};
+
+const WBB_SCHED = [
+["2026-10-27","Florida A&M","H","Food City Center","6:30 p.m.","SECN+","","Exhibition"],
+["2026-11-02","Duquesne","H","Food City Center","6:30 p.m.","SECN+","",""],
+["2026-11-05","Coppin State","A","Baltimore, Md.","7 p.m.","MEAC Network","",""],
+["2026-11-10","New Haven","H","Food City Center","6:30 p.m.","SECN+","",""],
+["2026-11-12","Middle Tennessee","H","Food City Center","6:30 p.m.","SECN+","",""],
+["2026-11-17","Belmont","A","Nashville, Tenn.","7:30 p.m.","ESPN+","",""],
+["2026-11-19","Radford","H","Food City Center","7 p.m.","SECN","",""],
+["2026-11-22","UCLA","H","Food City Center","5:30 p.m.","ESPN","",""],
+["2026-11-27","Florida Gulf Coast","A","Fort Myers, Fla.","6:30 p.m.","BDG Live","","Coconut Hoops"],
+["2026-11-29","Creighton or Houston","N","Fort Myers, Fla.","4 or 6:30 p.m.","BDG Live","","Coconut Hoops"],
+["2026-12-03","Virginia Tech","A","Blacksburg, Va.","9 p.m.","ESPN2","","SEC/ACC Challenge"],
+["2026-12-06","Georgia State","H","Food City Center","2 p.m.","SECN+","",""],
+["2026-12-08","North Carolina Central","H","Food City Center","7 p.m.","SECN","",""],
+["2026-12-12","UConn","A","Hartford, Conn.","2:30 p.m.","FOX","",""],
+["2026-12-15","Alabama A&M","H","Food City Center","7 p.m.","SECN","",""],
+["2026-12-18","Baylor","N","Bridgestone Arena, Nashville","6 p.m.","ESPN2","",""],
+["2026-12-21","Morehead State","H","Food City Center","2 p.m.","SECN+","",""],
+["2026-12-31","Texas A&M","A","College Station, Texas","3 p.m.","SECN+","","SEC"],
+["2027-01-03","Ole Miss","H","Food City Center","5 p.m.","ESPN","","SEC"],
+["2027-01-07","Texas","A","Austin, Texas","7 p.m.","ESPN2","","SEC"],
+["2027-01-10","Oklahoma","H","Food City Center","5 p.m.","ESPN","","SEC"],
+["2027-01-14","Georgia","H","Food City Center","6:30 p.m.","SECN+","","SEC"],
+["2027-01-18","Florida","A","Gainesville, Fla.","7 p.m.","SECN","","SEC"],
+["2027-01-21","Kentucky","A","Lexington, Ky.","8 p.m.","ESPNU","","SEC"],
+["2027-01-24","Alabama","H","Food City Center","1 p.m.","SECN","","SEC"],
+["2027-01-28","South Carolina","H","Food City Center","6:30 p.m.","SECN","","SEC"],
+["2027-02-04","Mississippi State","A","Starkville, Miss.","7:30 p.m.","SECN+","","SEC"],
+["2027-02-07","Vanderbilt","A","Nashville, Tenn.","1 or 4 p.m.","ESPN","","SEC"],
+["2027-02-11","Auburn","H","Food City Center","6:30 p.m.","SECN+","","SEC"],
+["2027-02-14","Missouri","A","Columbia, Mo.","2 p.m.","SECN","","SEC"],
+["2027-02-21","Kentucky","H","Food City Center","1 p.m.","SECN","","SEC"],
+["2027-02-25","LSU","H","Food City Center","6 p.m.","ESPN","","SEC"],
+["2027-02-28","Arkansas","A","Fayetteville, Ark.","3 p.m.","SECN+","","SEC"]
+];
 
 /* =====================================================================
    SPORT SETUP
@@ -479,14 +598,14 @@ const SPORTS = {
     rankDepth:["Starter","2nd team","3rd team","4th team","5th team"],
     noSpot:"No specific spot listed on the two-deep",
     depthNote:"Players out for the season have been removed from their spot; everyone below them moves up.",
-    updated:FB_UPDATED,
+    updated:FB_UPDATED, sched:FB_SCHED, conf:"SEC",
     footer:`<p><b>Roster updated:</b> ${FB_UPDATED.roster} &middot; <b>Depth chart updated:</b> ${FB_UPDATED.depth}</p>
       <p>Tap a player for hometown, high school, previous schools and where he lines up.
       Class: Fr. first year &middot; So. second &middot; Jr. third &middot; Sr. fourth &middot; 5th fifth.</p>
       <p>Players, numbers and hometowns come from the 2026 UT roster on utsports.com. Specific spots (corner vs. safety,
       guard vs. tackle) start from the Ourlads two-deep of Aug. 24, 2026, adjusted for season-ending injuries and
-      lineup changes. George MacIntyre is listed first at quarterback after starting the 24-17 win at Arkansas.
-      Injury tags follow the SEC availability report for Alabama released Oct. 14.
+      lineup changes. George MacIntyre has started the last three games and stays first at quarterback.
+      Tags reflect the South Carolina availability report and news through the Oct. 31 bye week; the Kentucky report comes out Nov. 4.
       The chart lists only the top few at each spot, so anyone deeper down shows just his position group.</p>`
   },
   mens:{
@@ -505,12 +624,12 @@ const SPORTS = {
     posOrder:BB_ORDER, hasWeight:true,
     depthRows:MBB_DEPTH,
     units:[["Projected lineup", ["Point guard","Shooting guard","Small forward","Power forward","Center"]]],
-    unitLede:"Expected starters for the Xavier exhibition on Oct. 15. Rick Barnes says about 10 players are close and the lineup could change every game. Order behind each starter is a projection.",
+    unitLede:"Starters from the Xavier exhibition. Tennessee lost both exhibitions (Xavier 86-70, at Duke 103-64), and Terrence Hill Jr. hurt his ankle at Duke. Barnes says about 10 players are close and the lineup could change every game. Order behind each starter is a projection.",
     rankDetail:["Projected starter","Backup","3rd","4th"],
     rankDepth:["Starter","Backup","3rd","4th"],
     noSpot:"Not in the projected rotation",
     depthNote:"",
-    updated:MBB_UPDATED,
+    updated:MBB_UPDATED, sched:MBB_SCHED, conf:"SEC",
     footer:`<p><b>Roster updated:</b> ${MBB_UPDATED.roster} &middot; <b>Depth chart updated:</b> ${MBB_UPDATED.depth}</p>
       <p>Tap a player for hometown, high school, previous schools and years at UT. Class: 5th and 6th are extra years of eligibility.</p>
       <p>Roster from utsports.com. Head coach Rick Barnes, 12th season. Assistants: Earl Grant, Bryan Lentz, Steve McClain,
@@ -532,12 +651,13 @@ const SPORTS = {
     posOrder:BB_ORDER, hasWeight:false,
     depthRows:WBB_DEPTH,
     units:[["Projected rotation", ["Point guard","Guard","Forward"]]],
-    unitLede:"Kim Caldwell has 15 new players and hasn't named starters. Groups are by role, roughly ordered by expected minutes. Her up-tempo system usually plays 10 or more.",
+    unitLede:"Starters are the five who opened the Oct. 17 open scrimmage, a 109-79 win over the men's scout team. Everyone else is grouped by role and roughly ordered by expected minutes. Caldwell's up-tempo system usually plays 10 or more.",
+    starters:WBB_STARTERS,
     rankDetail:["","","","","",""],
     rankDepth:["","","","","",""],
     noSpot:"Not in the projected rotation",
     depthNote:"",
-    updated:WBB_UPDATED,
+    updated:WBB_UPDATED, sched:WBB_SCHED, conf:"SEC",
     footer:`<p><b>Roster updated:</b> ${WBB_UPDATED.roster} &middot; <b>Depth chart updated:</b> ${WBB_UPDATED.depth}</p>
       <p>Tap a player for hometown, high school, previous schools and a quick note on her game. UT doesn't list weights for the Lady Vols.</p>
       <p>Roster from utsports.com. Head coach Kim Caldwell, 3rd season. Assistants: Bill Ferrara, Isoken Uzamere, Jenna Burdette,
@@ -659,17 +779,65 @@ function renderDepth(){
       const men = names.map((n,i) => {
         const p = byName[n];
         const note = p && p.note && sport !== "football" ? `<span class="dnote">${esc(p.note)}</span>` : "";
-        const showStarter = S.rankDepth[0] !== "" && i === 0;
+        const showStarter = S.starters ? S.starters.includes(n) : (S.rankDepth[0] !== "" && i === 0);
         return `<li${showStarter ? ' class="starter"' : ""}>
             <span class="dnum">${p ? p.num : ""}</span>
             <span class="dname">${esc(n)}${p ? flag(p.status) : ""}${note}</span>
-            <span class="drank">${S.rankDepth[i] || ""}</span>
+            <span class="drank">${S.starters ? (showStarter ? "Starter" : "") : (S.rankDepth[i] || "")}</span>
           </li>`;
       }).join("");
       return `<div class="spot"><h3>${esc(full || short)}</h3><ol>${men}</ol></div>`;
     }).join("");
     return `<section class="unit"><h2>${esc(unit)}</h2>${S.unitLede ? `<p class="lede">${esc(S.unitLede)}</p>` : ""}${blocks}</section>`;
   }).join("") + `<p class="asof">Depth chart as of ${esc(S.updated.depth)}. ${esc(S.depthNote)}</p>`;
+}
+
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function renderSched(){
+  const S = SPORTS[sport];
+  const today = new Date(); today.setHours(0,0,0,0);
+  const games = S.sched.map(g => {
+    const [y,m,d] = g[0].split("-").map(Number);
+    return {date:new Date(y,m-1,d), opp:g[1], ha:g[2], site:g[3], time:g[4], tv:g[5], res:g[6], tag:g[7]};
+  });
+  const counted = games.filter(g => g.res && g.tag !== "Exhibition");
+  const wins = counted.filter(g => g.res[0] === "W").length, losses = counted.length - wins;
+  const conf = counted.filter(g => g.tag === S.conf);
+  const cw = conf.filter(g => g.res[0] === "W").length;
+  const next = games.find(g => !g.res && g.ha && g.date >= today);
+  let head;
+  if (counted.length){
+    head = `<b>${wins}-${losses}</b><span>${conf.length ? cw + "-" + (conf.length - cw) + " " + S.conf + "<br>" : ""}${games.filter(g=>g.ha).length - games.filter(g=>g.res).length} games left</span>`;
+  } else {
+    const first = games.find(g => g.ha && g.tag !== "Exhibition");
+    head = `<b>0-0</b><span>Season opens ${DOW[first.date.getDay()]}, ${MONTHS[first.date.getMonth()].slice(0,3)}. ${first.date.getDate()} vs. ${esc(first.opp)}</span>`;
+  }
+  let html = `<div class="record">${head}</div>`, lastMonth = -1;
+  games.forEach(g => {
+    const mo = g.date.getMonth();
+    if (mo !== lastMonth){
+      if (lastMonth !== -1) html += "</ul>";
+      html += `<h3 class="month">${MONTHS[mo]}</h3><ul class="games">`;
+      lastMonth = mo;
+    }
+    const isNext = g === next;
+    const ha = g.ha === "H" ? "vs." : g.ha === "A" ? "at" : g.ha === "N" ? "vs." : "";
+    const meta = g.res ? [g.site] : [g.site, g.time, g.tv];
+    const tag = g.tag ? `<span class="gtag${g.tag === S.conf ? " conf" : ""}">${esc(g.tag)}</span>` : "";
+    const res = g.res
+      ? `<span class="gres ${g.res[0] === "W" ? "w" : "l"}">${g.res[0] === "W" ? "<i>W</i>" : "L"} ${esc(g.res.slice(2))}</span>`
+      : (isNext ? `<span class="nextlbl">Next</span>` : "");
+    html += `<li class="game${isNext ? " next" : ""}${g.ha ? "" : " bye"}">
+      <span class="gdate"><span class="gday">${g.date.getDate()}</span><span class="gdow">${DOW[g.date.getDay()]}</span></span>
+      <span><span class="gopp">${ha ? `<span class="ha">${ha}</span>` : ""}${esc(g.opp)}${tag}</span>
+        ${g.ha ? `<span class="gmeta">${meta.filter(Boolean).map(esc).join(" &middot; ")}${g.ha === "N" ? " (neutral)" : ""}</span>` : ""}</span>
+      ${res}
+    </li>`;
+  });
+  html += "</ul>";
+  html += `<p class="asof">All times Eastern. TBA times and TV are set later in the season. Schedule from utsports.com.</p>`;
+  $("sched").innerHTML = html;
 }
 
 function show(newSport, newView, push){
@@ -682,10 +850,11 @@ function show(newSport, newView, push){
   document.querySelectorAll(".sport").forEach(b => b.setAttribute("aria-selected", b.dataset.sport === sport));
   document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.view === view));
   document.body.classList.toggle("view-depth", view === "depth");
+  document.body.classList.toggle("view-schedule", view === "schedule");
   $("foot").innerHTML = S.footer;
-  buildChips(); buildSort(); render(); renderDepth();
+  buildChips(); buildSort(); render(); renderDepth(); renderSched();
   if (push){
-    try { history.replaceState(null, "", "#" + sport + (view === "depth" ? "/depth" : "")); } catch(e){}
+    try { history.replaceState(null, "", "#" + sport + (view === "roster" ? "" : "/" + view)); } catch(e){}
     try { localStorage.setItem("utRosterSport", sport); } catch(e){}
     window.scrollTo(0,0);
   }
@@ -701,7 +870,7 @@ clearEl.addEventListener("click", () => { qEl.value = ""; qEl.focus(); render();
   const h = (location.hash || "").replace("#","").split("/");
   let s = SPORTS[h[0]] ? h[0] : null;
   if (!s){ try { const saved = localStorage.getItem("utRosterSport"); if (SPORTS[saved]) s = saved; } catch(e){} }
-  show(s || "football", h[1] === "depth" ? "depth" : "roster", false);
+  show(s || "football", ["depth","schedule"].includes(h[1]) ? h[1] : "roster", false);
 })();
 </script>
 </body>
